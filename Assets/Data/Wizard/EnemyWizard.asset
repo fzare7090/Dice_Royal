@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: EnemyWizard
   m_EditorClassIdentifier: 
   hp: 2000
-  moveSpeed: 400
+  moveSpeed: 200
   attackDamage: 200
-  attackRange: 1000
-  attackCooldown: 1
-  attackSpeed: 100
+  attackRange: 500
+  attackCooldown: 0.6
+  attackSpeed: 150
   firePrefab: {fileID: 5181028282741182405, guid: 440d3d6d3bf7c1f45afd29400d0a0b5c, type: 3}

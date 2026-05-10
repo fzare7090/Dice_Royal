@@ -14,8 +14,15 @@ public class Unit : MonoBehaviour
     private List<Unit> enemyUnits;
     private Unit attackTarget;
 
+    private List<Vector3> pathPoints = new List<Vector3>();
+    int currentPoint = 0;
     private Vector3 minBoard = new Vector3(0, -1544, 0);
     private Vector3 maxBoard = new Vector3(0, 1544, 0);
+    private Vector3 minRightBridge = new Vector3(400, -200, 0);
+    private Vector3 maxRightBridge = new Vector3(400, 200, 0);
+    private Vector3 minLeftBridge = new Vector3(-400, -200, 0);
+    private Vector3 maxLeftBridge = new Vector3(-400, 200, 0);
+    private float midelBoardX = 0;
 
     private float currentHP;
 
@@ -41,15 +48,17 @@ public class Unit : MonoBehaviour
     public void SetData(UnitData newData)
     {
         data = newData;
-        InitializeUnit();
+        // InitializeUnit();
     }
 
     private void InitializeUnit()
     {
         currentHP = data.hp;
         UpdateHPText();
+        SetPath();
         currentState = UnitState.Moving;
         StartCoroutine(MoveUnit());
+
     }
     void UpdateHPText()
     {
@@ -96,24 +105,68 @@ public class Unit : MonoBehaviour
         }
     }
 
+
     private void MoveForward()
     {
-        Vector3 targetPos;
-        if (teamId == 1)
+        if (currentPoint >= pathPoints.Count)
         {
-            targetPos = maxBoard;
-        }
-        else
-        {
-            targetPos = minBoard;
+            return;
         }
 
         transform.localPosition = Vector3.MoveTowards(
             transform.localPosition,
-            targetPos,
+            pathPoints[currentPoint],
             data.moveSpeed * Time.deltaTime
         );
+        if (Vector3.Distance(transform.localPosition, pathPoints[currentPoint]) < 0.1f)
+        {
+            currentPoint++;
+        }
     }
+    private void SetPath()
+    {
+        pathPoints.Clear();
+        currentPoint = 0;
+        Vector3 targetPos1;
+        Vector3 targetPos2;
+        Vector3 targetPos3;
+        if (teamId == 1)
+        {
+            if (transform.localPosition.x > midelBoardX)
+            {
+                targetPos1 = minRightBridge;
+                targetPos2 = maxRightBridge;
+                targetPos3 = maxBoard;
+            }
+            else
+            {
+                targetPos1 = minLeftBridge;
+                targetPos2 = maxLeftBridge;
+                targetPos3 = maxBoard;
+            }
+
+        }
+        else
+        {
+            if (transform.localPosition.x > midelBoardX)
+            {
+                targetPos1 = maxRightBridge;
+                targetPos2 = minRightBridge;
+                targetPos3 = minBoard;
+            }
+            else
+            {
+                targetPos1 = maxLeftBridge;
+                targetPos2 = minLeftBridge;
+                targetPos3 = minBoard;
+            }
+        }
+        pathPoints.Add(targetPos1);
+        pathPoints.Add(targetPos2);
+        pathPoints.Add(targetPos3);
+
+    }
+
 
     private void CheckForEnemyInRange()
     {

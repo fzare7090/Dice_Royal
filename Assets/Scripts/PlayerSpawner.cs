@@ -22,6 +22,8 @@ public class PlayerSpawner : MonoBehaviour
     [Header("Spawn Parent")]
     [SerializeField] private Transform backGroundTransform;
 
+    [SerializeField] private Image drageCardP1;
+    [SerializeField] private Image drageCardP2;
     void Start()
     {
         buttonP1.onClick.AddListener(SpawnUnitForPlayer1);
@@ -38,7 +40,7 @@ public class PlayerSpawner : MonoBehaviour
 
     private void SpawnUnit(int teamId)
     {
-        GameObject spawnedUnit = Instantiate(unitPrefab, backGroundTransform);
+        GameObject spawnedUnit = Instantiate(unitPrefab, backGroundTransform.parent);
         Unit unit = spawnedUnit.GetComponent<Unit>();
         Image image = spawnedUnit.GetComponent<Image>();
 
@@ -46,15 +48,15 @@ public class PlayerSpawner : MonoBehaviour
 
         if (teamId == 1)
         {
-            spawnedUnit.transform.localPosition = unit.GetMinBoard();
+            spawnedUnit.transform.localPosition = drageCardP1.transform.localPosition;
             image.color = Color.green;
             unit.SetData(playerWizardData);
             team1Units.Add(unit);
             unit.SetEnemies(team2Units);
         }
         else
-        {
-            spawnedUnit.transform.localPosition = unit.GetMaxBoard();
+        {   
+            spawnedUnit.transform.localPosition = drageCardP2.transform.localPosition;
             image.color = Color.red;
             unit.SetData(enemyWizardData);
             team2Units.Add(unit);
