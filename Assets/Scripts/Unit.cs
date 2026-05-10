@@ -1,25 +1,64 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
+using TMPro;
 
 public class Unit : MonoBehaviour
 {
-    
     [SerializeField] private int teamId;
-    [SerializeField] private float hp ;
-    [SerializeField] private float moveSpeed ;
-    [SerializeField] private float attackSpeed ;
-    [SerializeField] private float attackRange ;
-    [SerializeField] private float attackDamage ;
-    [SerializeField] private float attackCooldown ;
-    [SerializeField] private GameObject firePrefab ;
-    private Vector3 minBoard = new Vector3(0,-1544,0);
-    private Vector3 maxBoard = new Vector3(0,1544,0);
-    
-    
+    [SerializeField] private UnitData data;
+    [SerializeField] private TMP_Text hpText;
+
+
+    private List<Unit> enemyUnits;
+    private Unit attackTarget;
+
+    private Vector3 minBoard = new Vector3(0, -1544, 0);
+    private Vector3 maxBoard = new Vector3(0, 1544, 0);
+
+    private float currentHP;
+
+    private enum UnitState
+    {
+        Moving,
+        Attacking
+    }
+
+    private UnitState currentState;
+
+
+    void Start()
+    {
+
+        if (data != null)
+        {
+            InitializeUnit();
+        }
+    }
+
+
+    public void SetData(UnitData newData)
+    {
+        data = newData;
+        InitializeUnit();
+    }
+
+    private void InitializeUnit()
+    {
+        currentHP = data.hp;
+        UpdateHPText();
+        currentState = UnitState.Moving;
+        StartCoroutine(MoveUnit());
+    }
+    void UpdateHPText()
+    {
+        hpText.text = currentHP.ToString();
+    }
+
     public int GetTeamId()
     {
-        return teamId ;
+        return teamId;
     }
     public void SetTeamId(int id)
     {
@@ -27,86 +66,141 @@ public class Unit : MonoBehaviour
     }
     public Vector3 GetMinBoard()
     {
-        return minBoard ;
+        return minBoard;
     }
     public Vector3 GetMaxBoard()
     {
-        return maxBoard ;
+        return maxBoard;
+    }
+    public void SetEnemies(List<Unit> enemies)
+    {
+        enemyUnits = enemies;
+    }
+    public float GetCurrentHP()
+    {
+        return currentHP;
     }
 
-    public IEnumerator MoveUnit()
+
+    private IEnumerator MoveUnit()
     {
-        
-        if(teamId == 1)
+        while (true)
         {
-            while (Vector3.Distance(transform.position , maxBoard) > 0.05f )
+            if (currentState == UnitState.Moving)
             {
-                transform.position = Vector3.MoveTowards(transform.position , maxBoard , moveSpeed * Time.deltaTime );
-                yield return null;
+                CheckForEnemyInRange();
+                if (currentState == UnitState.Moving)
+                    MoveForward();
             }
+            yield return null;
         }
-        if(teamId == 2)
-        {
-            while (Vector3.Distance(transform.position , minBoard) > 0.05f )
-            {
-                transform.position = Vector3.MoveTowards(transform.position , minBoard , moveSpeed * Time.deltaTime );
-                yield return null;
-            }
-        }
-        yield return null;
     }
-    
-    private Transform attackTarget ;
 
-    public IEnumerator AttackUnit(Transform target)
+    private void MoveForward()
     {
-        while (CheckAttackCondition(target))
+        Vector3 targetPos;
+        if (teamId == 1)
         {
-            GameObject spawnedFire = Instantiate(firePrefab, transform.position, Quaternion.identity, transform.parent);
+            targetPos = maxBoard;
+        }
+        else
+        {
+            targetPos = minBoard;
+        }
 
+        transform.localPosition = Vector3.MoveTowards(
+            transform.localPosition,
+            targetPos,
+            data.moveSpeed * Time.deltaTime
+        );
+    }
 
-            while (attackTarget != null && Vector3.Distance(spawnedFire.transform.position, attackTarget.position) <= attackRange)
+    private void CheckForEnemyInRange()
+    {
+        if (enemyUnits == null) return;
+
+        foreach (Unit enemy in enemyUnits)
+        {
+            if (enemy == null) continue;
+
+            float distance = Vector3.Distance(
+                transform.localPosition,
+                enemy.transform.localPosition
+            );
+
+            if (distance <= data.attackRange && attackTarget == null)
             {
-                spawnedFire.transform.position = Vector3.MoveTowards(spawnedFire.transform.position,
-                    attackTarget.position,
-                    attackSpeed * Time.deltaTime
+                attackTarget = enemy;
+                StartCoroutine(AttackUnit());
+                break;
+            }
+        }
+    }
+
+    private IEnumerator AttackUnit()
+    {
+        currentState = UnitState.Attacking;
+
+        while (attackTarget != null &&
+               Vector3.Distance(transform.localPosition, attackTarget.transform.localPosition) <= data.attackRange)
+        {
+            GameObject spawnedFire = Instantiate(
+            data.firePrefab,
+            transform.position,
+            Quaternion.identity,
+            transform
+            );
+            Image image = spawnedFire.transform.GetComponent<Image>();
+            if (teamId == 1)
+            {
+                image.color = Color.green;
+            }
+            else
+            {
+                image.color = Color.red;
+            }
+
+
+
+            while (attackTarget != null &&
+                    Vector3.Distance(spawnedFire.transform.position, attackTarget.transform.position) > 0.1f)
+            {
+
+                spawnedFire.transform.position = Vector3.MoveTowards(
+                    spawnedFire.transform.position,
+                    attackTarget.transform.position,
+                    data.attackSpeed * Time.deltaTime
                 );
                 yield return null;
             }
             Destroy(spawnedFire);
-            yield return new WaitForSeconds(attackCooldown);
-        }
-        // canAttack = false;
-    }
 
-
-    public bool CheckAttackCondition(Transform target)
-    {
-        
-            if (Vector3.Distance(transform.position, target.position) < attackRange)
+            if (attackTarget != null)
             {
-                attackTarget = target;
-                return true;
+                attackTarget.TakeDamage(data.attackDamage);
+                break;
             }
-        
+
+            yield return new WaitForSeconds(data.attackCooldown);
+        }
 
         attackTarget = null;
-        return false;
+        currentState = UnitState.Moving;
     }
 
+    public void TakeDamage(float damage)
+    {
+        currentHP -= damage;
+        UpdateHPText();
 
+        if (currentHP <= 0)
+        {
+            Die();
+        }
+    }
 
-    // public bool DamageUnit(Unit fire)
-    // {
-    //     if (Vector3.Distance(transform.position , fire.position) < 0.1f )
-    //     {
-    //         hp -= 100 ;
-    //     }
-    // }
-    
-
-
-    
-
-    
+    private void Die()
+    {
+        Destroy(gameObject);
+    }
 }

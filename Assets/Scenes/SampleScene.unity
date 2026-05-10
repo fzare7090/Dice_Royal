@@ -444,7 +444,7 @@ Canvas:
   m_GameObject: {fileID: 239161777}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 1
+  m_RenderMode: 0
   m_Camera: {fileID: 330585545}
   m_PlaneDistance: 10
   m_PixelPerfect: 0
@@ -819,6 +819,8 @@ MonoBehaviour:
   team1Units: []
   team2Units: []
   unitPrefab: {fileID: 1542100748673166741, guid: 677351ebad26d654ab7be1739ec4d7a5, type: 3}
+  playerWizardData: {fileID: 11400000, guid: 04a3ef066f7a940479e8a4b9dbd2dff4, type: 2}
+  enemyWizardData: {fileID: 11400000, guid: b44b8e56073aa244fbe2031a6491054c, type: 2}
   buttonP1: {fileID: 88069879}
   buttonP2: {fileID: 1805612353}
   backGroundTransform: {fileID: 1985845842}
