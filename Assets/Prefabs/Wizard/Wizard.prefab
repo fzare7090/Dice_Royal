@@ -92,7 +92,7 @@ MonoBehaviour:
   teamId: 0
   data: {fileID: 0}
   hpText: {fileID: 7999508281058293129}
-  towerManager: {fileID: 7109749910711221980, guid: 1f89ba2492ea40240a827b7676f7b5ca, type: 3}
+  castleManager: {fileID: 7109749910711221980, guid: 1f89ba2492ea40240a827b7676f7b5ca, type: 3}
 --- !u!1 &7225001018298560528
 GameObject:
   m_ObjectHideFlags: 0

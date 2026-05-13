@@ -18,4 +18,5 @@ MonoBehaviour:
   attackRange: 500
   attackCooldown: 0.5
   attackSpeed: 200
+  elexir: 60
   firePrefab: {fileID: 5181028282741182405, guid: 440d3d6d3bf7c1f45afd29400d0a0b5c, type: 3}

@@ -147,9 +147,8 @@ GameObject:
   - component: {fileID: 5947273740161056304}
   - component: {fileID: 6834850573839130545}
   - component: {fileID: 8591778753919385320}
-  - component: {fileID: 4652499860345729440}
   m_Layer: 5
-  m_Name: Tower
+  m_Name: Castle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -213,18 +212,3 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &4652499860345729440
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8145029713458358496}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1745341041460144a69dbe5897242e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamId: 0
-  data: {fileID: 0}
-  hpText: {fileID: 7742585374524846978}

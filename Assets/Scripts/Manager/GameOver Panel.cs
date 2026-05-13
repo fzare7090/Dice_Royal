@@ -9,7 +9,7 @@ public class GameOverPanel : MonoBehaviour
 
     public void SetGameOverText(int winnerIndex)
     {
-        gameOverText.SetText($"Winner is : \n Player {winnerIndex+1}");
+        gameOverText.SetText($"Winner is : \n Player {winnerIndex + 1}");
     }
 }
 

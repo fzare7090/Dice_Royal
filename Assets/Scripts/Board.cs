@@ -11,13 +11,19 @@ public class Board : MonoBehaviour
         return kingCastle;
     }
 
-    public int GetPrinceCastleCount()
-    {
-        return princeCastles.Count;
-    }
-
     public List<PrinceCastleConfig> GetPrinceCastles()
     {
         return princeCastles;
+    }
+
+
+    public void SetKingCastleConfig(KingCastleConfig newKingCastle)
+    {
+        kingCastle = newKingCastle;
+    }
+
+    public void SetPrinceCastleConfig(List<PrinceCastleConfig> newPrinceCastles)
+    {
+        princeCastles = newPrinceCastles;
     }
 }

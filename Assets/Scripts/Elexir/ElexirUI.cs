@@ -3,8 +3,14 @@ using UnityEngine.UI;
 
 public class ElexirUI : MonoBehaviour
 {
-    [SerializeField] private Slider elexirSlider;
     [SerializeField] private Elexir elexir;
+
+    private Slider elexirSlider;
+
+    void Awake()
+    {
+        elexirSlider = GetComponent<Slider>();
+    }
 
     void Update()
     {
@@ -14,4 +20,3 @@ public class ElexirUI : MonoBehaviour
         }
     }
 }
-

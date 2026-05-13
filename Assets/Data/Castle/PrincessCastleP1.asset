@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 07e55af022ab04741947063a99a830d3, type: 3}
-  m_Name: KingTowerP2
+  m_Name: PrincessCastleP1
   m_EditorClassIdentifier: 
-  hp: 7000
-  attackDamage: 20
+  hp: 6000
+  attackDamage: 15
   attackRange: 600
   attackCooldown: 0.5
   attackSpeed: 500

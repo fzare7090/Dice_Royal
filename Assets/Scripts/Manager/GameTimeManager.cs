@@ -45,7 +45,7 @@ public class GameTimeManager : MonoBehaviour
         {
             isTimerRunning = true;
             StartCoroutine(RunTimer());
-        } 
+        }
     }
 
     public void StopTimer()
@@ -57,7 +57,7 @@ public class GameTimeManager : MonoBehaviour
 
     public void ToStandardForm(int TotalSec)
     {
-        int minutes= 0;
+        int minutes = 0;
         int seconds = 0;
 
         minutes = TotalSec / 60;
@@ -66,22 +66,6 @@ public class GameTimeManager : MonoBehaviour
         timeBox.SetText($"{minutes} : {seconds}");
 
     }
-    /*
-    private IEnumerator RunTimerCoroutine()
-    {
-        while (isTimerRunning)
-        {
-            yield return new WaitForSeconds(1f);
-            currentSecond++;
-            ToStandardForm(currentSecond);
-        }
-    }
 
-
-    public void TimeNotice()
-    {
-
-    }
-    */
 
 }

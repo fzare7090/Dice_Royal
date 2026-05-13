@@ -9,7 +9,7 @@ public class Unit : MonoBehaviour
     [SerializeField] private int teamId;
     [SerializeField] private UnitData data;
     [SerializeField] private TMP_Text hpText;
-    [SerializeField] private GameObject towerManager;
+    [SerializeField] private GameObject castleManager;
 
 
     private List<Transform> enemies;
@@ -58,10 +58,7 @@ public class Unit : MonoBehaviour
         StartCoroutine(MoveUnit());
 
     }
-    public int GetElexir()
-    {
-        return data.elexir;
-    }
+
     void UpdateHPText()
     {
         hpText.text = currentHP.ToString();
@@ -126,26 +123,32 @@ public class Unit : MonoBehaviour
     {
         pathPoints.Clear();
         currentPoint = 0;
-        TowersPosition towerPosition = towerManager.GetComponent<TowersPosition>();
+
+
+        CastlesPosition castlePosition = castleManager.GetComponent<CastlesPosition>();
+
         Vector3 targetPos1;
         Vector3 targetPos2;
         Vector3 targetPos3;
         Vector3 targetPos4;
+
         if (teamId == 1)
         {
             if (transform.localPosition.x > midelBoardX)
             {
                 targetPos1 = minRightBridge;
                 targetPos2 = maxRightBridge;
-                targetPos3 = towerPosition.GetRightPrincessTowerP2();
-                targetPos4 = towerPosition.GetKingTowerP2();
+
+                targetPos3 = castlePosition.GetRightPrincessCastleP2();
+                targetPos4 = castlePosition.GetKingCastleP2();
             }
             else
             {
                 targetPos1 = minLeftBridge;
                 targetPos2 = maxLeftBridge;
-                targetPos3 = towerPosition.GetLeftPrincessTowerP2();
-                targetPos4 = towerPosition.GetKingTowerP2();
+
+                targetPos3 = castlePosition.GetLeftPrincessCastleP2();
+                targetPos4 = castlePosition.GetKingCastleP2();
             }
         }
         else
@@ -154,22 +157,26 @@ public class Unit : MonoBehaviour
             {
                 targetPos1 = maxRightBridge;
                 targetPos2 = minRightBridge;
-                targetPos3 = towerPosition.GetRightPrincessTowerP1();
-                targetPos4 = towerPosition.GetKingTowerP1();
+
+                targetPos3 = castlePosition.GetRightPrincessCastleP1();
+                targetPos4 = castlePosition.GetKingCastleP1();
             }
             else
             {
                 targetPos1 = maxLeftBridge;
                 targetPos2 = minLeftBridge;
-                targetPos3 = towerPosition.GetLeftPrincessTowerP1();
-                targetPos4 = towerPosition.GetKingTowerP1();
+
+                targetPos3 = castlePosition.GetLeftPrincessCastleP1();
+                targetPos4 = castlePosition.GetKingCastleP1();
             }
         }
+
         pathPoints.Add(targetPos1);
         pathPoints.Add(targetPos2);
         pathPoints.Add(targetPos3);
         pathPoints.Add(targetPos4);
     }
+
 
 
     private void CheckForEnemyInRange()
@@ -193,6 +200,8 @@ public class Unit : MonoBehaviour
         }
     }
 
+
+
     private IEnumerator AttackUnit()
     {
         currentState = UnitState.Attacking;
@@ -201,11 +210,12 @@ public class Unit : MonoBehaviour
                Vector3.Distance(transform.localPosition, attackTarget.localPosition) <= data.attackRange)
         {
             GameObject spawnedFire = Instantiate(
-            data.firePrefab,
-            transform.position,
-            Quaternion.identity,
-            transform
+                data.firePrefab,
+                transform.position,
+                Quaternion.identity,
+                transform
             );
+
             Image image = spawnedFire.transform.GetComponent<Image>();
             if (teamId == 1)
             {
@@ -215,8 +225,9 @@ public class Unit : MonoBehaviour
             {
                 image.color = Color.red;
             }
+
             while (attackTarget != null &&
-                    Vector3.Distance(spawnedFire.transform.position, attackTarget.position) > 0.1f)
+                   Vector3.Distance(spawnedFire.transform.position, attackTarget.position) > 0.1f)
             {
                 spawnedFire.transform.position = Vector3.MoveTowards(
                     spawnedFire.transform.position,
@@ -225,20 +236,24 @@ public class Unit : MonoBehaviour
                 );
                 yield return null;
             }
+
             Destroy(spawnedFire);
+
             if (attackTarget != null)
             {
                 if (attackTarget.TryGetComponent<Unit>(out Unit targetUnit))
                 {
                     targetUnit.TakeDamage(data.attackDamage);
                 }
-                else if (attackTarget.TryGetComponent<Tower>(out Tower targetTower))
+                else if (attackTarget.TryGetComponent<Castle>(out Castle targetCastle)) // تغییر از Tower به Castle
                 {
-                    targetTower.TakeDamage(data.attackDamage);
+                    targetCastle.TakeDamage(data.attackDamage);
                 }
             }
+
             yield return new WaitForSeconds(data.attackCooldown);
         }
+
         attackTarget = null;
         currentState = UnitState.Moving;
     }

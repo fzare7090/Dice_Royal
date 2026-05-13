@@ -16,7 +16,14 @@ public class Elexir : MonoBehaviour
     void Start()
     {
         currentElexir = maxElexir;
+
     }
+    void Update()
+    {
+        elexirText.text = currentElexir.ToString();
+    }
+
+
 
     public int GetElexir()
     {
@@ -35,12 +42,12 @@ public class Elexir : MonoBehaviour
     public void UsingElexir(int AmountRequired)
     {
         if (currentElexir - AmountRequired >= 0)
-        currentElexir -= AmountRequired;
+            currentElexir -= AmountRequired;
     }
 
-     public void GettingElexir(int addingValue)
+    public void GettingElexir(int addingValue)
     {
-        
+
         if (currentElexir < maxElexir)
         {
             currentElexir += addingValue;
@@ -51,9 +58,9 @@ public class Elexir : MonoBehaviour
 
     public void RunningOutElexirNotice()
     {
-       
-            //notice 
-      
+
+        //notice 
+
     }
 
 

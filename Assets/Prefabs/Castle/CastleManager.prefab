@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4899645978621505425}
   - component: {fileID: 6144731015008355431}
   m_Layer: 0
-  m_Name: TowerManager
+  m_Name: CastleManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
