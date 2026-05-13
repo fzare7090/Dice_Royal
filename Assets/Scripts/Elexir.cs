@@ -49,7 +49,12 @@ public class Elexir : MonoBehaviour
 
     }
 
-   
+    public void RunningOutElexirNotice()
+    {
+       
+            //notice 
+      
+    }
 
 
 }
