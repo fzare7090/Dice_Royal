@@ -9,6 +9,7 @@ public class UnitData : ScriptableObject
     public float attackRange;
     public float attackCooldown;
     public float attackSpeed;
+    public int elexir;
 
     public GameObject firePrefab;
 }

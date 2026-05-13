@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0163222bf654add449420972d2657bd6, type: 3}
   m_Name: Wizard
   m_EditorClassIdentifier: 
-  hp: 1000
-  moveSpeed: 300
-  attackDamage: 100
+  hp: 100
+  moveSpeed: 100
+  attackDamage: 30
   attackRange: 500
-  attackCooldown: 0.5
+  attackCooldown: 0.6
   attackSpeed: 200
   firePrefab: {fileID: 5181028282741182405, guid: 440d3d6d3bf7c1f45afd29400d0a0b5c, type: 3}

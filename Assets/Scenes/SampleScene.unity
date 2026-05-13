@@ -993,6 +993,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 639894615}
   m_CullTransparentMesh: 1
+--- !u!1 &644618620 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7109749910711221980, guid: 1f89ba2492ea40240a827b7676f7b5ca, type: 3}
+  m_PrefabInstance: {fileID: 7271447378602423846}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -1074,13 +1079,19 @@ MonoBehaviour:
   team1Units: []
   team2Units: []
   unitPrefab: {fileID: 1542100748673166741, guid: 677351ebad26d654ab7be1739ec4d7a5, type: 3}
+  towerPrefab: {fileID: 8145029713458358496, guid: 713a74409d6a14849af3850cb9a016e5, type: 3}
   playerWizardData: {fileID: 11400000, guid: 04a3ef066f7a940479e8a4b9dbd2dff4, type: 2}
   enemyWizardData: {fileID: 11400000, guid: b44b8e56073aa244fbe2031a6491054c, type: 2}
+  kingTowerP1: {fileID: 11400000, guid: c7ec6be4228823e41b9045a44f7c93e3, type: 2}
+  princessTowerP1: {fileID: 11400000, guid: 5f73ad120fa67e9408132e031de6daa5, type: 2}
+  kingTowerP2: {fileID: 11400000, guid: 223d91fc302bbf44b9dc65cb5194a97e, type: 2}
+  princessTowerP2: {fileID: 11400000, guid: 7752275f06e5893419c6a512c5bb9290, type: 2}
   buttonP1: {fileID: 88069879}
   buttonP2: {fileID: 1805612353}
   backGroundTransform: {fileID: 1985845842}
   drageCardP1: {fileID: 639894618}
   drageCardP2: {fileID: 233412616}
+  towerManager: {fileID: 644618620}
 --- !u!4 &882726602
 Transform:
   m_ObjectHideFlags: 0
@@ -1507,37 +1518,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1985845841}
   m_CullTransparentMesh: 1
---- !u!1 &2085652056
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2085652058}
-  m_Layer: 0
-  m_Name: GameManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2085652058
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2085652056}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 735.23755, y: 1567.4602, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2125764096
 GameObject:
   m_ObjectHideFlags: 0
@@ -1613,6 +1593,63 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2125764096}
   m_CullTransparentMesh: 1
+--- !u!1001 &7271447378602423846
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4899645978621505425, guid: 1f89ba2492ea40240a827b7676f7b5ca, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 769.5019
+      objectReference: {fileID: 0}
+    - target: {fileID: 4899645978621505425, guid: 1f89ba2492ea40240a827b7676f7b5ca, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1434.2327
+      objectReference: {fileID: 0}
+    - target: {fileID: 4899645978621505425, guid: 1f89ba2492ea40240a827b7676f7b5ca, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 51.35144
+      objectReference: {fileID: 0}
+    - target: {fileID: 4899645978621505425, guid: 1f89ba2492ea40240a827b7676f7b5ca, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4899645978621505425, guid: 1f89ba2492ea40240a827b7676f7b5ca, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4899645978621505425, guid: 1f89ba2492ea40240a827b7676f7b5ca, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4899645978621505425, guid: 1f89ba2492ea40240a827b7676f7b5ca, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4899645978621505425, guid: 1f89ba2492ea40240a827b7676f7b5ca, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4899645978621505425, guid: 1f89ba2492ea40240a827b7676f7b5ca, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4899645978621505425, guid: 1f89ba2492ea40240a827b7676f7b5ca, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7109749910711221980, guid: 1f89ba2492ea40240a827b7676f7b5ca, type: 3}
+      propertyPath: m_Name
+      value: TowerManager
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1f89ba2492ea40240a827b7676f7b5ca, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -1622,5 +1659,5 @@ SceneRoots:
   - {fileID: 832575519}
   - {fileID: 239161781}
   - {fileID: 1526722706}
-  - {fileID: 2085652058}
   - {fileID: 882726602}
+  - {fileID: 7271447378602423846}

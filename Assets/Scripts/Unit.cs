@@ -9,10 +9,11 @@ public class Unit : MonoBehaviour
     [SerializeField] private int teamId;
     [SerializeField] private UnitData data;
     [SerializeField] private TMP_Text hpText;
+    [SerializeField] private GameObject towerManager;
 
 
-    private List<Unit> enemyUnits;
-    private Unit attackTarget;
+    private List<Transform> enemies;
+    private Transform attackTarget;
 
     private List<Vector3> pathPoints = new List<Vector3>();
     int currentPoint = 0;
@@ -34,21 +35,18 @@ public class Unit : MonoBehaviour
 
     private UnitState currentState;
 
-
     void Start()
     {
-
         if (data != null)
         {
             InitializeUnit();
         }
     }
 
-
     public void SetData(UnitData newData)
     {
         data = newData;
-        // InitializeUnit();
+
     }
 
     private void InitializeUnit()
@@ -59,6 +57,10 @@ public class Unit : MonoBehaviour
         currentState = UnitState.Moving;
         StartCoroutine(MoveUnit());
 
+    }
+    public int GetElexir()
+    {
+        return data.elexir;
     }
     void UpdateHPText()
     {
@@ -81,15 +83,14 @@ public class Unit : MonoBehaviour
     {
         return maxBoard;
     }
-    public void SetEnemies(List<Unit> enemies)
+    public void SetEnemies(List<Transform> newEnemies)
     {
-        enemyUnits = enemies;
+        enemies = newEnemies;
     }
     public float GetCurrentHP()
     {
         return currentHP;
     }
-
 
     private IEnumerator MoveUnit()
     {
@@ -105,14 +106,12 @@ public class Unit : MonoBehaviour
         }
     }
 
-
     private void MoveForward()
     {
         if (currentPoint >= pathPoints.Count)
         {
             return;
         }
-
         transform.localPosition = Vector3.MoveTowards(
             transform.localPosition,
             pathPoints[currentPoint],
@@ -127,24 +126,27 @@ public class Unit : MonoBehaviour
     {
         pathPoints.Clear();
         currentPoint = 0;
+        TowersPosition towerPosition = towerManager.GetComponent<TowersPosition>();
         Vector3 targetPos1;
         Vector3 targetPos2;
         Vector3 targetPos3;
+        Vector3 targetPos4;
         if (teamId == 1)
         {
             if (transform.localPosition.x > midelBoardX)
             {
                 targetPos1 = minRightBridge;
                 targetPos2 = maxRightBridge;
-                targetPos3 = maxBoard;
+                targetPos3 = towerPosition.GetRightPrincessTowerP2();
+                targetPos4 = towerPosition.GetKingTowerP2();
             }
             else
             {
                 targetPos1 = minLeftBridge;
                 targetPos2 = maxLeftBridge;
-                targetPos3 = maxBoard;
+                targetPos3 = towerPosition.GetLeftPrincessTowerP2();
+                targetPos4 = towerPosition.GetKingTowerP2();
             }
-
         }
         else
         {
@@ -152,35 +154,36 @@ public class Unit : MonoBehaviour
             {
                 targetPos1 = maxRightBridge;
                 targetPos2 = minRightBridge;
-                targetPos3 = minBoard;
+                targetPos3 = towerPosition.GetRightPrincessTowerP1();
+                targetPos4 = towerPosition.GetKingTowerP1();
             }
             else
             {
                 targetPos1 = maxLeftBridge;
                 targetPos2 = minLeftBridge;
-                targetPos3 = minBoard;
+                targetPos3 = towerPosition.GetLeftPrincessTowerP1();
+                targetPos4 = towerPosition.GetKingTowerP1();
             }
         }
         pathPoints.Add(targetPos1);
         pathPoints.Add(targetPos2);
         pathPoints.Add(targetPos3);
-
+        pathPoints.Add(targetPos4);
     }
 
 
     private void CheckForEnemyInRange()
     {
-        if (enemyUnits == null) return;
+        if (enemies == null) return;
 
-        foreach (Unit enemy in enemyUnits)
+        foreach (Transform enemy in enemies)
         {
             if (enemy == null) continue;
 
             float distance = Vector3.Distance(
                 transform.localPosition,
-                enemy.transform.localPosition
+                enemy.localPosition
             );
-
             if (distance <= data.attackRange && attackTarget == null)
             {
                 attackTarget = enemy;
@@ -195,7 +198,7 @@ public class Unit : MonoBehaviour
         currentState = UnitState.Attacking;
 
         while (attackTarget != null &&
-               Vector3.Distance(transform.localPosition, attackTarget.transform.localPosition) <= data.attackRange)
+               Vector3.Distance(transform.localPosition, attackTarget.localPosition) <= data.attackRange)
         {
             GameObject spawnedFire = Instantiate(
             data.firePrefab,
@@ -212,31 +215,30 @@ public class Unit : MonoBehaviour
             {
                 image.color = Color.red;
             }
-
-
-
             while (attackTarget != null &&
-                    Vector3.Distance(spawnedFire.transform.position, attackTarget.transform.position) > 0.1f)
+                    Vector3.Distance(spawnedFire.transform.position, attackTarget.position) > 0.1f)
             {
-
                 spawnedFire.transform.position = Vector3.MoveTowards(
                     spawnedFire.transform.position,
-                    attackTarget.transform.position,
+                    attackTarget.position,
                     data.attackSpeed * Time.deltaTime
                 );
                 yield return null;
             }
             Destroy(spawnedFire);
-
             if (attackTarget != null)
             {
-                attackTarget.TakeDamage(data.attackDamage);
-                break;
+                if (attackTarget.TryGetComponent<Unit>(out Unit targetUnit))
+                {
+                    targetUnit.TakeDamage(data.attackDamage);
+                }
+                else if (attackTarget.TryGetComponent<Tower>(out Tower targetTower))
+                {
+                    targetTower.TakeDamage(data.attackDamage);
+                }
             }
-
             yield return new WaitForSeconds(data.attackCooldown);
         }
-
         attackTarget = null;
         currentState = UnitState.Moving;
     }
@@ -245,7 +247,6 @@ public class Unit : MonoBehaviour
     {
         currentHP -= damage;
         UpdateHPText();
-
         if (currentHP <= 0)
         {
             Die();
