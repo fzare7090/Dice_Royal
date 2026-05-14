@@ -159,7 +159,7 @@ public class Castle : MonoBehaviour
             }
 
             while (attackTarget != null &&
-                   Vector3.Distance(spawnedProjectile.transform.localPosition, attackTarget.localPosition) > 0.1f)
+                   Vector3.Distance(spawnedProjectile.transform.position, attackTarget.position) > 0.1f)
             {
                 spawnedProjectile.transform.position = Vector3.MoveTowards(
                     spawnedProjectile.transform.position,

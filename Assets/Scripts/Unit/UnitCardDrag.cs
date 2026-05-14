@@ -29,5 +29,8 @@ public class UnitCardDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
     public void OnEndDrag(PointerEventData eventData)
     {
         dragEndPos = eventData.position;
+
+        //Vector3 worldPos = Camera.main.ScreenToWorldPoint(dragEndPos);
+
     }
 }

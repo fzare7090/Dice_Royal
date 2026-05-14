@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: EnemyWizard
   m_EditorClassIdentifier: 
   hp: 100
-  moveSpeed: 100
+  moveSpeed: 500
   attackDamage: 30
   attackRange: 500
   attackCooldown: 0.5

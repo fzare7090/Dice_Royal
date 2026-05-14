@@ -26,4 +26,8 @@ public class Board : MonoBehaviour
     {
         princeCastles = newPrinceCastles;
     }
+    public int GetPrinceCastleCount()
+    {
+        return princeCastles.Count;
+    }
 }

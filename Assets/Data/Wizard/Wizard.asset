@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Wizard
   m_EditorClassIdentifier: 
   hp: 100
-  moveSpeed: 100
-  attackDamage: 30
+  moveSpeed: 500
+  attackDamage: 1000
   attackRange: 500
   attackCooldown: 0.6
   attackSpeed: 200

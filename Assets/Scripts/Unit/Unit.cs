@@ -225,7 +225,6 @@ public class Unit : MonoBehaviour
             {
                 image.color = Color.red;
             }
-
             while (attackTarget != null &&
                    Vector3.Distance(spawnedFire.transform.position, attackTarget.position) > 0.1f)
             {

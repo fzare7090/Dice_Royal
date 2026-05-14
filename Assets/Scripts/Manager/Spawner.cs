@@ -10,13 +10,13 @@ public class Spawner : MonoBehaviour
 
     [Header("Prefabs")]
     [SerializeField] private GameObject unitPrefab;
-    [SerializeField] private GameObject castlePrefab; // تغییر نام از towerPrefab به castlePrefab
+    [SerializeField] private GameObject castlePrefab; 
 
     [Header("Unit Data")]
     [SerializeField] private UnitData playerWizardData;
     [SerializeField] private UnitData enemyWizardData;
 
-    [Header("Board")]// تغییر از Tower Data به Castle Data
+    [Header("Board")]
     [SerializeField] private Image player1Board;
     [SerializeField] private Image player2Board;
 
@@ -39,7 +39,7 @@ public class Spawner : MonoBehaviour
     [SerializeField] private Image drageCardP2;
 
     [Header("Castle Manager")]
-    [SerializeField] private GameObject castleManager; // تغییر نام از towerManager به castleManager
+    [SerializeField] private GameObject castleManager; 
 
     private Player player1;
     private Player player2;
@@ -54,8 +54,8 @@ public class Spawner : MonoBehaviour
     {
         buttonP1.onClick.AddListener(SpawnUnitForPlayer1);
         buttonP2.onClick.AddListener(SpawnUnitForPlayer2);
-        SpawnCastle(1); // تغییر نام متد
-        SpawnCastle(2); // تغییر نام متد
+        SpawnCastle(1);
+        SpawnCastle(2);
         SetPlayerTeamId();
     }
 
@@ -208,7 +208,7 @@ public class Spawner : MonoBehaviour
 
             leftPrincessCastleScript.SetData(princessCastleP1);
 
-            // اضافه شدن به Enemy List تیم مقابل
+            
             team2Enemies.Add(kingCastleScript.transform);
 
             team2Enemies.Add(rightPrincessCastleScript.transform);
@@ -234,7 +234,7 @@ public class Spawner : MonoBehaviour
 
             leftPrincessCastleScript.SetData(princessCastleP2);
 
-            // اضافه شدن به Enemy List تیم مقابل
+            
             team1Enemies.Add(kingCastleScript.transform);
 
             team1Enemies.Add(rightPrincessCastleScript.transform);
@@ -242,7 +242,7 @@ public class Spawner : MonoBehaviour
             team1Enemies.Add(leftPrincessCastleScript.transform);
         }
 
-        // گرفتن Board موجود
+        
         Board board;
 
         if (teamId == 1)
@@ -254,7 +254,7 @@ public class Spawner : MonoBehaviour
             board = player2Board.GetComponent<Board>();
         }
 
-        // ثبت Castle ها داخل Board
+       
         board.SetKingCastleConfig(kingCastleScript);
 
         List<PrinceCastleConfig> princeCastles =

@@ -4,68 +4,52 @@ using UnityEngine;
 
 public class GameTimeManager : MonoBehaviour
 {
-
     [SerializeField] private TMP_Text timeBox;
+    [SerializeField] private float matchDuration = 90f;
 
-
-    private int currentSecond = 0;
-
+    private float currentTime = 0f;
     private bool isTimerRunning = false;
+    private bool isGameOver = false;
 
-    private void Start()
+    public bool IsGameOver => isGameOver;
+
+    private void Update()
     {
-        ToStandardForm(GetCurrnetSecond());
-    }
+        if (!isTimerRunning || isGameOver) return;
 
-    private int GetCurrnetSecond()
-    {
-        return currentSecond;
-    }
+        currentTime += Time.deltaTime;
+        ToStandardForm(Mathf.FloorToInt(currentTime));
 
-    public bool GetRunningTimeBool()
-    {
-        return isTimerRunning;
-    }
-
-
-    public IEnumerator RunTimer()
-    {
-        while (isTimerRunning == true)
+        if (currentTime >= matchDuration)
         {
-
-            yield return new WaitForSeconds(1f);
-            currentSecond++;
-            ToStandardForm(currentSecond);
+            StopTimer();
+            Debug.Log("Time's up! Match duration reached: " + matchDuration);
         }
     }
 
     public void StartTimer()
     {
-        if (!isTimerRunning)
+        if (!isTimerRunning && !isGameOver)
         {
             isTimerRunning = true;
-            StartCoroutine(RunTimer());
+            Debug.Log("Timer Started!");
         }
     }
 
     public void StopTimer()
     {
         isTimerRunning = false;
-        Debug.Log("isTimerRunning is false");
+        isGameOver = true;
+        Debug.Log("Timer Stopped at: " + currentTime + " seconds");
     }
 
-
-    public void ToStandardForm(int TotalSec)
+    public void ToStandardForm(int totalSec)
     {
-        int minutes = 0;
-        int seconds = 0;
-
-        minutes = TotalSec / 60;
-        seconds = TotalSec % 60;
-
-        timeBox.SetText($"{minutes} : {seconds}");
-
+        int minutes = totalSec / 60;
+        int seconds = totalSec % 60;
+        timeBox.SetText($"{minutes:00}:{seconds:00}");
     }
 
-
+    public float GetCurrentTime() => currentTime;
+    public bool GetRunningTimeBool() => isTimerRunning;
 }
