@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class CastlesPosition : MonoBehaviour
 {
+    
     private Vector3 kingCastleP1 = new Vector3(0, -1300, 0);
     private Vector3 rightPrincessCastleP1 = new Vector3(400, -1100, 0);
     private Vector3 leftPrincessCastleP1 = new Vector3(-400, -1100, 0);

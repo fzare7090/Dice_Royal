@@ -1,35 +1,26 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using TMPro;
 
 public class Spawner : MonoBehaviour
 {
     [SerializeField] private List<Transform> team1Enemies = new List<Transform>();
     [SerializeField] private List<Transform> team2Enemies = new List<Transform>();
 
-    [Header("Prefabs")]
-    [SerializeField] private GameObject unitPrefab;
-    [SerializeField] private GameObject castlePrefab; 
+    [Header("Castle Data")]
+    [SerializeField] private CastleData kingCastleDataP1;
+    [SerializeField] private CastleData princessCastleDataP1;
+    [SerializeField] private CastleData kingCastleDataP2;
+    [SerializeField] private CastleData princessCastleDataP2;
 
-    [Header("Unit Data")]
-    [SerializeField] private UnitData playerWizardData;
-    [SerializeField] private UnitData enemyWizardData;
+    [Header("Castle")]
+    [SerializeField] private KingCastleConfig kingCastleP1;
+    [SerializeField] private List<PrinceCastleConfig> princessCastleP1 = new List<PrinceCastleConfig>();
+    [SerializeField] private KingCastleConfig kingCastleP2;
+    [SerializeField] private List<PrinceCastleConfig> princessCastleP2 = new List<PrinceCastleConfig>();
 
     [Header("Board")]
-    [SerializeField] private Image player1Board;
-    [SerializeField] private Image player2Board;
-
-
-    [Header("Castle Data")]
-    [SerializeField] private CastleData kingCastleP1;
-    [SerializeField] private CastleData princessCastleP1;
-    [SerializeField] private CastleData kingCastleP2;
-    [SerializeField] private CastleData princessCastleP2;
-
-    [Header("UI Buttons")]
-    [SerializeField] private Button buttonP1;
-    [SerializeField] private Button buttonP2;
+    [SerializeField] private List<Board> board;
 
     [Header("Spawn Parent")]
     [SerializeField] private Transform backGroundTransform;
@@ -38,60 +29,59 @@ public class Spawner : MonoBehaviour
     [SerializeField] private Image drageCardP1;
     [SerializeField] private Image drageCardP2;
 
-    [Header("Castle Manager")]
-    [SerializeField] private GameObject castleManager; 
-
+    [Header("Players")]
+    [SerializeField] private List<Player> players = new List<Player>();
     private Player player1;
     private Player player2;
 
+    [Header("Card UI")]
+    [SerializeField] private Transform cardButtonParent;
+    [SerializeField] private CardButtonUI buttonPrefab;
+
+    private List<UnitData> deck;
+
     void Awake()
     {
-        player1 = buttonP1.GetComponent<Player>();
-        player2 = buttonP2.GetComponent<Player>();
+        InitializeCastles();
     }
 
     void Start()
     {
-        buttonP1.onClick.AddListener(SpawnUnitForPlayer1);
-        buttonP2.onClick.AddListener(SpawnUnitForPlayer2);
-        SpawnCastle(1);
-        SpawnCastle(2);
+        deck = GameDeckManager.Instance.GetPlayerDeck();
+        
+
+        player1 = players[0];
+        player2 = players[1];
+
         SetPlayerTeamId();
+        CreateCardButtons();
     }
 
-    void Update()
+    private void SpawnUnit(UnitData data, int teamId)
     {
-        UpdateButtons();
-    }
-
-    private void SpawnUnitForPlayer1()
-    {
-        if (player1.GetElexir().GetElexir() >= playerWizardData.elexir)
-        {
-            SpawnUnit(1);
+        Player player;
+        if (teamId == 1) {
+            player = player1;
+        } else {
+            player = player2;
         }
-    }
+        if (player.GetElexir().GetElexir() < data.elexir)
+            return;
 
-    private void SpawnUnitForPlayer2()
-    {
-        if (player2.GetElexir().GetElexir() >= enemyWizardData.elexir)
-        {
-            SpawnUnit(2);
-        }
-    }
+        GameObject spawnedUnit = Instantiate(data.Unitprefab, backGroundTransform);
 
-    private void SpawnUnit(int teamId)
-    {
-        GameObject spawnedUnit = Instantiate(unitPrefab, backGroundTransform.parent);
         Unit unit = spawnedUnit.GetComponent<Unit>();
         Image image = spawnedUnit.GetComponent<Image>();
+
         unit.SetTeamId(teamId);
+        unit.SetBoard(board);
+        unit.SetData(data);
 
         if (teamId == 1)
         {
             spawnedUnit.transform.localPosition = drageCardP1.transform.localPosition;
             image.color = Color.green;
-            unit.SetData(playerWizardData);
+
             team2Enemies.Add(unit.transform);
             unit.SetEnemies(team1Enemies);
         }
@@ -99,185 +89,69 @@ public class Spawner : MonoBehaviour
         {
             spawnedUnit.transform.localPosition = drageCardP2.transform.localPosition;
             image.color = Color.red;
-            unit.SetData(enemyWizardData);
+
             team1Enemies.Add(unit.transform);
             unit.SetEnemies(team2Enemies);
         }
 
-        if (teamId == 1)
+        player.GetElexir().UsingElexir(data.elexir);
+    }
+
+     private void CreateCardButtons()
+    {
+        foreach (UnitData data in deck)
         {
-            Elexir elexir = player1.GetElexir();
-            elexir.UsingElexir(playerWizardData.elexir);
-        }
-        else
-        {
-            Elexir elexir = player2.GetElexir();
-            elexir.UsingElexir(enemyWizardData.elexir);
+            CardButtonUI button = Instantiate(buttonPrefab, cardButtonParent);
+
+            button.SetCard(data);
+
+            button.GetButton().onClick.AddListener(OnButtonClick);
+            void OnButtonClick()
+            {
+                SpawnUnit(data, 1);
+            }
+            
         }
     }
 
-    private void SpawnCastle(int teamId)
+
+
+    private void InitializeCastles()
     {
-        GameObject kingCastle =
-    Instantiate(castlePrefab, backGroundTransform.parent);
-
-        GameObject rightPrincessCastle =
-            Instantiate(castlePrefab, backGroundTransform.parent);
-
-        GameObject leftPrincessCastle =
-            Instantiate(castlePrefab, backGroundTransform.parent);
-
-
-        Image kingCastleImage = kingCastle.GetComponent<Image>();
-        Image rightPrincessCastleImage = rightPrincessCastle.GetComponent<Image>();
-        Image leftPrincessCastleImage = leftPrincessCastle.GetComponent<Image>();
-
-
-        RectTransform kingRect = kingCastle.GetComponent<RectTransform>();
-        kingRect.sizeDelta = new Vector2(200, 200);
-
-        RectTransform rightRect = rightPrincessCastle.GetComponent<RectTransform>();
-        rightRect.sizeDelta = new Vector2(150, 150);
-
-        RectTransform leftRect = leftPrincessCastle.GetComponent<RectTransform>();
-        leftRect.sizeDelta = new Vector2(150, 150);
-
-
-        KingCastleConfig kingCastleScript =
-            kingCastle.AddComponent<KingCastleConfig>();
-
-        PrinceCastleConfig rightPrincessCastleScript =
-            rightPrincessCastle.AddComponent<PrinceCastleConfig>();
-
-        PrinceCastleConfig leftPrincessCastleScript =
-            leftPrincessCastle.AddComponent<PrinceCastleConfig>();
-
-
-        CastlesPosition castlePosition =
-            castleManager.GetComponent<CastlesPosition>();
-
-        // ست کردن TeamId
-        kingCastleScript.SetTeamId(teamId);
-
-        rightPrincessCastleScript.SetTeamId(teamId);
-
-        leftPrincessCastleScript.SetTeamId(teamId);
-
-
-        // ست کردن Enemy List
-        if (teamId == 1)
+        for (int i = 0; i < princessCastleP1.Count; i++)
         {
-            kingCastleScript.SetEnemies(team1Enemies);
-
-            rightPrincessCastleScript.SetEnemies(team1Enemies);
-
-            leftPrincessCastleScript.SetEnemies(team1Enemies);
-            kingCastleImage.color = Color.green;
-            rightPrincessCastleImage.color = Color.green;
-            leftPrincessCastleImage.color = Color.green;
-        }
-        else
-        {
-            kingCastleScript.SetEnemies(team2Enemies);
-
-            rightPrincessCastleScript.SetEnemies(team2Enemies);
-
-            leftPrincessCastleScript.SetEnemies(team2Enemies);
-            kingCastleImage.color = Color.red;
-            rightPrincessCastleImage.color = Color.red;
-            leftPrincessCastleImage.color = Color.red;
+            princessCastleP1[i].SetTeamId(1);
+            princessCastleP1[i].SetEnemies(team1Enemies);
+            princessCastleP1[i].SetData(princessCastleDataP1);
+            team2Enemies.Add(princessCastleP1[i].transform);
         }
 
-        // تنظیمات هر تیم
-        if (teamId == 1)
+        for (int i = 0; i < princessCastleP2.Count; i++)
         {
-            // Position
-            kingCastle.transform.localPosition =
-                castlePosition.GetKingCastleP1();
-
-            rightPrincessCastle.transform.localPosition =
-                castlePosition.GetRightPrincessCastleP1();
-
-            leftPrincessCastle.transform.localPosition =
-                castlePosition.GetLeftPrincessCastleP1();
-
-            // Data
-            kingCastleScript.SetData(kingCastleP1);
-
-            rightPrincessCastleScript.SetData(princessCastleP1);
-
-            leftPrincessCastleScript.SetData(princessCastleP1);
-
-            
-            team2Enemies.Add(kingCastleScript.transform);
-
-            team2Enemies.Add(rightPrincessCastleScript.transform);
-
-            team2Enemies.Add(leftPrincessCastleScript.transform);
-        }
-        else
-        {
-            // Position
-            kingCastle.transform.localPosition =
-                castlePosition.GetKingCastleP2();
-
-            rightPrincessCastle.transform.localPosition =
-                castlePosition.GetRightPrincessCastleP2();
-
-            leftPrincessCastle.transform.localPosition =
-                castlePosition.GetLeftPrincessCastleP2();
-
-            // Data
-            kingCastleScript.SetData(kingCastleP2);
-
-            rightPrincessCastleScript.SetData(princessCastleP2);
-
-            leftPrincessCastleScript.SetData(princessCastleP2);
-
-            
-            team1Enemies.Add(kingCastleScript.transform);
-
-            team1Enemies.Add(rightPrincessCastleScript.transform);
-
-            team1Enemies.Add(leftPrincessCastleScript.transform);
+            princessCastleP2[i].SetTeamId(2);
+            princessCastleP2[i].SetEnemies(team2Enemies);
+            princessCastleP2[i].SetData(princessCastleDataP2);
+            team1Enemies.Add(princessCastleP2[i].transform);
         }
 
-        
-        Board board;
+        kingCastleP1.SetTeamId(1);
+        kingCastleP2.SetTeamId(2);
 
-        if (teamId == 1)
-        {
-            board = player1Board.GetComponent<Board>();
-        }
-        else
-        {
-            board = player2Board.GetComponent<Board>();
-        }
+        kingCastleP1.SetEnemies(team1Enemies);
+        kingCastleP2.SetEnemies(team2Enemies);
 
-       
-        board.SetKingCastleConfig(kingCastleScript);
+        kingCastleP1.SetData(kingCastleDataP1);
+        kingCastleP2.SetData(kingCastleDataP2);
 
-        List<PrinceCastleConfig> princeCastles =
-            new List<PrinceCastleConfig>();
-
-        princeCastles.Add(rightPrincessCastleScript);
-
-        princeCastles.Add(leftPrincessCastleScript);
-
-        board.SetPrinceCastleConfig(princeCastles);
-    }
-
-    private void UpdateButtons()
-    {
-        buttonP1.interactable = player1.GetElexir().GetElexir() >= playerWizardData.elexir;
-        buttonP2.interactable = player2.GetElexir().GetElexir() >= enemyWizardData.elexir;
+        team2Enemies.Add(kingCastleP1.transform);
+        team1Enemies.Add(kingCastleP2.transform);
     }
 
     private void SetPlayerTeamId()
     {
-        Player player1 = buttonP1.GetComponent<Player>();
-        Player player2 = buttonP2.GetComponent<Player>();
-        player1.SetTeamId(1);
-        player2.SetTeamId(2);
+        for (int i = 0; i < players.Count; i++)
+        {
+            players[i].SetTeamId(i + 1);
+        }
     }
 }

@@ -17,14 +17,17 @@ public class Castle : MonoBehaviour
 
     private void Start()
     {
+        
         if (data != null)
         {
+           
             currentHP = data.hp;
             UpdateHPText();
             StartCoroutine(CastleLoop());
         }
         else
         {
+            
             currentHP = 100;
             UpdateHPText();
         }
@@ -38,10 +41,7 @@ public class Castle : MonoBehaviour
             yield return null;
         }
     }
-    private void Awake()
-    {
-        hpText = GetComponentInChildren<TMP_Text>();
-    }
+    
 
     public int GetHPCastle()
     {
@@ -114,10 +114,13 @@ public class Castle : MonoBehaviour
 
     private void CheckForEnemyInRange()
     {
+        
+        
         if (enemies == null || data == null) return;
-
+        
         foreach (Transform enemy in enemies)
         {
+
             if (enemy == null) continue;
 
             float distance = Vector3.Distance(
@@ -136,6 +139,7 @@ public class Castle : MonoBehaviour
 
     private IEnumerator AttackUnit()
     {
+        
         while (attackTarget != null &&
                Vector3.Distance(transform.localPosition, attackTarget.localPosition) <= data.attackRange)
         {

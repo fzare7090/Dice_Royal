@@ -32,7 +32,6 @@ public class GameTimeManager : MonoBehaviour
         if (!isTimerRunning && !isGameOver)
         {
             isTimerRunning = true;
-            Debug.Log("Timer Started!");
         }
     }
 
@@ -40,7 +39,7 @@ public class GameTimeManager : MonoBehaviour
     {
         isTimerRunning = false;
         isGameOver = true;
-        Debug.Log("Timer Stopped at: " + currentTime + " seconds");
+        
     }
 
     public void ToStandardForm(int totalSec)

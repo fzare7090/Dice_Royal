@@ -7,6 +7,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameTimeManager gameTime;
     [SerializeField] private List<Player> players = new List<Player>();
     [SerializeField] private GameOverPanel gameOverPanel;
+    [SerializeField] private List<UnitData> playerDeck = new List<UnitData>();
+    
 
     private bool isGameFinished = false;
 
@@ -15,7 +17,6 @@ public class GameManager : MonoBehaviour
         gameTime.StartTimer();
         StartCoroutine(CheckGameFlow());
     }
-
     private IEnumerator CheckGameFlow()
     {
         while (!isGameFinished)
