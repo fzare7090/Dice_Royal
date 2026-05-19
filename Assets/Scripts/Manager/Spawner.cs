@@ -35,7 +35,8 @@ public class Spawner : MonoBehaviour
     private Player player2;
 
     [Header("Card UI")]
-    [SerializeField] private Transform cardButtonParent;
+    [SerializeField] private Transform cardButtonParentP1;
+    [SerializeField] private Transform cardButtonParentP2;
     [SerializeField] private CardButtonUI buttonPrefab;
 
     private List<UnitData> deck;
@@ -48,7 +49,7 @@ public class Spawner : MonoBehaviour
     void Start()
     {
         deck = GameDeckManager.Instance.GetPlayerDeck();
-        
+
 
         player1 = players[0];
         player2 = players[1];
@@ -60,57 +61,128 @@ public class Spawner : MonoBehaviour
     private void SpawnUnit(UnitData data, int teamId)
     {
         Player player;
-        if (teamId == 1) {
+        List<Vector3> positions;
+        if (teamId == 1)
+        {
             player = player1;
-        } else {
+            positions = SetUnitsPositions(data.spawnCount, drageCardP1.transform.localPosition);
+        }
+        else
+        {
             player = player2;
+            positions = SetUnitsPositions(data.spawnCount, drageCardP2.transform.localPosition);
         }
         if (player.GetElexir().GetElexir() < data.elexir)
             return;
 
-        GameObject spawnedUnit = Instantiate(data.Unitprefab, backGroundTransform);
-
-        Unit unit = spawnedUnit.GetComponent<Unit>();
-        Image image = spawnedUnit.GetComponent<Image>();
-
-        unit.SetTeamId(teamId);
-        unit.SetBoard(board);
-        unit.SetData(data);
-
-        if (teamId == 1)
+        for (int i = 0; i < data.spawnCount; i++)
         {
-            spawnedUnit.transform.localPosition = drageCardP1.transform.localPosition;
-            image.color = Color.green;
+            GameObject spawnedUnit = Instantiate(data.Unitprefab, backGroundTransform.parent);
 
-            team2Enemies.Add(unit.transform);
-            unit.SetEnemies(team1Enemies);
-        }
-        else
-        {
-            spawnedUnit.transform.localPosition = drageCardP2.transform.localPosition;
-            image.color = Color.red;
+            Unit unit = spawnedUnit.GetComponent<Unit>();
+            Image image = spawnedUnit.GetComponent<Image>();
 
-            team1Enemies.Add(unit.transform);
-            unit.SetEnemies(team2Enemies);
+            unit.SetTeamId(teamId);
+            unit.SetBoard(board);
+            unit.SetData(data);
+            Vector3 position = new Vector3(0, 0, 0);
+
+            if (teamId == 1)
+            {
+                spawnedUnit.transform.localPosition = positions[i];
+                image.color = Color.green;
+
+                team2Enemies.Add(unit.transform);
+                unit.SetEnemies(team1Enemies);
+            }
+            else
+            {
+                spawnedUnit.transform.localPosition = positions[i];
+                image.color = Color.red;
+
+                team1Enemies.Add(unit.transform);
+                unit.SetEnemies(team2Enemies);
+            }
         }
+
 
         player.GetElexir().UsingElexir(data.elexir);
     }
+    private List<Vector3> SetUnitsPositions(int count, Vector3 center)
+    {
+        List<Vector3> positions = new List<Vector3>();
+        float radius = 100f;
+        if (count < 7)
+        {
+            if (count == 1)
+            {
+                positions.Add(center);
+                return positions;
+            }
+            for (int i = 0; i < count; i++)
+            {
+                float angle = Mathf.PI * 2f * i / count;
 
-     private void CreateCardButtons()
+                Vector3 offset = new Vector3(
+                    Mathf.Cos(angle) * radius,
+                    Mathf.Sin(angle) * radius,
+                    0
+                );
+                positions.Add(center + offset);
+            }
+            return positions;
+        }
+        else if (count == 15)
+        {
+            int countReduced = 9;
+            float radiusReduced = 100;
+
+            for (int j = 0; j < 3; j++)
+            {
+                countReduced -= 2;
+                radiusReduced -= 10;
+                for (int i = 0; i < countReduced; i++)
+                {
+                    float angle = Mathf.PI * 2f * i / count;
+
+                    Vector3 offset = new Vector3(
+                        Mathf.Cos(angle) * radiusReduced,
+                        Mathf.Sin(angle) * radiusReduced,
+                        0
+                    );
+                    positions.Add(center + offset);
+                }
+            }
+
+            return positions;
+        }
+        return positions;
+
+    }
+
+
+    private void CreateCardButtons()
     {
         foreach (UnitData data in deck)
         {
-            CardButtonUI button = Instantiate(buttonPrefab, cardButtonParent);
+            CardButtonUI buttonP1 = Instantiate(buttonPrefab, cardButtonParentP1);
+            CardButtonUI buttonP2 = Instantiate(buttonPrefab, cardButtonParentP2);
 
-            button.SetCard(data);
+            buttonP1.SetCard(data);
+            buttonP2.SetCard(data);
 
-            button.GetButton().onClick.AddListener(OnButtonClick);
-            void OnButtonClick()
+            buttonP1.GetButton().onClick.AddListener(OnButtonClickP1);
+            buttonP2.GetButton().onClick.AddListener(OnButtonClickP2);
+
+            void OnButtonClickP1()
             {
                 SpawnUnit(data, 1);
             }
-            
+            void OnButtonClickP2()
+            {
+                SpawnUnit(data, 2);
+            }
+
         }
     }
 

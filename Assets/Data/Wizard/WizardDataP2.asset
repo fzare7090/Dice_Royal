@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: WizardDataP2
   m_EditorClassIdentifier: 
   name: Wizard
+  spawnCount: 1
   hp: 400
   moveSpeed: 80
   attackDamage: 100
   attackRange: 300
+  enemyFindingRange: 400
   attackCooldown: 0.4
   attackSpeed: 200
   elexir: 60

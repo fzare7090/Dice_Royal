@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: GiantDataP2
   m_EditorClassIdentifier: 
   name: Giant
+  spawnCount: 1
   hp: 400
   moveSpeed: 80
   attackDamage: 100
   attackRange: 80
+  enemyFindingRange: 90
   attackCooldown: 1.1
   attackSpeed: 50
   elexir: 50

@@ -15,6 +15,6 @@ MonoBehaviour:
   hp: 8000
   attackDamage: 70
   attackRange: 400
-  attackCooldown: 0.5
-  attackSpeed: 200
+  attackCooldown: 2
+  attackSpeed: 100
   projectilePrefab: {fileID: 6914051798458152201, guid: d889d07bcc2fa7e49aef7199abc5643d, type: 3}

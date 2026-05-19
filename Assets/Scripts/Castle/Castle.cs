@@ -17,17 +17,17 @@ public class Castle : MonoBehaviour
 
     private void Start()
     {
-        
+
         if (data != null)
         {
-           
+
             currentHP = data.hp;
             UpdateHPText();
             StartCoroutine(CastleLoop());
         }
         else
         {
-            
+
             currentHP = 100;
             UpdateHPText();
         }
@@ -41,7 +41,7 @@ public class Castle : MonoBehaviour
             yield return null;
         }
     }
-    
+
 
     public int GetHPCastle()
     {
@@ -114,10 +114,10 @@ public class Castle : MonoBehaviour
 
     private void CheckForEnemyInRange()
     {
-        
-        
+
+
         if (enemies == null || data == null) return;
-        
+
         foreach (Transform enemy in enemies)
         {
 
@@ -139,7 +139,7 @@ public class Castle : MonoBehaviour
 
     private IEnumerator AttackUnit()
     {
-        
+
         while (attackTarget != null &&
                Vector3.Distance(transform.localPosition, attackTarget.localPosition) <= data.attackRange)
         {
@@ -163,13 +163,14 @@ public class Castle : MonoBehaviour
             }
 
             while (attackTarget != null &&
-                   Vector3.Distance(spawnedProjectile.transform.position, attackTarget.position) > 0.1f)
+                   Vector3.Distance(spawnedProjectile.transform.position, attackTarget.position) > 1f)
             {
                 spawnedProjectile.transform.position = Vector3.MoveTowards(
                     spawnedProjectile.transform.position,
                     attackTarget.position,
                     data.attackSpeed * Time.deltaTime
                 );
+                Debug.Log($"Test : {spawnedProjectile.transform.position} and Test : {attackTarget.position}");
                 yield return null;
             }
 

@@ -4,15 +4,15 @@ using System.Collections;
 
 public class Wizard : Unit
 {
-    
-    
-    protected override IEnumerator AttackUnit()
+    protected override IEnumerator AttackRoutine()
     {
-        currentState = UnitState.Attacking;
         WizardData wizardData = (WizardData)data;
+        currentState = UnitState.Attacking;
+
         while (attackTarget != null &&
                Vector3.Distance(transform.localPosition, attackTarget.localPosition) <= wizardData.attackRange)
         {
+
             GameObject fire = Instantiate(
                 wizardData.firePrefab,
                 transform.position,
@@ -23,8 +23,9 @@ public class Wizard : Unit
             Image img = fire.GetComponent<Image>();
             img.color = teamId == 1 ? Color.green : Color.red;
 
+
             while (attackTarget != null &&
-                   Vector3.Distance(fire.transform.position, attackTarget.position) > 0.1f)
+                   Vector3.Distance(fire.transform.position, attackTarget.position) > 2f)
             {
                 fire.transform.position = Vector3.MoveTowards(
                     fire.transform.position,
@@ -37,12 +38,32 @@ public class Wizard : Unit
 
             Destroy(fire);
 
+
             DealDamage();
+
+
+            if (attackTarget == null ||
+                Vector3.Distance(transform.localPosition, attackTarget.localPosition) > wizardData.attackRange)
+            {
+                break;
+            }
+
 
             yield return new WaitForSeconds(wizardData.attackCooldown);
         }
 
-        attackTarget = null;
-        currentState = UnitState.Moving;
+
+        if (attackTarget != null &&
+            Vector3.Distance(transform.localPosition, attackTarget.localPosition) <= data.enemyFindingRange)
+        {
+
+            currentState = UnitState.MovingToEnemy;
+            SetEnemyPath();
+        }
+        else
+        {
+
+            ReturnToOriginalPath();
+        }
     }
 }
