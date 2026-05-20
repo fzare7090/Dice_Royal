@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class Giant : Unit
 {
@@ -58,4 +59,36 @@ public class Giant : Unit
             ReturnToOriginalPath();
         }
     }
+    protected override IEnumerator AttackRoutine()
+    {
+        while (attackTarget != null &&
+               Vector3.Distance(transform.localPosition, attackTarget.localPosition) <= data.attackRange)
+        {
+            AudioManager.Instance.PlayGiantAttackEffect();
+            DealDamage();
+            yield return new WaitForSeconds(data.attackCooldown);
+
+
+            if (attackTarget == null ||
+                Vector3.Distance(transform.localPosition, attackTarget.localPosition) > data.attackRange)
+            {
+                break;
+            }
+        }
+
+
+        if (attackTarget != null &&
+            Vector3.Distance(transform.localPosition, attackTarget.localPosition) <= data.enemyFindingRange)
+        {
+
+            currentState = UnitState.MovingToEnemy;
+            SetEnemyPath();
+        }
+        else
+        {
+
+            ReturnToOriginalPath();
+        }
+    }
+
 }

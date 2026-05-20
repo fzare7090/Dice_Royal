@@ -71,6 +71,7 @@ public class Castle : MonoBehaviour
 
     void Collapse()
     {
+        AudioManager.Instance.PlayDistroyCastleEffect();
         Destroy(gameObject);
         exist = false;
     }
@@ -149,6 +150,7 @@ public class Castle : MonoBehaviour
                 Quaternion.identity,
                 transform
             );
+            AudioManager.Instance.PlayProjectileEffect();
 
             if (spawnedProjectile.TryGetComponent<Image>(out var image))
             {

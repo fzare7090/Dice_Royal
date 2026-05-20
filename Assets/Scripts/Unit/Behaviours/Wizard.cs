@@ -19,6 +19,7 @@ public class Wizard : Unit
                 Quaternion.identity,
                 transform
             );
+            AudioManager.Instance.PlayFireEffect();
 
             Image img = fire.GetComponent<Image>();
             img.color = teamId == 1 ? Color.green : Color.red;

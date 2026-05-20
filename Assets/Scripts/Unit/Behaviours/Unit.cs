@@ -169,30 +169,55 @@ public class Unit : MonoBehaviour
                 {
                     targetPos1 = minRightBridge;
                     targetPos2 = maxRightBridge;
-                    targetPos3 = princeCastleP2[0].transform.localPosition;
-                    targetPos4 = kingCastleP2.transform.localPosition;
+                    if (princeCastleP2[0] != null)
+                    {
+                        targetPos3 = princeCastleP2[0].transform.localPosition;
+                        targetPos4 = kingCastleP2.transform.localPosition;
+                        pathPoints.Add(targetPos3);
+                        pathPoints.Add(targetPos4);
+                    }
+                    else
+                    {
+                        targetPos3 = kingCastleP2.transform.localPosition;
+                        pathPoints.Add(targetPos3);
+                    }
+
                     pathPoints.Add(targetPos1);
                     pathPoints.Add(targetPos2);
-                    pathPoints.Add(targetPos3);
-                    pathPoints.Add(targetPos4);
                     return;
                 }
                 else if (pos.y <= maxRightBridge.y)
                 {
                     targetPos1 = maxRightBridge;
-                    targetPos2 = princeCastleP2[0].transform.localPosition;
-                    targetPos3 = kingCastleP2.transform.localPosition;
+                    if (princeCastleP2[0] != null)
+                    {
+                        targetPos2 = princeCastleP2[0].transform.localPosition;
+                        targetPos3 = kingCastleP2.transform.localPosition;
+                        pathPoints.Add(targetPos2);
+                        pathPoints.Add(targetPos3);
+                    }
+                    else
+                    {
+                        targetPos2 = kingCastleP2.transform.localPosition;
+                        pathPoints.Add(targetPos2);
+                    }
                     pathPoints.Add(targetPos1);
-                    pathPoints.Add(targetPos2);
-                    pathPoints.Add(targetPos3);
                     return;
                 }
                 else if (pos.y <= princeCastleP2[0].transform.localPosition.y)
                 {
-                    targetPos1 = princeCastleP2[0].transform.localPosition;
-                    targetPos2 = kingCastleP2.transform.localPosition;
-                    pathPoints.Add(targetPos1);
-                    pathPoints.Add(targetPos2);
+                    if (princeCastleP2[0] != null)
+                    {
+                        targetPos1 = princeCastleP2[0].transform.localPosition;
+                        targetPos2 = kingCastleP2.transform.localPosition;
+                        pathPoints.Add(targetPos1);
+                        pathPoints.Add(targetPos2);
+                    }
+                    else
+                    {
+                        targetPos1 = kingCastleP2.transform.localPosition;
+                        pathPoints.Add(targetPos1);
+                    }
                     return;
                 }
                 else
@@ -208,30 +233,55 @@ public class Unit : MonoBehaviour
                 {
                     targetPos1 = minLeftBridge;
                     targetPos2 = maxLeftBridge;
-                    targetPos3 = princeCastleP2[1].transform.localPosition;
-                    targetPos4 = kingCastleP2.transform.localPosition;
+                    if (princeCastleP2[1] != null)
+                    {
+                        targetPos3 = princeCastleP2[1].transform.localPosition;
+                        targetPos4 = kingCastleP2.transform.localPosition;
+                        pathPoints.Add(targetPos3);
+                        pathPoints.Add(targetPos4);
+                    }
+                    else
+                    {
+                        targetPos3 = kingCastleP2.transform.localPosition;
+                        pathPoints.Add(targetPos3);
+                    }
+
                     pathPoints.Add(targetPos1);
                     pathPoints.Add(targetPos2);
-                    pathPoints.Add(targetPos3);
-                    pathPoints.Add(targetPos4);
                     return;
                 }
                 else if (pos.y <= maxLeftBridge.y)
                 {
                     targetPos1 = maxLeftBridge;
-                    targetPos2 = princeCastleP2[1].transform.localPosition;
-                    targetPos3 = kingCastleP2.transform.localPosition;
+                    if (princeCastleP2[1] != null)
+                    {
+                        targetPos2 = princeCastleP2[1].transform.localPosition;
+                        targetPos3 = kingCastleP2.transform.localPosition;
+                        pathPoints.Add(targetPos2);
+                        pathPoints.Add(targetPos3);
+                    }
+                    else
+                    {
+                        targetPos2 = kingCastleP2.transform.localPosition;
+                        pathPoints.Add(targetPos2);
+                    }
                     pathPoints.Add(targetPos1);
-                    pathPoints.Add(targetPos2);
-                    pathPoints.Add(targetPos3);
                     return;
                 }
                 else if (pos.y <= princeCastleP2[1].transform.localPosition.y)
                 {
-                    targetPos1 = princeCastleP2[1].transform.localPosition;
-                    targetPos2 = kingCastleP2.transform.localPosition;
-                    pathPoints.Add(targetPos1);
-                    pathPoints.Add(targetPos2);
+                    if (princeCastleP2[1] != null)
+                    {
+                        targetPos1 = princeCastleP2[1].transform.localPosition;
+                        targetPos2 = kingCastleP2.transform.localPosition;
+                        pathPoints.Add(targetPos1);
+                        pathPoints.Add(targetPos2);
+                    }
+                    else
+                    {
+                        targetPos1 = kingCastleP2.transform.localPosition;
+                        pathPoints.Add(targetPos1);
+                    }
                     return;
                 }
                 else
@@ -250,30 +300,55 @@ public class Unit : MonoBehaviour
                 {
                     targetPos1 = maxRightBridge;
                     targetPos2 = minRightBridge;
-                    targetPos3 = princeCastleP1[0].transform.localPosition;
-                    targetPos4 = kingCastleP1.transform.localPosition;
+                    if (princeCastleP1[0] != null)
+                    {
+                        targetPos3 = princeCastleP1[0].transform.localPosition;
+                        targetPos4 = kingCastleP1.transform.localPosition;
+                        pathPoints.Add(targetPos3);
+                        pathPoints.Add(targetPos4);
+                    }
+                    else
+                    {
+                        targetPos3 = kingCastleP1.transform.localPosition;
+                        pathPoints.Add(targetPos3);
+                    }
+
                     pathPoints.Add(targetPos1);
                     pathPoints.Add(targetPos2);
-                    pathPoints.Add(targetPos3);
-                    pathPoints.Add(targetPos4);
                     return;
                 }
                 else if (pos.y >= minRightBridge.y)
                 {
                     targetPos1 = minRightBridge;
-                    targetPos2 = princeCastleP1[0].transform.localPosition;
-                    targetPos3 = kingCastleP1.transform.localPosition;
+                    if (princeCastleP1[0] != null)
+                    {
+                        targetPos2 = princeCastleP1[0].transform.localPosition;
+                        targetPos3 = kingCastleP1.transform.localPosition;
+                        pathPoints.Add(targetPos2);
+                        pathPoints.Add(targetPos3);
+                    }
+                    else
+                    {
+                        targetPos2 = kingCastleP1.transform.localPosition;
+                        pathPoints.Add(targetPos2);
+                    }
                     pathPoints.Add(targetPos1);
-                    pathPoints.Add(targetPos2);
-                    pathPoints.Add(targetPos3);
                     return;
                 }
                 else if (pos.y >= princeCastleP1[0].transform.localPosition.y)
                 {
-                    targetPos1 = princeCastleP1[0].transform.localPosition;
-                    targetPos2 = kingCastleP1.transform.localPosition;
-                    pathPoints.Add(targetPos1);
-                    pathPoints.Add(targetPos2);
+                    if (princeCastleP1[0] != null)
+                    {
+                        targetPos1 = princeCastleP1[0].transform.localPosition;
+                        targetPos2 = kingCastleP1.transform.localPosition;
+                        pathPoints.Add(targetPos1);
+                        pathPoints.Add(targetPos2);
+                    }
+                    else
+                    {
+                        targetPos1 = kingCastleP1.transform.localPosition;
+                        pathPoints.Add(targetPos1);
+                    }
                     return;
                 }
                 else
@@ -289,30 +364,55 @@ public class Unit : MonoBehaviour
                 {
                     targetPos1 = maxLeftBridge;
                     targetPos2 = minLeftBridge;
-                    targetPos3 = princeCastleP1[1].transform.localPosition;
-                    targetPos4 = kingCastleP1.transform.localPosition;
+                    if (princeCastleP1[1] != null)
+                    {
+                        targetPos3 = princeCastleP1[1].transform.localPosition;
+                        targetPos4 = kingCastleP1.transform.localPosition;
+                        pathPoints.Add(targetPos3);
+                        pathPoints.Add(targetPos4);
+                    }
+                    else
+                    {
+                        targetPos3 = kingCastleP1.transform.localPosition;
+                        pathPoints.Add(targetPos3);
+                    }
+
                     pathPoints.Add(targetPos1);
                     pathPoints.Add(targetPos2);
-                    pathPoints.Add(targetPos3);
-                    pathPoints.Add(targetPos4);
                     return;
                 }
                 else if (pos.y >= minLeftBridge.y)
                 {
                     targetPos1 = minLeftBridge;
-                    targetPos2 = princeCastleP1[1].transform.localPosition;
-                    targetPos3 = kingCastleP1.transform.localPosition;
+                    if (princeCastleP1[1] != null)
+                    {
+                        targetPos2 = princeCastleP1[1].transform.localPosition;
+                        targetPos3 = kingCastleP1.transform.localPosition;
+                        pathPoints.Add(targetPos2);
+                        pathPoints.Add(targetPos3);
+                    }
+                    else
+                    {
+                        targetPos2 = kingCastleP1.transform.localPosition;
+                        pathPoints.Add(targetPos2);
+                    }
                     pathPoints.Add(targetPos1);
-                    pathPoints.Add(targetPos2);
-                    pathPoints.Add(targetPos3);
                     return;
                 }
                 else if (pos.y >= princeCastleP1[1].transform.localPosition.y)
                 {
-                    targetPos1 = princeCastleP1[1].transform.localPosition;
-                    targetPos2 = kingCastleP1.transform.localPosition;
-                    pathPoints.Add(targetPos1);
-                    pathPoints.Add(targetPos2);
+                    if (princeCastleP1[1] != null)
+                    {
+                        targetPos1 = princeCastleP1[1].transform.localPosition;
+                        targetPos2 = kingCastleP1.transform.localPosition;
+                        pathPoints.Add(targetPos1);
+                        pathPoints.Add(targetPos2);
+                    }
+                    else
+                    {
+                        targetPos1 = kingCastleP1.transform.localPosition;
+                        pathPoints.Add(targetPos1);
+                    }
                     return;
                 }
                 else
