@@ -93,7 +93,7 @@ public class Chest : MonoBehaviour
         int loserIndex = (winnerIndex + 1) % 2;
 
 
-        chestText.SetText($"Player {winnerIndex + 1} won {winCoinReward} \n Player {loserIndex + 1} got {loseCoinReward}");
+        chestText.SetText($"Player {winnerIndex + 1} won {winCoinReward}  Coins!\n Player {loserIndex + 1} got {loseCoinReward}Coins!");
     }
 
 

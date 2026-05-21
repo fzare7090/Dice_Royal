@@ -17,6 +17,7 @@ public class Player : MonoBehaviour
 
     public Coin GetCoin() { return coin; }
     public int GetTeamId() { return teamId; }
+
     public void SetTeamId(int newTeamId) { teamId = newTeamId; }
 
     public KingCastleConfig GetKingCastleConfig()

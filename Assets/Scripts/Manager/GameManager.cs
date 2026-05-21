@@ -32,7 +32,8 @@ public class GameManager : MonoBehaviour
                 int addingValue = currentGameTime < 60f ?
                     player.GetElexir().GetAddingElexir() :
                     player.GetElexir().GetExtraTimeElexirAdding();
-                player.GetElexir().GettingElexir(addingValue);
+                    player.GetElexir().GettingElexir(addingValue);
+                Debug.Log("elexir added in game manager");
             }
 
             bool someoneLost = false;
@@ -41,7 +42,7 @@ public class GameManager : MonoBehaviour
                 var kingCastle = players[i].GetKingCastleConfig();
                 if (kingCastle == null || !kingCastle.exist)
                 {
-                    int winner = (i + 1) % players.Count;
+                    int winner = (i + 1) % 2; //or players count
 
                     gameOverPanel.SetGameOverText(winner);
                     gameOverPanel.GivingChest(winner);
@@ -68,22 +69,22 @@ public class GameManager : MonoBehaviour
 
                     if (princeCastleCount1 != princeCastleCount2)
                     {
-                        int winner = princeCastleCount1 > princeCastleCount2 ? 0 : 1;
+                        int winnerindex = princeCastleCount1 > princeCastleCount2 ? 0 : 1;
 
-                        gameOverPanel.GivingChest(winner);
+                        gameOverPanel.GivingChest(winnerindex);
 
-                        gameOverPanel.SetGameOverText(winner);
+                        gameOverPanel.SetGameOverText(winnerindex);
                     }
                     else
                     {
                         int p1TotalHp = players[0].GetKingCastleConfig().GetCastleHP().GetHPCastle();
                         int p2TotalHp = players[1].GetKingCastleConfig().GetCastleHP().GetHPCastle();
 
-                        int winner = p1TotalHp > p2TotalHp ? 0 : 1;
+                        int winnerIndex = p1TotalHp > p2TotalHp ? 0 : 1;
 
-                        gameOverPanel.GivingChest(winner);
+                        gameOverPanel.GivingChest(winnerIndex);
 
-                        gameOverPanel.SetGameOverText(winner);
+                        gameOverPanel.SetGameOverText(winnerIndex);
                     }
                 }
 

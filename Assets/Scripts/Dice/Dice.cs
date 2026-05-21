@@ -47,7 +47,7 @@ public class Dice : MonoBehaviour
 
         int gainedElexir = diceNumber * elexirMultiplier;
         elexir.GettingElexir(gainedElexir);
-        Debug.Log("Dice rolled: " + diceNumber + ". Elexir added.");
+        Debug.Log("Dice rolled: Elexir added.");
     }
 
     public IEnumerator DiceTimer()

@@ -23,8 +23,6 @@ public class Elexir : MonoBehaviour
         elexirText.text = currentElexir.ToString();
     }
 
-
-
     public int GetElexir()
     {
         return currentElexir;
