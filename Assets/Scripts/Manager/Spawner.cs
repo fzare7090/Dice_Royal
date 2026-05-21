@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
@@ -41,6 +41,7 @@ public class Spawner : MonoBehaviour
 
     private List<UnitData> deck;
 
+
     void Awake()
     {
         InitializeCastles();
@@ -48,14 +49,16 @@ public class Spawner : MonoBehaviour
 
     void Start()
     {
-        deck = GameDeckManager.Instance.GetPlayerDeck();
 
+        deck = GameDeckManager.Instance.GetPlayerDeck(); //
 
         player1 = players[0];
         player2 = players[1];
 
         SetPlayerTeamId();
-        CreateCardButtons();
+        CreateCardButtons(); //
+
+        SetBoardsInfo();
     }
 
     private void SpawnUnit(UnitData data, int teamId)
@@ -72,9 +75,25 @@ public class Spawner : MonoBehaviour
             player = player2;
             positions = SetUnitsPositions(data.spawnCount, drageCardP2.transform.localPosition);
         }
+        Debug.Log("unit position set");
+
         if (player.GetElexir().GetElexir() < data.elexir)
+        {
+
+            Debug.Log("Elexir is not enough");
+            return;
+        }
+
+        /*
+        if (!DragPositionIsInErea(teamId))
+        {
+            ///erea comment
+            Debug.Log("not in your own area");
             return;
 
+        }
+       
+        */
         for (int i = 0; i < data.spawnCount; i++)
         {
             GameObject spawnedUnit = Instantiate(data.Unitprefab, backGroundTransform.parent);
@@ -92,16 +111,25 @@ public class Spawner : MonoBehaviour
                 spawnedUnit.transform.localPosition = positions[i];
                 image.color = Color.green;
 
+                Debug.Log("unit swaned");
+
                 team2Enemies.Add(unit.transform);
                 unit.SetEnemies(team1Enemies);
+                Debug.Log("unit set as enemi");
             }
             else
             {
                 spawnedUnit.transform.localPosition = positions[i];
                 image.color = Color.red;
 
+                Debug.Log("unit swaned");
+
+
                 team1Enemies.Add(unit.transform);
                 unit.SetEnemies(team2Enemies);
+
+                Debug.Log("unit set as enemi");
+
             }
         }
 
@@ -168,6 +196,7 @@ public class Spawner : MonoBehaviour
             CardButtonUI buttonP1 = Instantiate(buttonPrefab, cardButtonParentP1);
             CardButtonUI buttonP2 = Instantiate(buttonPrefab, cardButtonParentP2);
 
+
             buttonP1.SetCard(data);
             buttonP2.SetCard(data);
 
@@ -182,6 +211,8 @@ public class Spawner : MonoBehaviour
             {
                 SpawnUnit(data, 2);
             }
+            Debug.Log("card buttons instatiate");
+
 
         }
     }
@@ -196,6 +227,8 @@ public class Spawner : MonoBehaviour
             princessCastleP1[i].SetEnemies(team1Enemies);
             princessCastleP1[i].SetData(princessCastleDataP1);
             team2Enemies.Add(princessCastleP1[i].transform);
+
+
         }
 
         for (int i = 0; i < princessCastleP2.Count; i++)
@@ -217,6 +250,8 @@ public class Spawner : MonoBehaviour
 
         team2Enemies.Add(kingCastleP1.transform);
         team1Enemies.Add(kingCastleP2.transform);
+
+        Debug.Log("castles initialize");
     }
 
     private void SetPlayerTeamId()
@@ -226,4 +261,43 @@ public class Spawner : MonoBehaviour
             players[i].SetTeamId(i + 1);
         }
     }
+    
+    public bool DragPositionIsInErea(int teamId)
+    {
+        if (teamId == 1)
+        {
+            return player1.GetBoard().GetBoardBounds().Contains(drageCardP1.transform.position);
+        }
+        else if (teamId == 2)
+        {
+            return player2.GetBoard().GetBoardBounds().Contains(drageCardP2.transform.position);
+        }
+
+        return false;
+    }
+    
+
+    private void SetBoardsInfo()
+    {
+        Vector3 p1BoardCenter = new Vector3(-2.1966f, -514.8721f, 0); ///local or world?
+        Vector3 p2BoardCenter = new Vector3(-17.2237f, 505.3876f, 0);
+
+        Vector3 p2BoardSize = new Vector3(242.4635f, 174.1486f, 1);
+        Vector3 p1BoardSize = new Vector3(242.4635f, 174.1486f, 1);
+
+        Bounds p1BoardBounds = new Bounds(p1BoardCenter, p1BoardSize);
+        Bounds p2BoardBounds = new Bounds(p2BoardCenter, p2BoardSize);
+
+        player1.GetBoard().SetBoardCenter(p1BoardSize);
+        player1.GetBoard().SetBoardCenter(p2BoardSize);
+
+        player1.GetBoard().SetBoardSize(p2BoardSize);
+        player1.GetBoard().SetBoardSize(p1BoardSize);
+
+        player1.GetBoard().SetBoardBoundes(p1BoardBounds);
+        player1.GetBoard().SetBoardBoundes(p2BoardBounds);
+
+    }
+
+
 }

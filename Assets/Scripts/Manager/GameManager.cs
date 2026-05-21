@@ -8,7 +8,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<Player> players = new List<Player>();
     [SerializeField] private GameOverPanel gameOverPanel;
     [SerializeField] private List<UnitData> playerDeck = new List<UnitData>();
-    
 
     private bool isGameFinished = false;
 
@@ -16,9 +15,12 @@ public class GameManager : MonoBehaviour
     {
         gameTime.StartTimer();
         StartCoroutine(CheckGameFlow());
+
     }
     private IEnumerator CheckGameFlow()
     {
+
+
         while (!isGameFinished)
         {
             yield return new WaitForSeconds(1f);
@@ -34,13 +36,15 @@ public class GameManager : MonoBehaviour
             }
 
             bool someoneLost = false;
-            for (int i = 0; i < players.Count; i++)
+            for (int i = 0; i < 2; i++) //or players count
             {
                 var kingCastle = players[i].GetKingCastleConfig();
-                if (kingCastle != null && !kingCastle.GetCastleHP().exist)
+                if (kingCastle == null || !kingCastle.exist)
                 {
                     int winner = (i + 1) % players.Count;
+
                     gameOverPanel.SetGameOverText(winner);
+                    gameOverPanel.GivingChest(winner);
                     gameTime.StopTimer();
                     someoneLost = true;
                     isGameFinished = true;
@@ -65,13 +69,20 @@ public class GameManager : MonoBehaviour
                     if (princeCastleCount1 != princeCastleCount2)
                     {
                         int winner = princeCastleCount1 > princeCastleCount2 ? 0 : 1;
+
+                        gameOverPanel.GivingChest(winner);
+
                         gameOverPanel.SetGameOverText(winner);
                     }
                     else
                     {
                         int p1TotalHp = players[0].GetKingCastleConfig().GetCastleHP().GetHPCastle();
                         int p2TotalHp = players[1].GetKingCastleConfig().GetCastleHP().GetHPCastle();
+
                         int winner = p1TotalHp > p2TotalHp ? 0 : 1;
+
+                        gameOverPanel.GivingChest(winner);
+
                         gameOverPanel.SetGameOverText(winner);
                     }
                 }

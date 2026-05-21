@@ -7,11 +7,15 @@ public class Player : MonoBehaviour
     [SerializeField] private Dice dice;
     [SerializeField] private int teamId;
 
+
+    private Coin coin;
+
     public Board GetBoard() { return board; }
     public void SetBoard(Board newBoard) { board = newBoard; }
 
     public Elexir GetElexir() { return elexir; }
 
+    public Coin GetCoin() { return coin; }
     public int GetTeamId() { return teamId; }
     public void SetTeamId(int newTeamId) { teamId = newTeamId; }
 

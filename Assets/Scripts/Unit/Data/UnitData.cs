@@ -4,7 +4,7 @@ using UnityEngine;
 // [CreateAssetMenu(fileName = "UnitData", menuName = "Game/Unit Data")]
 public class UnitData : ScriptableObject
 {
-    public string name;
+    public new string name;
     public int spawnCount;
     public float hp;
     public float moveSpeed;

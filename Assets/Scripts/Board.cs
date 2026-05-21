@@ -6,6 +6,12 @@ public class Board : MonoBehaviour
     [SerializeField] private KingCastleConfig kingCastle;
     [SerializeField] private List<PrinceCastleConfig> princeCastles = new List<PrinceCastleConfig>();
 
+    private Vector3 boardCenter;
+    private Vector3 boardSize; // vctor3?
+
+    private Bounds boardBounds;
+
+
     public KingCastleConfig GetKingCastle()
     {
         return kingCastle;
@@ -32,6 +38,30 @@ public class Board : MonoBehaviour
 
     }
 
+    public Vector3 GetBoardCenter()
+    {
+        return boardCenter;
+    }
+    public Vector3 GetBoardSize()
+    {
+        return boardSize;
+    }
+    public Bounds GetBoardBounds()
+    {
+        return boardBounds;
+    }
+    public void SetBoardCenter(Vector3 bCentar)
+    {
+        boardCenter = bCentar;
+    }
+    public void SetBoardSize(Vector3 bSize)
+    {
+        boardSize = bSize;
+    }
+    public void SetBoardBoundes(Bounds bBounds)
+    {
+        boardBounds = bBounds;
+    }
 
 
 }

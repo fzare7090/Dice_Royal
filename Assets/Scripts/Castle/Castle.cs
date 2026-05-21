@@ -9,6 +9,8 @@ public class Castle : MonoBehaviour
     [SerializeField] private TMP_Text hpText;
     [SerializeField] private int teamId;
     [SerializeField] private CastleData data;
+    [SerializeField] private GameObject area;
+
 
     private List<Transform> enemies;
     private Transform attackTarget;
@@ -78,6 +80,11 @@ public class Castle : MonoBehaviour
 
     public Castle GetCastleHP()
     {
+        if (!exist)
+        {
+            return null;
+        }
+
         return this;
     }
 
@@ -172,7 +179,7 @@ public class Castle : MonoBehaviour
                     attackTarget.position,
                     data.attackSpeed * Time.deltaTime
                 );
-                Debug.Log($"Test : {spawnedProjectile.transform.position} and Test : {attackTarget.position}");
+                //Debug.Log($"Test : {spawnedProjectile.transform.position} and Test : {attackTarget.position}");
                 yield return null;
             }
 
@@ -194,5 +201,10 @@ public class Castle : MonoBehaviour
         }
 
         attackTarget = null;
+    }
+
+    public void SetCastleArea(PrinceCastleConfig princeCastle)
+    {
+
     }
 }
