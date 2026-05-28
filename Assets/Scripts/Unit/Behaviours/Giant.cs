@@ -1,13 +1,12 @@
 using UnityEngine;
-using System.Collections;
 
 public class Giant : Unit
 {
+    // بازنویسی متد پیدا کردن دشمن تا فقط قلعه‌ها را پیدا کند
     protected override void CheckForEnemyInRange()
     {
         GiantData giantData = (GiantData)data;
         if (enemies == null) return;
-
         Transform closestCastle = null;
         float closestDistance = float.MaxValue;
 
@@ -15,14 +14,13 @@ public class Giant : Unit
         {
             if (enemy == null) continue;
 
-            
-            if (!enemy.TryGetComponent<Castle>(out Castle castle)) continue;
+            // -------- تفاوت اصلی اینجاست --------
+            // اگر هدف قلعه (Castle) نبود، آن را نادیده بگیر و به سراغ بعدی برو
+            if (!enemy.TryGetComponent<Castle>(out _))
+                continue;
+            // ------------------------------------
 
-            float distance = Vector3.Distance(
-                transform.localPosition,
-                enemy.localPosition
-            );
-
+            float distance = GetDistanceToTarget(enemy);
             if (distance <= giantData.enemyFindingRange && distance < closestDistance)
             {
                 closestDistance = distance;
@@ -30,14 +28,13 @@ public class Giant : Unit
             }
         }
 
+        // ادامه منطق مانند کلاس اصلی (Unit) اما این بار فقط برای قلعه‌ها
         if (closestCastle != null)
         {
-            
             if (attackTarget != closestCastle)
             {
                 attackTarget = closestCastle;
-
-                if (closestDistance <= data.attackRange)
+                if (closestDistance <= giantData.attackRange)
                 {
                     currentState = UnitState.Attacking;
                     StopAllCoroutines();
@@ -46,12 +43,12 @@ public class Giant : Unit
                 else
                 {
                     currentState = UnitState.MovingToEnemy;
-                    SetEnemyPath();
+                    ChaseEnemy();
                 }
             }
             else if (currentState == UnitState.MovingToEnemy)
             {
-                SetEnemyPath();
+                ChaseEnemy();
             }
         }
         else if (attackTarget != null && currentState != UnitState.Attacking)
@@ -59,36 +56,4 @@ public class Giant : Unit
             ReturnToOriginalPath();
         }
     }
-    protected override IEnumerator AttackRoutine()
-    {
-        while (attackTarget != null &&
-               Vector3.Distance(transform.localPosition, attackTarget.localPosition) <= data.attackRange)
-        {
-            AudioManager.Instance.PlayGiantAttackEffect();
-            DealDamage();
-            yield return new WaitForSeconds(data.attackCooldown);
-
-
-            if (attackTarget == null ||
-                Vector3.Distance(transform.localPosition, attackTarget.localPosition) > data.attackRange)
-            {
-                break;
-            }
-        }
-
-
-        if (attackTarget != null &&
-            Vector3.Distance(transform.localPosition, attackTarget.localPosition) <= data.enemyFindingRange)
-        {
-
-            currentState = UnitState.MovingToEnemy;
-            SetEnemyPath();
-        }
-        else
-        {
-
-            ReturnToOriginalPath();
-        }
-    }
-
 }

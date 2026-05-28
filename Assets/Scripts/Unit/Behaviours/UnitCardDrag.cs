@@ -6,31 +6,27 @@ public class UnitCardDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
     private Vector3 dragStartPos;
     private Vector3 dragEndPos;
 
-    public Vector3 GetDragStart()
-    {
-        return dragStartPos;
-    }
+    private RectTransform rectTransform;
+    private Canvas canvas;
 
-    public Vector3 GetDragEnd()
+    void Awake()
     {
-        return dragEndPos;
+        rectTransform = GetComponent<RectTransform>();
+        canvas = GetComponentInParent<Canvas>();
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        dragStartPos = eventData.position;
+        dragStartPos = rectTransform.position;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        transform.position = eventData.position;
+        rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        dragEndPos = eventData.position;
-
-        //Vector3 worldPos = Camera.main.ScreenToWorldPoint(dragEndPos);
-
+        dragEndPos = rectTransform.position;
     }
 }

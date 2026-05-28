@@ -10,26 +10,26 @@ public class Castle : MonoBehaviour
     [SerializeField] private int teamId;
     [SerializeField] private CastleData data;
     [SerializeField] private GameObject area;
-
+    [SerializeField] private Collider castleCollider;
 
     private List<Transform> enemies;
     private Transform attackTarget;
     private float currentHP;
     public bool exist = true;
 
+
+    private float attackTimer = 0f;
+
     private void Start()
     {
-
         if (data != null)
         {
-
             currentHP = data.hp;
             UpdateHPText();
             StartCoroutine(CastleLoop());
         }
         else
         {
-
             currentHP = 100;
             UpdateHPText();
         }
@@ -39,12 +39,21 @@ public class Castle : MonoBehaviour
     {
         while (true)
         {
+
+            if (attackTimer > 0)
+            {
+                attackTimer -= Time.deltaTime;
+            }
+
             CheckForEnemyInRange();
             yield return null;
         }
     }
 
-
+    public Collider GetCastleCollider()
+    {
+        return castleCollider;
+    }
     public int GetHPCastle()
     {
         return Mathf.RoundToInt(currentHP);
@@ -59,7 +68,6 @@ public class Castle : MonoBehaviour
             Collapse();
         }
     }
-
 
     public void TakeDamage(float damage)
     {
@@ -84,7 +92,6 @@ public class Castle : MonoBehaviour
         {
             return null;
         }
-
         return this;
     }
 
@@ -98,7 +105,6 @@ public class Castle : MonoBehaviour
         if (hpText != null)
             hpText.SetText(Mathf.RoundToInt(currentHP).ToString());
     }
-
 
     public void SetData(CastleData newData)
     {
@@ -122,85 +128,95 @@ public class Castle : MonoBehaviour
 
     private void CheckForEnemyInRange()
     {
-
-
         if (enemies == null || data == null) return;
 
-        foreach (Transform enemy in enemies)
+
+        if (attackTarget != null)
+        {
+            if (!attackTarget.gameObject.activeInHierarchy ||
+                Vector3.Distance(transform.localPosition, attackTarget.localPosition) > data.attackRange)
+            {
+                attackTarget = null;
+            }
+        }
+
+
+        if (attackTarget == null)
+        {
+            foreach (Transform enemy in enemies)
+            {
+                if (enemy == null) continue;
+
+                float distance = Vector3.Distance(transform.localPosition, enemy.localPosition);
+
+                if (distance <= data.attackRange)
+                {
+                    attackTarget = enemy;
+                    break;
+                }
+            }
+        }
+
+
+        if (attackTarget != null && attackTimer <= 0f)
         {
 
-            if (enemy == null) continue;
+            FireProjectile(attackTarget);
 
-            float distance = Vector3.Distance(
-                transform.localPosition,
-                enemy.localPosition
-            );
-
-            if (distance <= data.attackRange && attackTarget == null)
-            {
-                attackTarget = enemy;
-                StartCoroutine(AttackUnit());
-                break;
-            }
+            attackTimer = data.attackCooldown;
         }
     }
 
-    private IEnumerator AttackUnit()
+    private void FireProjectile(Transform target)
     {
+        GameObject spawnedProjectile = Instantiate(
+            data.projectilePrefab,
+            transform.position,
+            Quaternion.identity,
+            transform
+        );
+        AudioManager.Instance.PlayProjectileEffect();
 
-        while (attackTarget != null &&
-               Vector3.Distance(transform.localPosition, attackTarget.localPosition) <= data.attackRange)
+        if (spawnedProjectile.TryGetComponent<Image>(out var image))
         {
-            GameObject spawnedProjectile = Instantiate(
-                data.projectilePrefab,
-                transform.position,
-                Quaternion.identity,
-                transform
+            image.color = (teamId == 1) ? Color.green : Color.red;
+        }
+
+
+        StartCoroutine(MoveProjectile(spawnedProjectile, target));
+    }
+
+
+    private IEnumerator MoveProjectile(GameObject projectile, Transform target)
+    {
+        while (projectile != null && target != null &&
+               Vector3.Distance(projectile.transform.position, target.position) > 0.08f)
+        {
+            projectile.transform.position = Vector3.MoveTowards(
+                projectile.transform.position,
+                target.position,
+                data.attackSpeed * Time.deltaTime
             );
-            AudioManager.Instance.PlayProjectileEffect();
+            yield return null;
+        }
 
-            if (spawnedProjectile.TryGetComponent<Image>(out var image))
+        if (projectile != null)
+        {
+            Destroy(projectile);
+
+
+            if (target != null)
             {
-                if (teamId == 1)
-                {
-                    image.color = Color.green;
-                }
-                else
-                {
-                    image.color = Color.red;
-                }
-            }
-
-            while (attackTarget != null &&
-                   Vector3.Distance(spawnedProjectile.transform.position, attackTarget.position) > 1f)
-            {
-                spawnedProjectile.transform.position = Vector3.MoveTowards(
-                    spawnedProjectile.transform.position,
-                    attackTarget.position,
-                    data.attackSpeed * Time.deltaTime
-                );
-                //Debug.Log($"Test : {spawnedProjectile.transform.position} and Test : {attackTarget.position}");
-                yield return null;
-            }
-
-            Destroy(spawnedProjectile);
-
-            if (attackTarget != null)
-            {
-                if (attackTarget.TryGetComponent<Unit>(out Unit targetUnit))
+                if (target.TryGetComponent<Unit>(out Unit targetUnit))
                 {
                     targetUnit.TakeDamage(data.attackDamage);
                 }
-                else if (attackTarget.TryGetComponent<Castle>(out Castle targetCastle))
+                else if (target.TryGetComponent<Castle>(out Castle targetCastle))
                 {
                     targetCastle.TakeDamage(data.attackDamage);
                 }
             }
-
-            yield return new WaitForSeconds(data.attackCooldown);
         }
-
-        attackTarget = null;
     }
 
     public void SetCastleArea(PrinceCastleConfig princeCastle)

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
+
 
 public class DeckManager : MonoBehaviour
 {
@@ -23,12 +23,11 @@ public class DeckManager : MonoBehaviour
     void Start()
     {
         SetUpCards();
-        changeSceneButton.onClick.AddListener(LoadScene);
+        changeSceneButton.onClick.AddListener(SetDeck);
     }
-    public void LoadScene()
+    public void SetDeck()
     {
         GameDeckManager.Instance.SetPlayerDeck(finalDeck);
-        SceneManager.LoadScene("GameBoard");
     }
 
     private void SetUpCards()
@@ -39,6 +38,8 @@ public class DeckManager : MonoBehaviour
 
             CardUI cardUI = spawnedCard.GetComponent<CardUI>();
             cardUI.SetData(allCards[i]);
+            UpgradeCard upgradeCard = spawnedCard.GetComponent<UpgradeCard>();
+            upgradeCard.SetData(allCards[i]);
 
             cardUI.OnCardClicked += OnCardClicked;
 

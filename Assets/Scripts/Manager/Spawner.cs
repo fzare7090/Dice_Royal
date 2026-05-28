@@ -50,13 +50,13 @@ public class Spawner : MonoBehaviour
     void Start()
     {
 
-        deck = GameDeckManager.Instance.GetPlayerDeck(); //
+        deck = GameDeckManager.Instance.GetPlayerDeck(); 
 
         player1 = players[0];
         player2 = players[1];
 
         SetPlayerTeamId();
-        CreateCardButtons(); //
+        CreateCardButtons(); 
 
         SetBoardsInfo();
     }
@@ -75,12 +75,12 @@ public class Spawner : MonoBehaviour
             player = player2;
             positions = SetUnitsPositions(data.spawnCount, drageCardP2.transform.localPosition);
         }
-        Debug.Log("unit position set");
+        
 
         if (player.GetElexir().GetElexir() < data.elexir)
         {
 
-            Debug.Log("Elexir is not enough");
+            
             return;
         }
 
@@ -99,7 +99,7 @@ public class Spawner : MonoBehaviour
             GameObject spawnedUnit = Instantiate(data.Unitprefab, backGroundTransform.parent);
 
             Unit unit = spawnedUnit.GetComponent<Unit>();
-            Image image = spawnedUnit.GetComponent<Image>();
+            Renderer renderer = spawnedUnit.GetComponent<Renderer>();
 
             unit.SetTeamId(teamId);
             unit.SetBoard(board);
@@ -109,26 +109,24 @@ public class Spawner : MonoBehaviour
             if (teamId == 1)
             {
                 spawnedUnit.transform.localPosition = positions[i];
-                image.color = Color.green;
+                renderer.material.color = Color.green;
 
-                Debug.Log("unit swaned");
 
                 team2Enemies.Add(unit.transform);
                 unit.SetEnemies(team1Enemies);
-                Debug.Log("unit set as enemi");
             }
             else
             {
                 spawnedUnit.transform.localPosition = positions[i];
-                image.color = Color.red;
+                renderer.material.color = Color.red;
 
-                Debug.Log("unit swaned");
+    
 
 
                 team1Enemies.Add(unit.transform);
                 unit.SetEnemies(team2Enemies);
 
-                Debug.Log("unit set as enemi");
+    
 
             }
         }
@@ -211,7 +209,7 @@ public class Spawner : MonoBehaviour
             {
                 SpawnUnit(data, 2);
             }
-            Debug.Log("card buttons instatiate");
+            
 
 
         }
@@ -251,7 +249,7 @@ public class Spawner : MonoBehaviour
         team2Enemies.Add(kingCastleP1.transform);
         team1Enemies.Add(kingCastleP2.transform);
 
-        Debug.Log("castles initialize");
+        
     }
 
     private void SetPlayerTeamId()
@@ -279,7 +277,7 @@ public class Spawner : MonoBehaviour
 
     private void SetBoardsInfo()
     {
-        Vector3 p1BoardCenter = new Vector3(-2.1966f, -514.8721f, 0); ///local or world?
+        Vector3 p1BoardCenter = new Vector3(-2.1966f, -514.8721f, 0); 
         Vector3 p2BoardCenter = new Vector3(-17.2237f, 505.3876f, 0);
 
         Vector3 p2BoardSize = new Vector3(242.4635f, 174.1486f, 1);

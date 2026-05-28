@@ -9,8 +9,14 @@ EditorBuildSettings:
     path: Assets/Scenes/GameBoard.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
-    path: Assets/Scenes/DeckBuilder.unity
+    path: Assets/Scenes/GameHub.unity
     guid: a2278256b8f2a9246ae1edd2159a0b61
+  - enabled: 1
+    path: Assets/Scenes/Intro.unity
+    guid: 93c6ce737cdb3234e9fbb78b38068435
+  - enabled: 1
+    path: Assets/Scenes/BeforeBattelTransition.unity
+    guid: 045534a04848fe44999f13f8f3becb15
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -1,8 +1,8 @@
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
+using UnityEngine.AI;
 
 public class Unit : MonoBehaviour
 {
@@ -11,39 +11,51 @@ public class Unit : MonoBehaviour
     [SerializeField] protected TMP_Text hpText;
     [SerializeField] protected List<Board> board;
 
+    [Header("Waypoints (assigned or auto‑generated)")]
+    [SerializeField] private List<Transform> predefinedWaypoints;
+
+    protected NavMeshAgent agent;
     protected List<Transform> enemies;
     protected Transform attackTarget;
 
-    protected List<Vector3> pathPoints = new List<Vector3>();
-    protected int currentPoint = 0;
-    protected List<Vector3> originalPathPoints = new List<Vector3>();
-    protected bool isReturningToOriginalPath = false;
-    protected int originalPathIndex = 0;
+
+    protected List<Transform> waypoints = new List<Transform>();
+    protected int currentWaypointIndex = 0;
 
     protected float currentHP;
-    private Vector3 minRightBridge = new Vector3(355, -100, 0);
-    private Vector3 maxRightBridge = new Vector3(355, 50, 0);
-    private Vector3 minLeftBridge = new Vector3(-361, -100, 0);
-    private Vector3 maxLeftBridge = new Vector3(-361, 50, 0);
-    private float midelBoardX = 0;
 
     protected enum UnitState
     {
         Moving,
-        Attacking,
-        MovingToEnemy
+        MovingToEnemy,
+        Attacking
     }
-
     protected UnitState currentState;
 
     public void SetTeamId(int newTeamId)
     {
         teamId = newTeamId;
     }
+    public int GetTeamId()
+    {
+        return teamId;
+    }
 
     public void SetBoard(List<Board> newBoard)
     {
         board = newBoard;
+    }
+
+    protected virtual void Awake()
+    {
+        agent = GetComponent<NavMeshAgent>();
+        if (agent == null)
+            agent = gameObject.AddComponent<NavMeshAgent>();
+
+
+        agent.updateRotation = false;
+        agent.autoBraking = true;
+        agent.stoppingDistance = 0.1f;
     }
 
     protected virtual void Start()
@@ -63,9 +75,79 @@ public class Unit : MonoBehaviour
     {
         currentHP = data.hp;
         UpdateHPText();
-        SetMovingPath();
-        originalPathPoints = new List<Vector3>(pathPoints);
+        agent.speed = data.moveSpeed;
+
+
+        if (!agent.isOnNavMesh)
+            agent.Warp(transform.position);
+
+
+        BuildWaypoints();
+
+        if (waypoints.Count > 0)
+        {
+            currentWaypointIndex = 0;
+            agent.SetDestination(waypoints[0].position);
+        }
+
         currentState = UnitState.Moving;
+    }
+
+
+    protected virtual void BuildWaypoints()
+    {
+        waypoints.Clear();
+
+
+        if (predefinedWaypoints != null && predefinedWaypoints.Count > 0)
+        {
+            waypoints.AddRange(predefinedWaypoints);
+            return;
+        }
+
+
+        List<PrinceCastleConfig> princeCastleP1 = board[0].GetPrinceCastles();
+        List<PrinceCastleConfig> princeCastleP2 = board[1].GetPrinceCastles();
+        KingCastleConfig kingCastleP1 = board[0].GetKingCastle();
+        KingCastleConfig kingCastleP2 = board[1].GetKingCastle();
+
+
+        bool useRightLane = transform.position.x > 0;
+
+        if (teamId == 1)
+        {
+
+            Transform bridgeEntry = useRightLane ?
+                GameObject.Find("BridgeEntry_Right_Team1")?.transform :
+                GameObject.Find("BridgeEntry_Left_Team1")?.transform;
+
+
+            PrinceCastleConfig prince = useRightLane ? princeCastleP2[0] : princeCastleP2[1];
+            Transform kingTarget = kingCastleP2?.transform;
+
+            if (bridgeEntry != null)
+                waypoints.Add(bridgeEntry);
+            if (prince != null && prince.gameObject.activeInHierarchy)
+                waypoints.Add(prince.transform);
+            if (kingTarget != null)
+                waypoints.Add(kingTarget);
+        }
+        else
+        {
+            Transform bridgeEntry = useRightLane ?
+                GameObject.Find("BridgeEntry_Right_Team2")?.transform :
+                GameObject.Find("BridgeEntry_Left_Team2")?.transform;
+
+            PrinceCastleConfig prince = useRightLane ? princeCastleP1[0] : princeCastleP1[1];
+            Transform kingTarget = kingCastleP1?.transform;
+
+            if (bridgeEntry != null)
+                waypoints.Add(bridgeEntry);
+            if (prince != null && prince.gameObject.activeInHierarchy)
+                waypoints.Add(prince.transform);
+            if (kingTarget != null)
+                waypoints.Add(kingTarget);
+        }
     }
 
     protected void UpdateHPText()
@@ -78,34 +160,70 @@ public class Unit : MonoBehaviour
         enemies = newEnemies;
     }
 
+    protected float GetDistanceToTarget(Transform target)
+    {
+        if (target == null) return float.MaxValue;
+        Collider targetCollider = null;
+
+        if (target.TryGetComponent<Castle>(out Castle castle))
+        {
+            targetCollider = castle.GetCastleCollider();
+        }
+        else
+        {
+            targetCollider = target.GetComponent<Collider>();
+        }
+        if (targetCollider != null)
+        {
+            Vector3 closestPoint = targetCollider.ClosestPoint(transform.position);
+            return Vector3.Distance(transform.position, closestPoint);
+        }
+
+        return Vector3.Distance(transform.position, target.position);
+    }
+
+    protected Vector3 GetClosestPointOnTarget(Transform target)
+    {
+        if (target == null) return transform.position;
+        Collider targetCollider = null;
+        if (target.TryGetComponent<Castle>(out Castle castle))
+        {
+            targetCollider = castle.GetCastleCollider();
+        }
+        else
+        {
+            targetCollider = target.GetComponent<Collider>();
+        }
+        if (targetCollider != null)
+        {
+            return targetCollider.ClosestPoint(transform.position);
+        }
+        return target.position;
+    }
+
+
     protected virtual void Update()
     {
-
         ContinuouslyCheckEnemy();
-
         switch (currentState)
         {
             case UnitState.Moving:
                 MoveForward();
                 CheckForEnemyInRange();
                 break;
-
             case UnitState.MovingToEnemy:
-
                 if (attackTarget != null)
                 {
-                    UpdateEnemyPathContinuously();
+
+                    agent.SetDestination(GetClosestPointOnTarget(attackTarget));
                     CheckAttackRange();
                 }
                 else
                 {
                     ReturnToOriginalPath();
                 }
-                MoveForward();
                 break;
-
             case UnitState.Attacking:
-
                 if (attackTarget == null)
                 {
                     ReturnToOriginalPath();
@@ -113,11 +231,11 @@ public class Unit : MonoBehaviour
                 else
                 {
 
-                    float distance = Vector3.Distance(transform.localPosition, attackTarget.localPosition);
-                    if (distance > data.attackRange)
+                    float dist = GetDistanceToTarget(attackTarget);
+                    if (dist > data.attackRange)
                     {
                         currentState = UnitState.MovingToEnemy;
-                        SetEnemyPath();
+                        ChaseEnemy();
                     }
                 }
                 break;
@@ -128,8 +246,7 @@ public class Unit : MonoBehaviour
     {
         if (attackTarget != null && currentState != UnitState.Attacking)
         {
-            float distance = Vector3.Distance(transform.localPosition, attackTarget.localPosition);
-
+            float distance = GetDistanceToTarget(attackTarget);
 
             if (distance > data.enemyFindingRange)
             {
@@ -145,396 +262,64 @@ public class Unit : MonoBehaviour
         }
     }
 
-    protected void SetMovingPath()
-    {
-        pathPoints.Clear();
-        currentPoint = 0;
-
-        Vector3 pos = transform.localPosition;
-        Vector3 targetPos1;
-        Vector3 targetPos2;
-        Vector3 targetPos3;
-        Vector3 targetPos4;
-
-        List<PrinceCastleConfig> princeCastleP1 = board[0].GetPrinceCastles();
-        List<PrinceCastleConfig> princeCastleP2 = board[1].GetPrinceCastles();
-        KingCastleConfig kingCastleP1 = board[0].GetKingCastle();
-        KingCastleConfig kingCastleP2 = board[1].GetKingCastle();
-
-        if (teamId == 1)
-        {
-            if (pos.x > midelBoardX)
-            {
-                if (pos.y <= minRightBridge.y)
-                {
-                    targetPos1 = minRightBridge;
-                    targetPos2 = maxRightBridge;
-                    if (princeCastleP2[0] != null)
-                    {
-                        targetPos3 = princeCastleP2[0].transform.localPosition;
-                        targetPos4 = kingCastleP2.transform.localPosition;
-                        pathPoints.Add(targetPos3);
-                        pathPoints.Add(targetPos4);
-                    }
-                    else
-                    {
-                        targetPos3 = kingCastleP2.transform.localPosition;
-                        pathPoints.Add(targetPos3);
-                    }
-
-                    pathPoints.Add(targetPos1);
-                    pathPoints.Add(targetPos2);
-                    return;
-                }
-                else if (pos.y <= maxRightBridge.y)
-                {
-                    targetPos1 = maxRightBridge;
-                    if (princeCastleP2[0] != null)
-                    {
-                        targetPos2 = princeCastleP2[0].transform.localPosition;
-                        targetPos3 = kingCastleP2.transform.localPosition;
-                        pathPoints.Add(targetPos2);
-                        pathPoints.Add(targetPos3);
-                    }
-                    else
-                    {
-                        targetPos2 = kingCastleP2.transform.localPosition;
-                        pathPoints.Add(targetPos2);
-                    }
-                    pathPoints.Add(targetPos1);
-                    return;
-                }
-                else if (pos.y <= princeCastleP2[0].transform.localPosition.y)
-                {
-                    if (princeCastleP2[0] != null)
-                    {
-                        targetPos1 = princeCastleP2[0].transform.localPosition;
-                        targetPos2 = kingCastleP2.transform.localPosition;
-                        pathPoints.Add(targetPos1);
-                        pathPoints.Add(targetPos2);
-                    }
-                    else
-                    {
-                        targetPos1 = kingCastleP2.transform.localPosition;
-                        pathPoints.Add(targetPos1);
-                    }
-                    return;
-                }
-                else
-                {
-                    targetPos1 = kingCastleP2.transform.localPosition;
-                    pathPoints.Add(targetPos1);
-                    return;
-                }
-            }
-            else
-            {
-                if (pos.y <= minLeftBridge.y)
-                {
-                    targetPos1 = minLeftBridge;
-                    targetPos2 = maxLeftBridge;
-                    if (princeCastleP2[1] != null)
-                    {
-                        targetPos3 = princeCastleP2[1].transform.localPosition;
-                        targetPos4 = kingCastleP2.transform.localPosition;
-                        pathPoints.Add(targetPos3);
-                        pathPoints.Add(targetPos4);
-                    }
-                    else
-                    {
-                        targetPos3 = kingCastleP2.transform.localPosition;
-                        pathPoints.Add(targetPos3);
-                    }
-
-                    pathPoints.Add(targetPos1);
-                    pathPoints.Add(targetPos2);
-                    return;
-                }
-                else if (pos.y <= maxLeftBridge.y)
-                {
-                    targetPos1 = maxLeftBridge;
-                    if (princeCastleP2[1] != null)
-                    {
-                        targetPos2 = princeCastleP2[1].transform.localPosition;
-                        targetPos3 = kingCastleP2.transform.localPosition;
-                        pathPoints.Add(targetPos2);
-                        pathPoints.Add(targetPos3);
-                    }
-                    else
-                    {
-                        targetPos2 = kingCastleP2.transform.localPosition;
-                        pathPoints.Add(targetPos2);
-                    }
-                    pathPoints.Add(targetPos1);
-                    return;
-                }
-                else if (pos.y <= princeCastleP2[1].transform.localPosition.y)
-                {
-                    if (princeCastleP2[1] != null)
-                    {
-                        targetPos1 = princeCastleP2[1].transform.localPosition;
-                        targetPos2 = kingCastleP2.transform.localPosition;
-                        pathPoints.Add(targetPos1);
-                        pathPoints.Add(targetPos2);
-                    }
-                    else
-                    {
-                        targetPos1 = kingCastleP2.transform.localPosition;
-                        pathPoints.Add(targetPos1);
-                    }
-                    return;
-                }
-                else
-                {
-                    targetPos1 = kingCastleP2.transform.localPosition;
-                    pathPoints.Add(targetPos1);
-                    return;
-                }
-            }
-        }
-        else
-        {
-            if (pos.x > midelBoardX)
-            {
-                if (pos.y >= maxRightBridge.y)
-                {
-                    targetPos1 = maxRightBridge;
-                    targetPos2 = minRightBridge;
-                    if (princeCastleP1[0] != null)
-                    {
-                        targetPos3 = princeCastleP1[0].transform.localPosition;
-                        targetPos4 = kingCastleP1.transform.localPosition;
-                        pathPoints.Add(targetPos3);
-                        pathPoints.Add(targetPos4);
-                    }
-                    else
-                    {
-                        targetPos3 = kingCastleP1.transform.localPosition;
-                        pathPoints.Add(targetPos3);
-                    }
-
-                    pathPoints.Add(targetPos1);
-                    pathPoints.Add(targetPos2);
-                    return;
-                }
-                else if (pos.y >= minRightBridge.y)
-                {
-                    targetPos1 = minRightBridge;
-                    if (princeCastleP1[0] != null)
-                    {
-                        targetPos2 = princeCastleP1[0].transform.localPosition;
-                        targetPos3 = kingCastleP1.transform.localPosition;
-                        pathPoints.Add(targetPos2);
-                        pathPoints.Add(targetPos3);
-                    }
-                    else
-                    {
-                        targetPos2 = kingCastleP1.transform.localPosition;
-                        pathPoints.Add(targetPos2);
-                    }
-                    pathPoints.Add(targetPos1);
-                    return;
-                }
-                else if (pos.y >= princeCastleP1[0].transform.localPosition.y)
-                {
-                    if (princeCastleP1[0] != null)
-                    {
-                        targetPos1 = princeCastleP1[0].transform.localPosition;
-                        targetPos2 = kingCastleP1.transform.localPosition;
-                        pathPoints.Add(targetPos1);
-                        pathPoints.Add(targetPos2);
-                    }
-                    else
-                    {
-                        targetPos1 = kingCastleP1.transform.localPosition;
-                        pathPoints.Add(targetPos1);
-                    }
-                    return;
-                }
-                else
-                {
-                    targetPos1 = kingCastleP1.transform.localPosition;
-                    pathPoints.Add(targetPos1);
-                    return;
-                }
-            }
-            else
-            {
-                if (pos.y >= maxLeftBridge.y)
-                {
-                    targetPos1 = maxLeftBridge;
-                    targetPos2 = minLeftBridge;
-                    if (princeCastleP1[1] != null)
-                    {
-                        targetPos3 = princeCastleP1[1].transform.localPosition;
-                        targetPos4 = kingCastleP1.transform.localPosition;
-                        pathPoints.Add(targetPos3);
-                        pathPoints.Add(targetPos4);
-                    }
-                    else
-                    {
-                        targetPos3 = kingCastleP1.transform.localPosition;
-                        pathPoints.Add(targetPos3);
-                    }
-
-                    pathPoints.Add(targetPos1);
-                    pathPoints.Add(targetPos2);
-                    return;
-                }
-                else if (pos.y >= minLeftBridge.y)
-                {
-                    targetPos1 = minLeftBridge;
-                    if (princeCastleP1[1] != null)
-                    {
-                        targetPos2 = princeCastleP1[1].transform.localPosition;
-                        targetPos3 = kingCastleP1.transform.localPosition;
-                        pathPoints.Add(targetPos2);
-                        pathPoints.Add(targetPos3);
-                    }
-                    else
-                    {
-                        targetPos2 = kingCastleP1.transform.localPosition;
-                        pathPoints.Add(targetPos2);
-                    }
-                    pathPoints.Add(targetPos1);
-                    return;
-                }
-                else if (pos.y >= princeCastleP1[1].transform.localPosition.y)
-                {
-                    if (princeCastleP1[1] != null)
-                    {
-                        targetPos1 = princeCastleP1[1].transform.localPosition;
-                        targetPos2 = kingCastleP1.transform.localPosition;
-                        pathPoints.Add(targetPos1);
-                        pathPoints.Add(targetPos2);
-                    }
-                    else
-                    {
-                        targetPos1 = kingCastleP1.transform.localPosition;
-                        pathPoints.Add(targetPos1);
-                    }
-                    return;
-                }
-                else
-                {
-                    targetPos1 = kingCastleP1.transform.localPosition;
-                    pathPoints.Add(targetPos1);
-                    return;
-                }
-            }
-        }
-    }
-
-    protected void SetEnemyPath()
-    {
-        if (attackTarget == null)
-        {
-            return;
-        }
-
-        pathPoints.Clear();
-
-        pathPoints.Add(attackTarget.localPosition);
-        currentPoint = 0;
-    }
-
-    protected void UpdateEnemyPathContinuously()
-    {
-        if (attackTarget == null || currentState != UnitState.MovingToEnemy) return;
-
-
-        if (pathPoints.Count > 0)
-        {
-
-            if (Vector3.Distance(pathPoints[pathPoints.Count - 1], attackTarget.localPosition) > 1f)
-            {
-                SetEnemyPath();
-            }
-        }
-    }
-
-
 
     protected virtual void MoveForward()
     {
-        if (currentPoint >= pathPoints.Count)
+        if (waypoints == null || waypoints.Count == 0)
+            return;
+
+        while (currentWaypointIndex < waypoints.Count && waypoints[currentWaypointIndex] == null)
+            currentWaypointIndex++;
+        if (currentWaypointIndex >= waypoints.Count)
         {
-
-            if (currentState == UnitState.MovingToEnemy && attackTarget != null)
-            {
-
-                float distanceToTarget = Vector3.Distance(transform.localPosition, attackTarget.localPosition);
-
-                if (distanceToTarget <= data.attackRange)
-                {
-                    currentState = UnitState.Attacking;
-                    StopAllCoroutines();
-                    StartCoroutine(AttackRoutine());
-                }
-                else
-                {
-                    SetEnemyPath();
-                }
-            }
-            else if (currentState == UnitState.Moving)
-            {
-                Destroy(gameObject);
-            }
+            Destroy(gameObject);
             return;
         }
 
+        if (agent.isStopped) agent.isStopped = false;
+        if (agent.stoppingDistance > 0.2f) agent.stoppingDistance = 0.1f;
 
-        transform.localPosition = Vector3.MoveTowards(
-            transform.localPosition,
-            pathPoints[currentPoint],
-            data.moveSpeed * Time.deltaTime
-        );
-
-
-        if (Vector3.Distance(transform.localPosition, pathPoints[currentPoint]) < 1f)
+        Vector3 targetPos = waypoints[currentWaypointIndex].position;
+        if (Vector3.Distance(agent.destination, targetPos) > 0.5f)
         {
-            currentPoint++;
-
-
-            if (currentState == UnitState.MovingToEnemy && attackTarget != null)
+            agent.SetDestination(targetPos);
+        }
+        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+        {
+            currentWaypointIndex++;
+            while (currentWaypointIndex < waypoints.Count && waypoints[currentWaypointIndex] == null)
+                currentWaypointIndex++;
+            if (currentWaypointIndex >= waypoints.Count)
             {
-                SetEnemyPath();
+                Destroy(gameObject);
+                return;
             }
+            agent.SetDestination(waypoints[currentWaypointIndex].position);
         }
     }
+
 
     protected virtual void CheckForEnemyInRange()
     {
         if (enemies == null) return;
-
         Transform closestEnemy = null;
         float closestDistance = float.MaxValue;
-
         foreach (Transform enemy in enemies)
         {
             if (enemy == null) continue;
 
-            float distance = Vector3.Distance(
-                transform.localPosition,
-                enemy.localPosition
-            );
-
-
+            float distance = GetDistanceToTarget(enemy);
             if (distance <= data.enemyFindingRange && distance < closestDistance)
             {
                 closestDistance = distance;
                 closestEnemy = enemy;
             }
         }
-
         if (closestEnemy != null)
         {
-
             if (attackTarget != closestEnemy)
             {
                 attackTarget = closestEnemy;
-
-
                 if (closestDistance <= data.attackRange)
                 {
                     currentState = UnitState.Attacking;
@@ -543,38 +328,26 @@ public class Unit : MonoBehaviour
                 }
                 else
                 {
-
                     currentState = UnitState.MovingToEnemy;
-                    SetEnemyPath();
+                    ChaseEnemy();
                 }
             }
             else if (currentState == UnitState.MovingToEnemy)
             {
-
-                SetEnemyPath();
+                ChaseEnemy();
             }
         }
         else if (attackTarget != null && currentState != UnitState.Attacking)
         {
-
             ReturnToOriginalPath();
         }
     }
 
     protected virtual void CheckAttackRange()
     {
-        if (attackTarget == null)
-        {
-            ReturnToOriginalPath();
-            return;
-        }
+        if (attackTarget == null) return;
 
-        float distanceToTarget = Vector3.Distance(
-            transform.localPosition,
-            attackTarget.localPosition
-        );
-
-
+        float distanceToTarget = GetDistanceToTarget(attackTarget);
         if (distanceToTarget <= data.attackRange)
         {
             if (currentState != UnitState.Attacking)
@@ -584,79 +357,97 @@ public class Unit : MonoBehaviour
                 StartCoroutine(AttackRoutine());
             }
         }
-
         else if (distanceToTarget <= data.enemyFindingRange)
         {
             if (currentState != UnitState.MovingToEnemy)
             {
                 currentState = UnitState.MovingToEnemy;
-                SetEnemyPath();
+                ChaseEnemy();
             }
         }
-
         else
         {
             ReturnToOriginalPath();
         }
     }
 
+
+    protected void ChaseEnemy()
+    {
+        if (attackTarget == null) return;
+        agent.isStopped = false;
+        agent.stoppingDistance = data.attackRange * 0.9f;
+        agent.SetDestination(GetClosestPointOnTarget(attackTarget));
+    }
+
+
     protected virtual IEnumerator AttackRoutine()
     {
+        agent.isStopped = true;
         while (attackTarget != null &&
-               Vector3.Distance(transform.localPosition, attackTarget.localPosition) <= data.attackRange)
+                   GetDistanceToTarget(attackTarget) <= data.attackRange)
         {
             DealDamage();
+
+            if (attackTarget == null)
+                break;
             yield return new WaitForSeconds(data.attackCooldown);
-
-
             if (attackTarget == null ||
-                Vector3.Distance(transform.localPosition, attackTarget.localPosition) > data.attackRange)
+                        GetDistanceToTarget(attackTarget) > data.attackRange)
             {
                 break;
             }
         }
+        agent.isStopped = false;
 
-
-        if (attackTarget != null &&
-            Vector3.Distance(transform.localPosition, attackTarget.localPosition) <= data.enemyFindingRange)
+        if (attackTarget == null)
         {
-
+            ReturnToOriginalPath();
+            yield break;
+        }
+        if (GetDistanceToTarget(attackTarget) <= data.enemyFindingRange)
+        {
             currentState = UnitState.MovingToEnemy;
-            SetEnemyPath();
+            ChaseEnemy();
         }
         else
         {
-
             ReturnToOriginalPath();
         }
     }
 
+
     protected void ReturnToOriginalPath()
     {
-        if (originalPathPoints.Count == 0)
+        attackTarget = null;
+        agent.isStopped = false;
+        agent.stoppingDistance = 0.1f;
+
+        waypoints.RemoveAll(w => w == null);
+        if (waypoints.Count == 0)
         {
+            currentState = UnitState.Moving;
             return;
         }
 
-        float minDistance = float.MaxValue;
-        int closestIndex = 0;
+        if (currentWaypointIndex >= waypoints.Count)
+            currentWaypointIndex = waypoints.Count - 1;
 
-        for (int i = 0; i < originalPathPoints.Count; i++)
+        float minDist = float.MaxValue;
+        int closestIndex = currentWaypointIndex;
+        for (int i = 0; i < waypoints.Count; i++)
         {
-            float distance = Vector3.Distance(transform.localPosition, originalPathPoints[i]);
-            if (distance < minDistance)
+            if (waypoints[i] == null) continue;
+            float dist = Vector3.Distance(transform.position, waypoints[i].position);
+            if (dist < minDist)
             {
-                minDistance = distance;
+                minDist = dist;
                 closestIndex = i;
             }
         }
-
-        pathPoints.Clear();
-        pathPoints.AddRange(originalPathPoints);
-        currentPoint = closestIndex;
+        currentWaypointIndex = closestIndex;
+        agent.SetDestination(waypoints[currentWaypointIndex].position);
         currentState = UnitState.Moving;
-        attackTarget = null;
-        isReturningToOriginalPath = false;
     }
 
     protected virtual void DealDamage()
@@ -664,24 +455,17 @@ public class Unit : MonoBehaviour
         if (attackTarget == null) return;
 
         if (attackTarget.TryGetComponent<Unit>(out Unit targetUnit))
-        {
             targetUnit.TakeDamage(data.attackDamage);
-        }
         else if (attackTarget.TryGetComponent<Castle>(out Castle targetCastle))
-        {
             targetCastle.TakeDamage(data.attackDamage);
-        }
     }
 
     public virtual void TakeDamage(float damage)
     {
         currentHP -= damage;
         UpdateHPText();
-
         if (currentHP <= 0)
-        {
             Die();
-        }
     }
 
     protected virtual void Die()

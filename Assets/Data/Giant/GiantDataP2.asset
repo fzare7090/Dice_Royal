@@ -17,9 +17,9 @@ MonoBehaviour:
   hp: 400
   moveSpeed: 80
   attackDamage: 100
-  attackRange: 80
+  attackRange: 0.01
   enemyFindingRange: 90
   attackCooldown: 1.1
   attackSpeed: 50
   elexir: 50
-  Unitprefab: {fileID: 1542100748673166741, guid: 063a15d7863ed5041a8a242256b357ee, type: 3}
+  Unitprefab: {fileID: 5184224788010875712, guid: 78442ff07f68b4449892b7030b526a2e, type: 3}

@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Giant
   spawnCount: 1
-  hp: 400
-  moveSpeed: 40
-  attackDamage: 100
-  attackRange: 80
-  enemyFindingRange: 200
+  hp: 4000
+  moveSpeed: 0.1
+  attackDamage: 170
+  attackRange: 0.2
+  enemyFindingRange: 1
   attackCooldown: 1.1
   attackSpeed: 50
   elexir: 60
-  Unitprefab: {fileID: 1542100748673166741, guid: 063a15d7863ed5041a8a242256b357ee, type: 3}
+  Unitprefab: {fileID: 5184224788010875712, guid: 78442ff07f68b4449892b7030b526a2e, type: 3}

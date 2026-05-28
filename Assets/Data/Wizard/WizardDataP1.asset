@@ -14,13 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Wizard
   spawnCount: 1
-  hp: 400
-  moveSpeed: 80
+  hp: 700
+  moveSpeed: 0.2
   attackDamage: 100
-  attackRange: 300
-  enemyFindingRange: 500
-  attackCooldown: 0.4
-  attackSpeed: 200
+  attackRange: 0.9
+  enemyFindingRange: 1
+  attackCooldown: 2
+  attackSpeed: 0.7
   elexir: 60
-  Unitprefab: {fileID: 1542100748673166741, guid: 677351ebad26d654ab7be1739ec4d7a5, type: 3}
-  firePrefab: {fileID: 5181028282741182405, guid: 440d3d6d3bf7c1f45afd29400d0a0b5c, type: 3}
+  Unitprefab: {fileID: 5184224788010875712, guid: bc7bf8b5654b04d44937f2a5e3d49c28, type: 3}
+  fireRange: 0.3
+  firePrefab: {fileID: 6147683664016234234, guid: 7ce34f87b64d4904787648194a0ffa09, type: 3}
