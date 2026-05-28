@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7e077c01a1af884d847b0ef754b8663, type: 3}
+  m_Name: CardUpgradeData
+  m_EditorClassIdentifier: 
+  maxLevel: 10
+  upgradeCost: 3200000064000000c80000009001000020030000dc050000c4090000a00f000070170000401f0000
+  cardCopiesNeeded: 02000000040000000a000000140000003200000064000000c80000009001000020030000b0040000
+  hpMultiplier:
+  - 1
+  - 1.2
+  - 1.4
+  - 1.7
+  - 2
+  - 2.3
+  - 2.7
+  - 3.1
+  - 3.6
+  - 4.2
+  damageMultiplier:
+  - 1
+  - 1.15
+  - 1.3
+  - 1.5
+  - 1.7
+  - 1.9
+  - 2.2
+  - 2.5
+  - 2.9
+  - 3.4
+  attackSpeedMultiplier:
+  - 1
+  - 1.1
+  - 1.2
+  - 1.35
+  - 1.5
+  - 1.65
+  - 1.8
+  - 2
+  - 2.2
+  - 2.5

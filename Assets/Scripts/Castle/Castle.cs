@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
@@ -11,10 +11,13 @@ public class Castle : MonoBehaviour
     [SerializeField] private CastleData data;
     [SerializeField] private GameObject area;
     [SerializeField] private Collider castleCollider;
+    [SerializeField] private AreaManager areaManager;
+    [SerializeField] private Area myArea;
 
     private List<Transform> enemies;
     private Transform attackTarget;
     private float currentHP;
+    private float maxHP; 
     public bool exist = true;
 
 
@@ -24,15 +27,40 @@ public class Castle : MonoBehaviour
     {
         if (data != null)
         {
+            maxHP = data.hp; 
             currentHP = data.hp;
             UpdateHPText();
             StartCoroutine(CastleLoop());
         }
         else
         {
+            maxHP = 100; 
             currentHP = 100;
             UpdateHPText();
         }
+
+        myArea = GetComponent<Area>();
+    }
+    public void ApplyUpgrade(float newMaxHP, float newDamage, float newAttackSpeed)
+    {
+        float hpPercent = currentHP / maxHP;
+        maxHP = newMaxHP;
+        currentHP = maxHP * hpPercent;
+        data.attackDamage = newDamage;
+        data.attackSpeed = newAttackSpeed;
+        UpdateHPText();
+    }
+
+
+    public float GetCurrentHPPercent()
+    {
+        return currentHP / maxHP;
+    }
+
+
+    public CastleData GetData()
+    {
+        return data;
     }
 
     private IEnumerator CastleLoop()
@@ -81,6 +109,12 @@ public class Castle : MonoBehaviour
 
     void Collapse()
     {
+        if (myArea != null && areaManager != null)
+        {
+            int enemyTeamId = (teamId == 0) ? 1 : 0;
+            areaManager.ChangeAreaTeam(myArea, enemyTeamId);
+        }
+
         AudioManager.Instance.PlayDistroyCastleEffect();
         Destroy(gameObject);
         exist = false;
@@ -130,7 +164,6 @@ public class Castle : MonoBehaviour
     {
         if (enemies == null || data == null) return;
 
-
         if (attackTarget != null)
         {
             if (!attackTarget.gameObject.activeInHierarchy ||
@@ -139,7 +172,6 @@ public class Castle : MonoBehaviour
                 attackTarget = null;
             }
         }
-
 
         if (attackTarget == null)
         {
@@ -182,7 +214,6 @@ public class Castle : MonoBehaviour
             image.color = (teamId == 1) ? Color.green : Color.red;
         }
 
-
         StartCoroutine(MoveProjectile(spawnedProjectile, target));
     }
 
@@ -217,10 +248,5 @@ public class Castle : MonoBehaviour
                 }
             }
         }
-    }
-
-    public void SetCastleArea(PrinceCastleConfig princeCastle)
-    {
-
     }
 }
