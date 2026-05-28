@@ -12,6 +12,7 @@ public class Coin : MonoBehaviour
     private void Start()
     {
         UpdateCoinUI();
+
     }
 
     public int GetCoin()
@@ -35,7 +36,6 @@ public class Coin : MonoBehaviour
 
     public bool SpendCoin(int amount)
     {
-        if (amount <= 0) return false;
 
         if (currentCoin < amount)
             return false;

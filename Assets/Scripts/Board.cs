@@ -1,25 +1,28 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Board : MonoBehaviour
 {
     [SerializeField] private KingCastleConfig kingCastle;
-    [SerializeField] private List<PrinceCastleConfig> princeCastles = new List<PrinceCastleConfig>();
-
-    private Vector3 boardCenter;
-    private Vector3 boardSize; // vctor3?
-
-    private Bounds boardBounds;
-
+    [SerializeField] private PrinceCastleConfig rightPriceCastle;
+    [SerializeField] private PrinceCastleConfig leftPriceCastle;
+   
 
     public KingCastleConfig GetKingCastle()
     {
         return kingCastle;
     }
 
-    public List<PrinceCastleConfig> GetPrinceCastles()
+  
+    public PrinceCastleConfig GetRightPrinceCastles()
     {
-        return princeCastles;
+        return rightPriceCastle;
+    }
+
+
+    public PrinceCastleConfig GetLeftPrinceCastles()
+    {
+        return leftPriceCastle;
     }
 
 
@@ -30,38 +33,26 @@ public class Board : MonoBehaviour
 
     public void SetPrinceCastleConfig(List<PrinceCastleConfig> newPrinceCastles)
     {
-        princeCastles = newPrinceCastles;
+        //princeCastles = newPrinceCastles;
     }
     public int GetPrinceCastleCount()
     {
-        return princeCastles.Count;
+        int count = 0;
+
+        if (rightPriceCastle.GetCastleHP().exist)
+        {
+            count++;
+        }
+        if (leftPriceCastle.GetCastleHP().exist)
+        {
+            count++;
+        }
+
+        return count;
 
     }
 
-    public Vector3 GetBoardCenter()
-    {
-        return boardCenter;
-    }
-    public Vector3 GetBoardSize()
-    {
-        return boardSize;
-    }
-    public Bounds GetBoardBounds()
-    {
-        return boardBounds;
-    }
-    public void SetBoardCenter(Vector3 bCentar)
-    {
-        boardCenter = bCentar;
-    }
-    public void SetBoardSize(Vector3 bSize)
-    {
-        boardSize = bSize;
-    }
-    public void SetBoardBoundes(Bounds bBounds)
-    {
-        boardBounds = bBounds;
-    }
+ 
 
 
 }

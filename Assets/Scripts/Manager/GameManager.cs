@@ -33,7 +33,6 @@ public class GameManager : MonoBehaviour
                     player.GetElexir().GetAddingElexir() :
                     player.GetElexir().GetExtraTimeElexirAdding();
                     player.GetElexir().GettingElexir(addingValue);
-                Debug.Log("elexir added in game manager");
             }
 
             bool someoneLost = false;

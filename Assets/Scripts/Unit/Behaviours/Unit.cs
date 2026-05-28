@@ -1,3 +1,4 @@
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -156,12 +157,22 @@ public class Unit : MonoBehaviour
         Vector3 targetPos3;
         Vector3 targetPos4;
 
-        List<PrinceCastleConfig> princeCastleP1 = board[0].GetPrinceCastles();
-        List<PrinceCastleConfig> princeCastleP2 = board[1].GetPrinceCastles();
+        List<PrinceCastleConfig> princeCastleP1 = new List<PrinceCastleConfig>();
+        List<PrinceCastleConfig> princeCastleP2 = new List<PrinceCastleConfig>();
+
+        princeCastleP1.Add(board[0].GetRightPrinceCastles());        
+        princeCastleP1.Add(board[0].GetLeftPrinceCastles());
+
+        princeCastleP2.Add(board[1].GetRightPrinceCastles());
+        princeCastleP2.Add(board[1].GetLeftPrinceCastles());
+
+
+
+
         KingCastleConfig kingCastleP1 = board[0].GetKingCastle();
         KingCastleConfig kingCastleP2 = board[1].GetKingCastle();
 
-        if (teamId == 1)
+        if (teamId == 0)
         {
             if (pos.x > midelBoardX)
             {
@@ -689,3 +700,4 @@ public class Unit : MonoBehaviour
         Destroy(gameObject);
     }
 }
+

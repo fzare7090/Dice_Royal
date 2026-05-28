@@ -6,38 +6,45 @@ using UnityEngine.UI;
 public class Dice : MonoBehaviour
 {
     [SerializeField] private TMP_Text diceText;
+    [SerializeField] private TMP_Text diceTimer;
+    [SerializeField] private TMP_Text tossDiceNotice;
     [SerializeField] private Button diceButton;
     [SerializeField] private Elexir elexir;
     [SerializeField] private int diceCooldown = 30;
 
     private int diceNumber;
-    private bool isDiceLocked = false; // حالا مشخص است: اگر true باشد یعنی قفل است
+    private bool isDiceLocked = false; 
     private int elexirMultiplier = 10;
 
     private void Start()
     {
-        // در شروع بازی دکمه آزاد است
         isDiceLocked = false;
 
         diceButton.onClick.AddListener(OnDiceClicked);
+        //OnDiceClicked();
         UpdateDiceButtonState();
+        tossDiceNotice.gameObject.SetActive(false);
     }
+
+    private Coroutine activeTimerCoroutine;
 
     private void OnDiceClicked()
     {
-        // اگر قفل است، اجازه کلیک نده
-        if (isDiceLocked)
-        {
-            Debug.Log("Dice is locked. Please wait.");
-            return;
-        }
+        if (isDiceLocked) return;
 
         TossDice();
-
-        // بعد از پرتاب، دکمه را قفل کن و تایمر را شروع کن
         isDiceLocked = true;
         UpdateDiceButtonState();
-        StartCoroutine(DiceTimer());
+
+        if (activeTimerCoroutine != null)
+            StopCoroutine(activeTimerCoroutine);
+        activeTimerCoroutine = StartCoroutine(DiceTimer());
+    }
+
+    private void OnDisable()
+    {
+        if (activeTimerCoroutine != null)
+            StopCoroutine(activeTimerCoroutine);
     }
 
     public void TossDice()
@@ -53,17 +60,37 @@ public class Dice : MonoBehaviour
     public IEnumerator DiceTimer()
     {
         Debug.Log("Timer started...");
-        yield return new WaitForSeconds(diceCooldown);
+        for (int i = diceCooldown; i > 0; i--)
+        {
+            ShowTimer(i);
+            yield return new WaitForSeconds(1f);
+        }
 
-        // زمان تمام شد، قفل را باز کن
+        ShowTimer(0);
+        StartCoroutine(NoticeForTossDice());
         isDiceLocked = false;
         UpdateDiceButtonState();
-        Debug.Log("Timer finished. Dice unlocked.");
     }
 
     private void UpdateDiceButtonState()
     {
-        // دکمه وقتی interactable است که قفل نباشد
         diceButton.interactable = !isDiceLocked;
+    }
+
+    private void ShowTimer(int curTime)
+    {
+        diceTimer.SetText(curTime.ToString());
+    }
+
+    private IEnumerator NoticeForTossDice()
+    {
+        tossDiceNotice.gameObject.SetActive(true);
+        tossDiceNotice.SetText("Dice is ready to roll!");
+        yield return new WaitForSeconds(1.5f);
+        tossDiceNotice.gameObject.SetActive(false);
+    }
+    public void SetElexirMultiplier(int newMultiplier)
+    {
+        elexirMultiplier = newMultiplier;
     }
 }

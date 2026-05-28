@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
@@ -9,30 +9,54 @@ public class Castle : MonoBehaviour
     [SerializeField] private TMP_Text hpText;
     [SerializeField] private int teamId;
     [SerializeField] private CastleData data;
-    [SerializeField] private GameObject area;
+    [SerializeField] private AreaManager areaManager;
 
+    [SerializeField] private Area myArea;
 
     private List<Transform> enemies;
     private Transform attackTarget;
     private float currentHP;
+    private float maxHP; 
     public bool exist = true;
 
     private void Start()
     {
-
         if (data != null)
         {
-
+            maxHP = data.hp; 
             currentHP = data.hp;
             UpdateHPText();
             StartCoroutine(CastleLoop());
         }
         else
         {
-
+            maxHP = 100; 
             currentHP = 100;
             UpdateHPText();
         }
+
+        myArea = GetComponent<Area>();
+    }
+    public void ApplyUpgrade(float newMaxHP, float newDamage, float newAttackSpeed)
+    {
+        float hpPercent = currentHP / maxHP;
+        maxHP = newMaxHP;
+        currentHP = maxHP * hpPercent;
+        data.attackDamage = newDamage;
+        data.attackSpeed = newAttackSpeed;
+        UpdateHPText();
+    }
+
+
+    public float GetCurrentHPPercent()
+    {
+        return currentHP / maxHP;
+    }
+
+
+    public CastleData GetData()
+    {
+        return data;
     }
 
     private IEnumerator CastleLoop()
@@ -43,7 +67,6 @@ public class Castle : MonoBehaviour
             yield return null;
         }
     }
-
 
     public int GetHPCastle()
     {
@@ -60,7 +83,6 @@ public class Castle : MonoBehaviour
         }
     }
 
-
     public void TakeDamage(float damage)
     {
         currentHP -= damage;
@@ -73,6 +95,12 @@ public class Castle : MonoBehaviour
 
     void Collapse()
     {
+        if (myArea != null && areaManager != null)
+        {
+            int enemyTeamId = (teamId == 0) ? 1 : 0;
+            areaManager.ChangeAreaTeam(myArea, enemyTeamId);
+        }
+
         AudioManager.Instance.PlayDistroyCastleEffect();
         Destroy(gameObject);
         exist = false;
@@ -84,7 +112,6 @@ public class Castle : MonoBehaviour
         {
             return null;
         }
-
         return this;
     }
 
@@ -98,7 +125,6 @@ public class Castle : MonoBehaviour
         if (hpText != null)
             hpText.SetText(Mathf.RoundToInt(currentHP).ToString());
     }
-
 
     public void SetData(CastleData newData)
     {
@@ -122,13 +148,10 @@ public class Castle : MonoBehaviour
 
     private void CheckForEnemyInRange()
     {
-
-
         if (enemies == null || data == null) return;
 
         foreach (Transform enemy in enemies)
         {
-
             if (enemy == null) continue;
 
             float distance = Vector3.Distance(
@@ -147,7 +170,6 @@ public class Castle : MonoBehaviour
 
     private IEnumerator AttackUnit()
     {
-
         while (attackTarget != null &&
                Vector3.Distance(transform.localPosition, attackTarget.localPosition) <= data.attackRange)
         {
@@ -161,7 +183,7 @@ public class Castle : MonoBehaviour
 
             if (spawnedProjectile.TryGetComponent<Image>(out var image))
             {
-                if (teamId == 1)
+                if (teamId == 0)
                 {
                     image.color = Color.green;
                 }
@@ -179,7 +201,6 @@ public class Castle : MonoBehaviour
                     attackTarget.position,
                     data.attackSpeed * Time.deltaTime
                 );
-                //Debug.Log($"Test : {spawnedProjectile.transform.position} and Test : {attackTarget.position}");
                 yield return null;
             }
 
@@ -201,10 +222,5 @@ public class Castle : MonoBehaviour
         }
 
         attackTarget = null;
-    }
-
-    public void SetCastleArea(PrinceCastleConfig princeCastle)
-    {
-
     }
 }
