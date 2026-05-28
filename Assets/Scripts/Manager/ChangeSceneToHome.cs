@@ -13,7 +13,7 @@ public class ChangeSceneToHome : MonoBehaviour
 
     private void ChangingSceneToHome()
     {
-        SceneManager.LoadScene("Home");
+        SceneManager.LoadScene("GameHub");
     }
 
 }
