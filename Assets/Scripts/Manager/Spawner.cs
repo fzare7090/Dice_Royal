@@ -42,7 +42,7 @@ public class Spawner : MonoBehaviour
 
     [SerializeField] private AreaManager areaManager;
     [Header("Upgrade Manager")]
-    [SerializeField] private SceneManagerDataSaver gameSceneManager;
+    // [SerializeField] private SceneManagerDataSaver gameSceneManager;
 
 
     private List<UnitData> deck;
@@ -58,13 +58,13 @@ public class Spawner : MonoBehaviour
     void Start()
     {
 
-        deck = GameDeckManager.Instance.GetPlayerDeck(); 
+        deck = GameDeckManager.Instance.GetPlayerDeck();
 
         player1 = players[0];
         player2 = players[1];
 
         SetPlayerTeamId();
-        CreateCardButtons(); 
+        CreateCardButtons();
 
         //SetBoardsInfo();
     }
@@ -85,7 +85,7 @@ public class Spawner : MonoBehaviour
             positions = SetUnitsPositions(data.spawnCount, drageCardP2.transform.localPosition);
             currentSpawner = drageCardP2;
         }
-        
+
 
         if (player.GetElexir().GetElexir() < data.elexir)
         {
@@ -127,27 +127,28 @@ public class Spawner : MonoBehaviour
                 spawnedUnit.transform.localPosition = positions[i];
                 renderer.material.color = Color.red;
 
-    
+
 
                 team1Enemies.Add(unit.transform);
                 unit.SetEnemies(team2Enemies);
 
-            // ========== فقط برای اولین یونیت CardUpgrade رو ثبت کن (اختیاری) ==========
-            if (cardUpgrade == null)
-            {
-                cardUpgrade = spawnedUnit.GetComponent<CardUpgrade>();
+                // ========== فقط برای اولین یونیت CardUpgrade رو ثبت کن (اختیاری) ==========
                 if (cardUpgrade == null)
                 {
-                    cardUpgrade = spawnedUnit.AddComponent<CardUpgrade>();
+                    cardUpgrade = spawnedUnit.GetComponent<CardUpgrade>();
+                    if (cardUpgrade == null)
+                    {
+                        cardUpgrade = spawnedUnit.AddComponent<CardUpgrade>();
+                    }
                 }
             }
         }
 
         // حالا اینجا cardUpgrade تعریف شده و در دسترس هست
-        if (gameSceneManager != null && cardUpgrade != null)
-        {
-            gameSceneManager.RegisterCard(cardUpgrade);
-        }
+        // if (gameSceneManager != null && cardUpgrade != null)
+        // {
+        //     gameSceneManager.RegisterCard(cardUpgrade);
+        // }
 
         player.GetElexir().UsingElexir(data.elexir);
     }
@@ -226,7 +227,7 @@ public class Spawner : MonoBehaviour
             {
                 SpawnUnit(data, 1);
             }
-            
+
 
 
         }
@@ -266,15 +267,17 @@ public class Spawner : MonoBehaviour
         team2Enemies.Add(kingCastleP1.transform);
         team1Enemies.Add(kingCastleP2.transform);
 
-        
+
     }
 
     private void SetPlayerTeamId()
     {
         for (int i = 0; i < players.Count; i++)
         {
-            players[i].SetTeamId(i + 1);
+            players[i].SetTeamId(i);
         }
     }
+
+
 
 }

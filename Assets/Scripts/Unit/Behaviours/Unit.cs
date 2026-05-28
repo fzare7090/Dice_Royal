@@ -98,55 +98,52 @@ public class Unit : MonoBehaviour
     {
         waypoints.Clear();
 
-
         if (predefinedWaypoints != null && predefinedWaypoints.Count > 0)
         {
             waypoints.AddRange(predefinedWaypoints);
             return;
         }
 
-
-        List<PrinceCastleConfig> princeCastleP1 = board[0].GetPrinceCastles();
-        List<PrinceCastleConfig> princeCastleP2 = board[1].GetPrinceCastles();
+        // گرفتن قلعه‌ها از برد (دقت کنید برد 0 برای پلیر 1 و برد 1 برای پلیر 2 است)
+        PrinceCastleConfig princeCastleP1Right = board[0].GetRightPrinceCastles();
+        PrinceCastleConfig princeCastleP1Left = board[0].GetLeftPrinceCastles();
         KingCastleConfig kingCastleP1 = board[0].GetKingCastle();
-        KingCastleConfig kingCastleP2 = board[1].GetKingCastle();
 
+        PrinceCastleConfig princeCastleP2Right = board[1].GetRightPrinceCastles();
+        PrinceCastleConfig princeCastleP2Left = board[1].GetLeftPrinceCastles();
+        KingCastleConfig kingCastleP2 = board[1].GetKingCastle();
 
         bool useRightLane = transform.position.x > 0;
 
-        if (teamId == 1)
+        // اگر تیم 1 (پلیر 1) است -> باید به سمت قلعه‌های پلیر 2 برود
+        if (teamId == 0)
         {
-
             Transform bridgeEntry = useRightLane ?
                 GameObject.Find("BridgeEntry_Right_Team1")?.transform :
                 GameObject.Find("BridgeEntry_Left_Team1")?.transform;
 
-
-            PrinceCastleConfig prince = useRightLane ? princeCastleP2[0] : princeCastleP2[1];
+            // هدف: قلعه‌های پلیر 2
+            PrinceCastleConfig prince = useRightLane ? princeCastleP2Right : princeCastleP2Left;
             Transform kingTarget = kingCastleP2?.transform;
 
-            if (bridgeEntry != null)
-                waypoints.Add(bridgeEntry);
-            if (prince != null && prince.gameObject.activeInHierarchy)
-                waypoints.Add(prince.transform);
-            if (kingTarget != null)
-                waypoints.Add(kingTarget);
+            if (bridgeEntry != null) waypoints.Add(bridgeEntry);
+            if (prince != null && prince.gameObject.activeInHierarchy) waypoints.Add(prince.transform);
+            if (kingTarget != null) waypoints.Add(kingTarget);
         }
+        // اگر تیم 2 (پلیر 2) است -> باید به سمت قلعه‌های پلیر 1 برود
         else
         {
             Transform bridgeEntry = useRightLane ?
                 GameObject.Find("BridgeEntry_Right_Team2")?.transform :
                 GameObject.Find("BridgeEntry_Left_Team2")?.transform;
 
-            PrinceCastleConfig prince = useRightLane ? princeCastleP1[0] : princeCastleP1[1];
+            // هدف: قلعه‌های پلیر 1
+            PrinceCastleConfig prince = useRightLane ? princeCastleP1Right : princeCastleP1Left;
             Transform kingTarget = kingCastleP1?.transform;
 
-            if (bridgeEntry != null)
-                waypoints.Add(bridgeEntry);
-            if (prince != null && prince.gameObject.activeInHierarchy)
-                waypoints.Add(prince.transform);
-            if (kingTarget != null)
-                waypoints.Add(kingTarget);
+            if (bridgeEntry != null) waypoints.Add(bridgeEntry);
+            if (prince != null && prince.gameObject.activeInHierarchy) waypoints.Add(prince.transform);
+            if (kingTarget != null) waypoints.Add(kingTarget);
         }
     }
 
