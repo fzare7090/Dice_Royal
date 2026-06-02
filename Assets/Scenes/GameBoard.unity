@@ -4543,9 +4543,29 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 584299448}
     - target: {fileID: 7093395067098040843, guid: 1c6d68d64e39fe44493a9c924d9fc841, type: 3}
+      propertyPath: panelRoot
+      value: 
+      objectReference: {fileID: 780314291}
+    - target: {fileID: 7093395067098040843, guid: 1c6d68d64e39fe44493a9c924d9fc841, type: 3}
+      propertyPath: backButton
+      value: 
+      objectReference: {fileID: 880667337}
+    - target: {fileID: 7093395067098040843, guid: 1c6d68d64e39fe44493a9c924d9fc841, type: 3}
+      propertyPath: canvasGroup
+      value: 
+      objectReference: {fileID: 780314295}
+    - target: {fileID: 7093395067098040843, guid: 1c6d68d64e39fe44493a9c924d9fc841, type: 3}
+      propertyPath: rewardsText
+      value: 
+      objectReference: {fileID: 163366707}
+    - target: {fileID: 7093395067098040843, guid: 1c6d68d64e39fe44493a9c924d9fc841, type: 3}
       propertyPath: gameOverText
       value: 
       objectReference: {fileID: 780314294}
+    - target: {fileID: 7093395067098040843, guid: 1c6d68d64e39fe44493a9c924d9fc841, type: 3}
+      propertyPath: panelContainer
+      value: 
+      objectReference: {fileID: 780314291}
     - target: {fileID: 7096750167407089083, guid: 1c6d68d64e39fe44493a9c924d9fc841, type: 3}
       propertyPath: m_SizeDelta.x
       value: 950.6821
@@ -4694,6 +4714,11 @@ MonoBehaviour:
   originalText: 
   fixTags: 1
   forceFix: 0
+--- !u!225 &780314295 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 4365245953240793306, guid: 1c6d68d64e39fe44493a9c924d9fc841, type: 3}
+  m_PrefabInstance: {fileID: 780314290}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0

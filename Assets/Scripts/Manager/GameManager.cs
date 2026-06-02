@@ -358,6 +358,7 @@ public class GameManager : MonoBehaviour
     private void CheckForGameOver()
     {
         Time.timeScale = 0f;
-        gameOverPanel.gameObject.SetActive(true);
+        // به جای اکتیو کردن ساده، متد دو تویین را صدا می‌زنیم
+        gameOverPanel.ShowAnimated();
     }
 }
