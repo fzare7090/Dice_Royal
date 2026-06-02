@@ -45,13 +45,11 @@ public class Elexir : MonoBehaviour
 
     public void GettingElexir(int addingValue)
     {
-
-        if (currentElexir < maxElexir)
+        currentElexir += addingValue;
+        if (currentElexir > maxElexir)
         {
-            currentElexir += addingValue;
-
+            currentElexir = maxElexir;
         }
-
     }
 
     public void RunningOutElexirNotice()

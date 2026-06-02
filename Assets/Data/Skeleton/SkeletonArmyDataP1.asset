@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca11b1428f018ef48b423525f1e4da13, type: 3}
   m_Name: SkeletonArmyDataP1
   m_EditorClassIdentifier: 
-  name: SkeletonArmy
+  name: "\u0627\u0631\u062A\u0634 \u0627\u0633\u06A9\u0644\u062A \u0647\u0627"
   spawnCount: 15
   hp: 50
   moveSpeed: 0.3
   attackDamage: 30
   attackRange: 0.2
-  enemyFindingRange: 1
+  enemyFindingRange: 1.8
   attackCooldown: 0.3
   attackSpeed: 150
   elexir: 40

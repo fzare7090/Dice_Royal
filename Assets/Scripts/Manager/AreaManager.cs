@@ -7,33 +7,33 @@ public class AreaManager : MonoBehaviour
 
     [SerializeField] private List<Area> allAreas = new List<Area>();
 
-    private Dictionary< int, List<Area>> teamAreasMap;
+    private Dictionary<int, List<Area>> teamAreasMap;
 
-    private void Start() 
+    private void Start()
     {
         SetAreasByTeam();
         Debug.Log($"Total Areas registered: {allAreas.Count}");
 
         foreach (var area in allAreas)
         {
-            RectTransform rt = area.GetRectTransform(); 
+            RectTransform rt = area.GetRectTransform();
             if (rt == null)
             {
                 Debug.LogWarning($"AREA {area.name} has no RectTransform!");
                 continue;
             }
 
-            
+
             Vector3[] corners = new Vector3[4];
             rt.GetWorldCorners(corners);
-           
+
         }
     }
 
 
     public void SetAreasByTeam()
     {
-        
+
         teamAreasMap = new Dictionary<int, List<Area>>();
 
         foreach (Area area in allAreas)
@@ -44,15 +44,15 @@ public class AreaManager : MonoBehaviour
                 teamAreasMap[teamId] = new List<Area>();
             }
             teamAreasMap[(teamId)].Add(area);
-            Debug.Log($"area of team{ teamId} set");
+            Debug.Log($"area of team{teamId} set");
 
         }
-       
+
     }
 
 
 
-  
+
     public Area GetAreaAtPosition(RectTransform spawner)
     {
         foreach (Area area in allAreas)
@@ -102,23 +102,35 @@ public class AreaManager : MonoBehaviour
     }
 
 
-    
+
 
 
     public bool CanPlayerSpawnAtPosition(RectTransform spawner, int playerTeamId)
     {
-        Area area = GetAreaAtPosition(spawner);
+        bool foundAnyValidArea = false;
+        bool spawnerInSomeArea = false;
 
-        if (area == null)
+        foreach (Area area in allAreas)
         {
-            Debug.Log("area is null at can player spawn");
+            if (area != null && IsInsideArea(area, spawner))
+            {
+                spawnerInSomeArea = true;
+                if (area.GetTeamId() == playerTeamId)
+                {
+                    foundAnyValidArea = true;
+                    break;
+                }
+            }
+        }
+
+        if (!spawnerInSomeArea)
+        {
+            Debug.Log("area is null or spawner is not in any area");
             return false;
         }
 
-        bool ownershipArea = area.GetTeamId() == playerTeamId;
-        Debug.Log($"the spawnerTeamId is {playerTeamId} and owner is {area.GetTeamId()}");
-
-        return ownershipArea;
+        Debug.Log($"the spawnerTeamId is {playerTeamId} and valid area found: {foundAnyValidArea}");
+        return foundAnyValidArea;
     }
 
 
@@ -135,8 +147,34 @@ public class AreaManager : MonoBehaviour
     {
         if (area != null)
         {
+            int oldTeamId = area.GetTeamId();
+            if (teamAreasMap != null)
+            {
+                if (teamAreasMap.ContainsKey(oldTeamId))
+                {
+                    teamAreasMap[oldTeamId].Remove(area);
+                }
+                if (!teamAreasMap.ContainsKey(newTeamId))
+                {
+                    teamAreasMap[newTeamId] = new List<Area>();
+                }
+                if (!teamAreasMap[newTeamId].Contains(area))
+                {
+                    teamAreasMap[newTeamId].Add(area);
+                }
+            }
             area.SetTeamId(newTeamId);
+        }
+    }
 
+    public void ShowValidAreas(int teamId, bool show)
+    {
+        foreach (Area area in allAreas)
+        {
+            if (area != null && area.GetTeamId() == teamId)
+            {
+                area.ShowHighlight(show);
+            }
         }
     }
 

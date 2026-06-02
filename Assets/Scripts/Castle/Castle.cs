@@ -17,29 +17,42 @@ public class Castle : MonoBehaviour
     private List<Transform> enemies;
     private Transform attackTarget;
     private float currentHP;
-    private float maxHP; 
+    private float pendingDamage = 0f;
+    private float maxHP;
     public bool exist = true;
 
-
     private float attackTimer = 0f;
+
+    private Dictionary<GameObject, Transform> activeProjectiles = new Dictionary<GameObject, Transform>();
 
     private void Start()
     {
         if (data != null)
         {
-            maxHP = data.hp; 
+            maxHP = data.hp;
             currentHP = data.hp;
             UpdateHPText();
             StartCoroutine(CastleLoop());
         }
         else
         {
-            maxHP = 100; 
+            maxHP = 100;
             currentHP = 100;
             UpdateHPText();
         }
 
-        myArea = GetComponent<Area>();
+        if (myArea == null)
+        {
+            myArea = GetComponent<Area>();
+            if (myArea == null && area != null)
+            {
+                myArea = area.GetComponent<Area>();
+            }
+            if (myArea == null)
+            {
+                myArea = GetComponentInChildren<Area>();
+            }
+        }
     }
     public void ApplyUpgrade(float newMaxHP, float newDamage, float newAttackSpeed)
     {
@@ -89,7 +102,15 @@ public class Castle : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        TakeDamage((float)damage);
+    }
+
+    public void TakeDamage(float damage)
+    {
         currentHP -= damage;
+        pendingDamage -= damage;
+        if (pendingDamage < 0) pendingDamage = 0;
+
         UpdateHPText();
         if (currentHP <= 0)
         {
@@ -97,14 +118,14 @@ public class Castle : MonoBehaviour
         }
     }
 
-    public void TakeDamage(float damage)
+    public void AddPendingDamage(float damage)
     {
-        currentHP -= damage;
-        UpdateHPText();
-        if (currentHP <= 0)
-        {
-            Collapse();
-        }
+        pendingDamage += damage;
+    }
+
+    public float GetEffectiveHP()
+    {
+        return currentHP - pendingDamage;
     }
 
     void Collapse()
@@ -113,10 +134,38 @@ public class Castle : MonoBehaviour
         {
             int enemyTeamId = (teamId == 0) ? 1 : 0;
             areaManager.ChangeAreaTeam(myArea, enemyTeamId);
+
+            // Detach the Area object so it doesn't get destroyed with the Castle
+            if (myArea.gameObject == this.gameObject)
+            {
+                // If Area is on the exact same GameObject, we can't just unparent it.
+                // We should disable the castle components instead of destroying the object.
+                // But to be safe, disable visuals.
+            }
+            else
+            {
+                myArea.transform.SetParent(transform.parent, true);
+            }
         }
 
         AudioManager.Instance.PlayDistroyCastleEffect();
-        Destroy(gameObject);
+
+        if (myArea != null && myArea.gameObject == this.gameObject)
+        {
+            // The Area is on this game object, don't destroy it.
+            // Just disable the Castle logic and its visual components if any.
+            if (TryGetComponent<Image>(out var img)) img.enabled = false;
+            // hide all children (which might be the visuals)
+            foreach (Transform child in transform)
+            {
+                child.gameObject.SetActive(false);
+            }
+            this.enabled = false;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
         exist = false;
     }
 
@@ -140,6 +189,16 @@ public class Castle : MonoBehaviour
             hpText.SetText(Mathf.RoundToInt(currentHP).ToString());
     }
 
+    public void ClearCombat()
+    {
+        StopAllCoroutines();
+        foreach (var kvp in activeProjectiles)
+        {
+            if (kvp.Key != null) Destroy(kvp.Key);
+        }
+        activeProjectiles.Clear();
+    }
+
     public void SetData(CastleData newData)
     {
         data = newData;
@@ -155,6 +214,21 @@ public class Castle : MonoBehaviour
         return teamId;
     }
 
+    private float GetTargetEffectiveHP(Transform target)
+    {
+        if (target == null) return 0;
+        if (target.TryGetComponent<Unit>(out Unit unit)) return unit.GetEffectiveHP();
+        if (target.TryGetComponent<Castle>(out Castle castle)) return castle.GetEffectiveHP();
+        return 1;
+    }
+
+    private void AddTargetPendingDamage(Transform target, float damage)
+    {
+        if (target == null) return;
+        if (target.TryGetComponent<Unit>(out Unit unit)) unit.AddPendingDamage(damage);
+        else if (target.TryGetComponent<Castle>(out Castle castle)) castle.AddPendingDamage(damage);
+    }
+
     public void SetEnemies(List<Transform> newEnemies)
     {
         enemies = newEnemies;
@@ -164,34 +238,45 @@ public class Castle : MonoBehaviour
     {
         if (enemies == null || data == null) return;
 
+        // بررسی هدف فعلی
         if (attackTarget != null)
         {
             if (!attackTarget.gameObject.activeInHierarchy ||
-                Vector3.Distance(transform.localPosition, attackTarget.localPosition) > data.attackRange)
+                Vector3.Distance(transform.localPosition, attackTarget.localPosition) > data.attackRange ||
+                GetTargetEffectiveHP(attackTarget) <= 0)
             {
                 attackTarget = null;
             }
         }
 
+        // اگر هدفی نداریم، جستجو برای یافتن نزدیک‌ترین دشمن در محدوده برد
         if (attackTarget == null)
         {
+            Transform closestEnemy = null;
+            float closestDistance = float.MaxValue;
+
             foreach (Transform enemy in enemies)
             {
-                if (enemy == null) continue;
+                if (enemy == null || !enemy.gameObject.activeInHierarchy || GetTargetEffectiveHP(enemy) <= 0) continue;
 
+                // حتما باید از localPosition استفاده شود چرا که مقیاس‌های (Scale) این بازی در UI محاسبه می‌شوند
+                // و اعداد شعاع حمله (Attack Range) با مقیاس Local تنظیم شده‌اند نه World Position.
                 float distance = Vector3.Distance(transform.localPosition, enemy.localPosition);
 
-                if (distance <= data.attackRange)
+                if (distance <= data.attackRange && distance < closestDistance)
                 {
-                    attackTarget = enemy;
-                    break;
+                    closestDistance = distance;
+                    closestEnemy = enemy;
                 }
             }
+
+            attackTarget = closestEnemy;
         }
 
-
+        // شلیک به هدف انتخاب شده
         if (attackTarget != null && attackTimer <= 0f)
         {
+            AddTargetPendingDamage(attackTarget, data.attackDamage);
 
             FireProjectile(attackTarget);
 
@@ -220,21 +305,40 @@ public class Castle : MonoBehaviour
 
     private IEnumerator MoveProjectile(GameObject projectile, Transform target)
     {
-        while (projectile != null && target != null &&
-               Vector3.Distance(projectile.transform.position, target.position) > 0.08f)
+        // رفرنس اصلی را نگه می‌داریم تا موقع حذف از دیکشنری خطای null نگیریم
+        GameObject projRef = projectile;
+        activeProjectiles[projRef] = target;
+
+        if (target == null)
         {
+            activeProjectiles.Remove(projRef);
+            yield break;
+        }
+
+        Vector3 targetPosition = target.position;
+
+        // تا زمانی که پرتابه وجود دارد و به موقعیت هدف نرسیده است
+        while (projectile != null && Vector3.Distance(projectile.transform.position, targetPosition) > 0.08f)
+        {
+            // در صورتی که هدف هنوز نابود نشده، موقعیتش را آپدیت کن
+            if (target != null)
+            {
+                targetPosition = target.position;
+            }
+
             projectile.transform.position = Vector3.MoveTowards(
                 projectile.transform.position,
-                target.position,
+                targetPosition,
                 data.attackSpeed * Time.deltaTime
             );
             yield return null;
         }
 
+        activeProjectiles.Remove(projRef);
+
         if (projectile != null)
         {
             Destroy(projectile);
-
 
             if (target != null)
             {
@@ -248,5 +352,19 @@ public class Castle : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (data == null) return;
+        foreach (var kvp in activeProjectiles)
+        {
+            if (kvp.Value != null)
+            {
+                if (kvp.Value.TryGetComponent<Unit>(out Unit u)) u.AddPendingDamage(-data.attackDamage);
+                else if (kvp.Value.TryGetComponent<Castle>(out Castle c)) c.AddPendingDamage(-data.attackDamage);
+            }
+        }
+        activeProjectiles.Clear();
     }
 }

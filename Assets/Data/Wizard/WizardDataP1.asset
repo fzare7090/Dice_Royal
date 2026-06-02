@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeab7f65bab771d4ba086998039d8abc, type: 3}
   m_Name: WizardDataP1
   m_EditorClassIdentifier: 
-  name: Wizard
+  name: "\u062C\u0627\u062F\u0648\u06AF\u0631"
   spawnCount: 1
   hp: 700
   moveSpeed: 0.2
   attackDamage: 100
   attackRange: 0.9
-  enemyFindingRange: 1
+  enemyFindingRange: 1.8
   attackCooldown: 2
   attackSpeed: 0.7
   elexir: 60

@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cafbab8433ee124a9f4a87633e4ca01, type: 3}
   m_Name: GiantDataP1
   m_EditorClassIdentifier: 
-  name: Giant
+  name: "\u063A\u0648\u0644"
   spawnCount: 1
-  hp: 4000
-  moveSpeed: 0.1
+  hp: 3000
+  moveSpeed: 0.3
   attackDamage: 170
   attackRange: 0.2
-  enemyFindingRange: 1
+  enemyFindingRange: 2
   attackCooldown: 1.1
   attackSpeed: 50
   elexir: 60

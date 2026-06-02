@@ -35,18 +35,33 @@ public class GameTimeManager : MonoBehaviour
         }
     }
 
+    public void StartSuddenDeath(float extraTime = 60f)
+    {
+        matchDuration += extraTime; // Extend the total match duration
+        isGameOver = false;
+        isTimerRunning = true;
+    }
+
     public void StopTimer()
     {
         isTimerRunning = false;
         isGameOver = true;
-        
+
     }
 
     public void ToStandardForm(int totalSec)
     {
         int minutes = totalSec / 60;
         int seconds = totalSec % 60;
-        timeBox.SetText($"{minutes:00}:{seconds:00}");
+
+        if (minutes == 0)
+        {
+            timeBox.SetText($"{seconds}");
+        }
+        else
+        {
+            timeBox.SetText($"{minutes}:{seconds:00}");
+        }
     }
 
     public float GetCurrentTime() => currentTime;

@@ -23,6 +23,7 @@ public class Unit : MonoBehaviour
     protected int currentWaypointIndex = 0;
 
     protected float currentHP;
+    protected float pendingDamage = 0f;
 
     protected enum UnitState
     {
@@ -113,35 +114,25 @@ public class Unit : MonoBehaviour
         PrinceCastleConfig princeCastleP2Left = board[1].GetLeftPrinceCastles();
         KingCastleConfig kingCastleP2 = board[1].GetKingCastle();
 
-        bool useRightLane = transform.position.x > 0;
+        bool useRightLane = transform.localPosition.x > 0;
 
         // اگر تیم 1 (پلیر 1) است -> باید به سمت قلعه‌های پلیر 2 برود
         if (teamId == 0)
         {
-            Transform bridgeEntry = useRightLane ?
-                GameObject.Find("BridgeEntry_Right_Team1")?.transform :
-                GameObject.Find("BridgeEntry_Left_Team1")?.transform;
-
             // هدف: قلعه‌های پلیر 2
             PrinceCastleConfig prince = useRightLane ? princeCastleP2Right : princeCastleP2Left;
             Transform kingTarget = kingCastleP2?.transform;
 
-            if (bridgeEntry != null) waypoints.Add(bridgeEntry);
             if (prince != null && prince.gameObject.activeInHierarchy) waypoints.Add(prince.transform);
             if (kingTarget != null) waypoints.Add(kingTarget);
         }
         // اگر تیم 2 (پلیر 2) است -> باید به سمت قلعه‌های پلیر 1 برود
         else
         {
-            Transform bridgeEntry = useRightLane ?
-                GameObject.Find("BridgeEntry_Right_Team2")?.transform :
-                GameObject.Find("BridgeEntry_Left_Team2")?.transform;
-
             // هدف: قلعه‌های پلیر 1
             PrinceCastleConfig prince = useRightLane ? princeCastleP1Right : princeCastleP1Left;
             Transform kingTarget = kingCastleP1?.transform;
 
-            if (bridgeEntry != null) waypoints.Add(bridgeEntry);
             if (prince != null && prince.gameObject.activeInHierarchy) waypoints.Add(prince.transform);
             if (kingTarget != null) waypoints.Add(kingTarget);
         }
@@ -201,19 +192,17 @@ public class Unit : MonoBehaviour
 
     protected virtual void Update()
     {
-        ContinuouslyCheckEnemy();
+        CheckForEnemyInRange();
+
         switch (currentState)
         {
             case UnitState.Moving:
                 MoveForward();
-                CheckForEnemyInRange();
                 break;
             case UnitState.MovingToEnemy:
                 if (attackTarget != null)
                 {
-
-                    agent.SetDestination(GetClosestPointOnTarget(attackTarget));
-                    CheckAttackRange();
+                    agent.SetDestination(attackTarget.position);
                 }
                 else
                 {
@@ -225,40 +214,9 @@ public class Unit : MonoBehaviour
                 {
                     ReturnToOriginalPath();
                 }
-                else
-                {
-
-                    float dist = GetDistanceToTarget(attackTarget);
-                    if (dist > data.attackRange)
-                    {
-                        currentState = UnitState.MovingToEnemy;
-                        ChaseEnemy();
-                    }
-                }
                 break;
         }
     }
-
-    protected void ContinuouslyCheckEnemy()
-    {
-        if (attackTarget != null && currentState != UnitState.Attacking)
-        {
-            float distance = GetDistanceToTarget(attackTarget);
-
-            if (distance > data.enemyFindingRange)
-            {
-                ReturnToOriginalPath();
-            }
-
-            else if (distance <= data.attackRange && currentState == UnitState.MovingToEnemy)
-            {
-                currentState = UnitState.Attacking;
-                StopAllCoroutines();
-                StartCoroutine(AttackRoutine());
-            }
-        }
-    }
-
 
     protected virtual void MoveForward()
     {
@@ -281,7 +239,12 @@ public class Unit : MonoBehaviour
         {
             agent.SetDestination(targetPos);
         }
-        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+
+        float distanceToTarget = Vector3.Distance(transform.position, targetPos);
+        bool physicallyClose = distanceToTarget <= agent.stoppingDistance + 2f;
+        bool pathComplete = !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance && agent.pathStatus == NavMeshPathStatus.PathComplete;
+
+        if (physicallyClose || pathComplete)
         {
             currentWaypointIndex++;
             while (currentWaypointIndex < waypoints.Count && waypoints[currentWaypointIndex] == null)
@@ -296,14 +259,54 @@ public class Unit : MonoBehaviour
     }
 
 
+    protected float GetTargetEffectiveHP(Transform target)
+    {
+        if (target == null) return 0;
+        if (target.TryGetComponent<Unit>(out Unit unit)) return unit.GetEffectiveHP();
+        if (target.TryGetComponent<Castle>(out Castle castle)) return castle.GetEffectiveHP();
+        return 1;
+    }
+
+    protected void AddTargetPendingDamage(Transform target, float damage)
+    {
+        if (target == null) return;
+        if (target.TryGetComponent<Unit>(out Unit unit)) unit.AddPendingDamage(damage);
+        else if (target.TryGetComponent<Castle>(out Castle castle)) castle.AddPendingDamage(damage);
+    }
+
     protected virtual void CheckForEnemyInRange()
     {
         if (enemies == null) return;
+
+        // Cleanup dead targets
+        if (attackTarget != null)
+        {
+            if (!attackTarget.gameObject.activeInHierarchy || GetTargetEffectiveHP(attackTarget) <= 0)
+            {
+                attackTarget = null;
+            }
+        }
+
+        // اگر در حال اتک دادن باشد، معمولا در کلش رویال تارگت عوض نمی‌شود مگر اینکه بمیرد
+        // (این بخش توسط AttackRoutine هم مدیریت می‌شود، اما اینجا برای اطمینان چک می‌کنیم)
+        if (currentState == UnitState.Attacking && attackTarget != null)
+        {
+            float dist = GetDistanceToTarget(attackTarget);
+            if (dist > data.attackRange)
+            {
+                currentState = UnitState.MovingToEnemy;
+                ChaseEnemy();
+            }
+            return;
+        }
+
         Transform closestEnemy = null;
         float closestDistance = float.MaxValue;
+
+        // همیشه در هر فریم تا زمانی که اتک شروع نشده، به دنبال نزدیک‌ترین دشمن می‌گردیم
         foreach (Transform enemy in enemies)
         {
-            if (enemy == null) continue;
+            if (enemy == null || !enemy.gameObject.activeInHierarchy || GetTargetEffectiveHP(enemy) <= 0) continue;
 
             float distance = GetDistanceToTarget(enemy);
             if (distance <= data.enemyFindingRange && distance < closestDistance)
@@ -312,70 +315,62 @@ public class Unit : MonoBehaviour
                 closestEnemy = enemy;
             }
         }
+
+        // اگر دشمنی پیدا شد
         if (closestEnemy != null)
         {
+            // اگر دشمنِ پیدا شده، همانی نیست که قبلا تارگت بود، روی این قفل می‌کنیم (تغییر تارگت به دلیل نزدیک‌تر بودن)
             if (attackTarget != closestEnemy)
             {
                 attackTarget = closestEnemy;
-                if (closestDistance <= data.attackRange)
+            }
+
+            if (closestDistance <= data.attackRange)
+            {
+                if (currentState != UnitState.Attacking)
                 {
                     currentState = UnitState.Attacking;
                     StopAllCoroutines();
                     StartCoroutine(AttackRoutine());
                 }
-                else
+            }
+            else
+            {
+                if (currentState != UnitState.MovingToEnemy)
                 {
                     currentState = UnitState.MovingToEnemy;
                     ChaseEnemy();
                 }
-            }
-            else if (currentState == UnitState.MovingToEnemy)
-            {
-                ChaseEnemy();
-            }
-        }
-        else if (attackTarget != null && currentState != UnitState.Attacking)
-        {
-            ReturnToOriginalPath();
-        }
-    }
-
-    protected virtual void CheckAttackRange()
-    {
-        if (attackTarget == null) return;
-
-        float distanceToTarget = GetDistanceToTarget(attackTarget);
-        if (distanceToTarget <= data.attackRange)
-        {
-            if (currentState != UnitState.Attacking)
-            {
-                currentState = UnitState.Attacking;
-                StopAllCoroutines();
-                StartCoroutine(AttackRoutine());
-            }
-        }
-        else if (distanceToTarget <= data.enemyFindingRange)
-        {
-            if (currentState != UnitState.MovingToEnemy)
-            {
-                currentState = UnitState.MovingToEnemy;
-                ChaseEnemy();
+                else
+                {
+                    // به‌روزرسانی مداوم مقصد به سمت نزدیک‌ترین دشمنِ جدید
+                    agent.SetDestination(attackTarget.position);
+                }
             }
         }
         else
         {
-            ReturnToOriginalPath();
+            // هیچ دشمنی در رنج پیدا نشد
+            attackTarget = null;
+            if (currentState != UnitState.Moving)
+            {
+                ReturnToOriginalPath();
+            }
         }
     }
-
 
     protected void ChaseEnemy()
     {
         if (attackTarget == null) return;
         agent.isStopped = false;
-        agent.stoppingDistance = data.attackRange * 0.9f;
-        agent.SetDestination(GetClosestPointOnTarget(attackTarget));
+
+        // توقف به صورت خودکار توسط متد GetDistanceToTarget مدیریت می‌شود، پس این را صفر می‌کنیم
+        agent.stoppingDistance = 0f;
+
+        // تغییر مهم: همیشه به سمت مرکز مختصات دشمن حرکت کن
+        agent.SetDestination(attackTarget.position);
     }
+
 
 
     protected virtual IEnumerator AttackRoutine()
@@ -460,9 +455,22 @@ public class Unit : MonoBehaviour
     public virtual void TakeDamage(float damage)
     {
         currentHP -= damage;
+        pendingDamage -= damage;
+        if (pendingDamage < 0) pendingDamage = 0;
+
         UpdateHPText();
         if (currentHP <= 0)
             Die();
+    }
+
+    public void AddPendingDamage(float damage)
+    {
+        pendingDamage += damage;
+    }
+
+    public float GetEffectiveHP()
+    {
+        return currentHP - pendingDamage;
     }
 
     protected virtual void Die()

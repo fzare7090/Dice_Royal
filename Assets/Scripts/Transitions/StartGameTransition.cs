@@ -13,6 +13,16 @@ public class StartGameTransition : MonoBehaviour
         Sequence sequence = DOTween.Sequence();
         sequence.Append(transform.DOScale(Vector3.one, 2f).SetEase(Ease.OutExpo));
         sequence.InsertCallback(0.5f, () => PlayStartGameMusic());
+
+        sequence.AppendInterval(0.5f);
+        sequence.AppendCallback(() =>
+        {
+            GameManager gameManager = FindObjectOfType<GameManager>();
+            if (gameManager != null)
+            {
+                gameManager.StartGameLogic();
+            }
+        });
     }
 
     private void PlayStartGameMusic()

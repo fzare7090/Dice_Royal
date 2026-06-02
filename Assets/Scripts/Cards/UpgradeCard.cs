@@ -1,6 +1,7 @@
 using System;
 using DG.Tweening;
 using TMPro;
+using RTLTMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,12 +11,12 @@ public class UpgradeCard : MonoBehaviour
     [SerializeField] private Button upgradeCloser;
     [SerializeField] private Button upgradeUnit;
     [SerializeField] private Image upgradePanel;
-    [SerializeField] private TMP_Text cardName;
-    [SerializeField] private TMP_Text cardHp;
-    [SerializeField] private TMP_Text cardMoveSpeed;
-    [SerializeField] private TMP_Text cardAttackDamage;
-    [SerializeField] private TMP_Text cardAttackRange;
-    [SerializeField] private TMP_Text cardAttackSpeed;
+    [SerializeField] private RTLTextMeshPro cardName;
+    [SerializeField] private RTLTextMeshPro cardHp;
+    [SerializeField] private RTLTextMeshPro cardMoveSpeed;
+    [SerializeField] private RTLTextMeshPro cardAttackDamage;
+    [SerializeField] private RTLTextMeshPro cardAttackRange;
+    [SerializeField] private RTLTextMeshPro cardAttackSpeed;
 
     private UnitData cardData;
 

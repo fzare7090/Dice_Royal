@@ -6,14 +6,14 @@ public class Board : MonoBehaviour
     [SerializeField] private KingCastleConfig kingCastle;
     [SerializeField] private PrinceCastleConfig rightPriceCastle;
     [SerializeField] private PrinceCastleConfig leftPriceCastle;
-   
+
 
     public KingCastleConfig GetKingCastle()
     {
         return kingCastle;
     }
 
-  
+
     public PrinceCastleConfig GetRightPrinceCastles()
     {
         return rightPriceCastle;
@@ -39,11 +39,11 @@ public class Board : MonoBehaviour
     {
         int count = 0;
 
-        if (rightPriceCastle.GetCastleHP().exist)
+        if (rightPriceCastle != null && rightPriceCastle.exist)
         {
             count++;
         }
-        if (leftPriceCastle.GetCastleHP().exist)
+        if (leftPriceCastle != null && leftPriceCastle.exist)
         {
             count++;
         }
@@ -52,7 +52,7 @@ public class Board : MonoBehaviour
 
     }
 
- 
+
 
 
 }

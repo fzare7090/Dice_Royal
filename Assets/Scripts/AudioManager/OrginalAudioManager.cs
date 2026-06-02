@@ -38,9 +38,12 @@ public class OrginalAudioManager : MonoBehaviour
     }
     public void StopMusic()
     {
-        music.Stop();
+        if (music != null)
+        {
+            music.Stop();
+        }
     }
-     public void PlayStartGameMusic()
+    public void PlayStartGameMusic()
     {
         music.PlayOneShot(startGameMusic);
     }

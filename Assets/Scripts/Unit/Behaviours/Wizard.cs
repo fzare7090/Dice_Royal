@@ -1,9 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Wizard : Unit
 {
+    private Dictionary<GameObject, List<Transform>> activeProjectiles = new Dictionary<GameObject, List<Transform>>();
+
     protected override IEnumerator AttackRoutine()
     {
         WizardData wizardData = (WizardData)data;
@@ -12,12 +15,15 @@ public class Wizard : Unit
         while (attackTarget != null &&
                GetDistanceToTarget(attackTarget) <= data.attackRange)
         {
+            if (GetTargetEffectiveHP(attackTarget) <= 0)
+            {
+                break;
+            }
 
             FireProjectile(wizardData, attackTarget);
 
             if (attackTarget == null)
                 break;
-
 
             yield return new WaitForSeconds(data.attackCooldown);
 
@@ -30,8 +36,7 @@ public class Wizard : Unit
 
         agent.isStopped = false;
 
-
-        if (attackTarget == null)
+        if (attackTarget == null || GetTargetEffectiveHP(attackTarget) <= 0)
         {
             ReturnToOriginalPath();
             yield break;
@@ -66,19 +71,51 @@ public class Wizard : Unit
             img.color = teamId == 1 ? Color.green : Color.red;
         }
 
+        // --- پیش‌بینی برخورد و اعمال دمیج معلق (Pending Damage) به‌صورت منطقه‌ای ---
+        Vector3 predictedImpactPos = target.position;
+        Collider[] collidersInRange = Physics.OverlapSphere(predictedImpactPos, wizardData.fireRange);
 
-        StartCoroutine(MoveProjectile(fire, target, wizardData));
+        List<Transform> pendingTargets = new List<Transform>();
+
+        foreach (Collider col in collidersInRange)
+        {
+            if (col.TryGetComponent<Unit>(out Unit hitUnit) && hitUnit.GetTeamId() != this.teamId)
+            {
+                if (hitUnit.GetEffectiveHP() > 0)
+                {
+                    hitUnit.AddPendingDamage(data.attackDamage);
+                    pendingTargets.Add(hitUnit.transform);
+                }
+            }
+            else if (col.TryGetComponent<Castle>(out Castle hitCastle) && hitCastle.GetTeamId() != this.teamId)
+            {
+                if (hitCastle.GetEffectiveHP() > 0)
+                {
+                    hitCastle.AddPendingDamage(data.attackDamage);
+                    pendingTargets.Add(hitCastle.transform);
+                }
+            }
+        }
+
+        StartCoroutine(MoveProjectile(fire, target, wizardData, pendingTargets));
     }
 
-    private IEnumerator MoveProjectile(GameObject projectile, Transform target, WizardData wizardData)
+    private IEnumerator MoveProjectile(GameObject projectile, Transform target, WizardData wizardData, List<Transform> pendingTargets)
     {
-        Vector3 targetPos = target != null ? GetClosestPointOnTarget(target) : Vector3.zero;
+        GameObject projRef = projectile;
+        activeProjectiles[projRef] = pendingTargets;
 
-        while (projectile != null && target != null)
+        Vector3 targetPos = target != null ? target.position : Vector3.zero;
+
+        // حتی اگه تارگت نابود بشه، شلیک باید به آخرین نقطه‌ای که از تارگت می‌دونیم برسه (مثل کلش رویال)
+        while (projectile != null)
         {
-            targetPos = GetClosestPointOnTarget(target);
+            if (target != null)
+            {
+                targetPos = target.position;
+            }
 
-            if (Vector3.Distance(projectile.transform.position, targetPos) <= 0.07f)
+            if (Vector3.Distance(projectile.transform.position, targetPos) <= 0.08f)
                 break;
 
             projectile.transform.position = Vector3.MoveTowards(
@@ -90,6 +127,7 @@ public class Wizard : Unit
             yield return null;
         }
 
+        activeProjectiles.Remove(projRef);
 
         Vector3 impactPos = projectile != null ? projectile.transform.position : targetPos;
 
@@ -98,12 +136,21 @@ public class Wizard : Unit
             Destroy(projectile);
         }
 
+        // --- قبل از اعمال دمیج واقعی، دمیج‌های معلق رو پس می‌گیریم ---
+        foreach (Transform t in pendingTargets)
+        {
+            if (t != null)
+            {
+                if (t.TryGetComponent<Unit>(out Unit u)) u.AddPendingDamage(-data.attackDamage);
+                else if (t.TryGetComponent<Castle>(out Castle c)) c.AddPendingDamage(-data.attackDamage);
+            }
+        }
 
+        // --- اعمال دمیج واقعی (Actual Damage) روی همه کسانی که در لحظه برخورد، تو اون منطقه هستن ---
         Collider[] collidersInRange = Physics.OverlapSphere(impactPos, wizardData.fireRange);
 
         foreach (Collider col in collidersInRange)
         {
-
             if (col.TryGetComponent<Unit>(out Unit hitUnit))
             {
                 if (hitUnit.GetTeamId() != this.teamId)
@@ -111,7 +158,6 @@ public class Wizard : Unit
                     hitUnit.TakeDamage(data.attackDamage);
                 }
             }
-
             else if (col.TryGetComponent<Castle>(out Castle hitCastle))
             {
                 if (hitCastle.GetTeamId() != this.teamId)
@@ -120,5 +166,22 @@ public class Wizard : Unit
                 }
             }
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (data == null) return;
+        foreach (var kvp in activeProjectiles)
+        {
+            foreach (Transform t in kvp.Value)
+            {
+                if (t != null)
+                {
+                    if (t.TryGetComponent<Unit>(out Unit u)) u.AddPendingDamage(-data.attackDamage);
+                    else if (t.TryGetComponent<Castle>(out Castle c)) c.AddPendingDamage(-data.attackDamage);
+                }
+            }
+        }
+        activeProjectiles.Clear();
     }
 }

@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using RTLTMPro;
 using static UnityEngine.InputSystem.InputControlScheme;
 
 public class Chest : MonoBehaviour
 {
     [SerializeField] private List<Player> players = new List<Player>();
-    [SerializeField] private TMP_Text chestText;
+    [SerializeField] private RTLTextMeshPro chestText;
 
     private int winCoinReward = 50;
     private int loseCoinReward = 25;
@@ -93,7 +94,10 @@ public class Chest : MonoBehaviour
         int loserIndex = (winnerIndex + 1) % 2;
 
 
-        chestText.SetText($"Player {winnerIndex + 1} won {winCoinReward}  Coins!\n Player {loserIndex + 1} got {loseCoinReward}Coins!");
+        chestText.text =
+    $" نتایج مسابقه \n\n" +
+    $" بازیکن {winnerIndex + 1}: {winCoinReward} سکه\n" +
+    $" بازیکن {loserIndex + 1}: {loseCoinReward} سکه";
     }
 
 

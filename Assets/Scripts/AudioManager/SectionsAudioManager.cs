@@ -8,6 +8,9 @@ public class SectionsAudioManager : MonoBehaviour
     }
     void OnDestroy()
     {
-        OrginalAudioManager.Instance.StopMusic();
+        if (OrginalAudioManager.Instance != null)
+        {
+            OrginalAudioManager.Instance.StopMusic();
+        }
     }
 }

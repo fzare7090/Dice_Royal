@@ -1,11 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+using RTLTMPro;
 using System;
 
 public class CardUI : MonoBehaviour
 {
-    [SerializeField] private TMP_Text cardName;
+    [SerializeField] private RTLTextMeshPro cardName;
     [SerializeField] private Button cardButton;
 
     private UnitData unitData;
