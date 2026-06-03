@@ -99,42 +99,50 @@ public class Unit : MonoBehaviour
     {
         waypoints.Clear();
 
+
         if (predefinedWaypoints != null && predefinedWaypoints.Count > 0)
         {
             waypoints.AddRange(predefinedWaypoints);
             return;
         }
 
-        
+
+
         PrinceCastleConfig princeCastleP1Right = board[0].GetRightPrinceCastles();
         PrinceCastleConfig princeCastleP1Left = board[0].GetLeftPrinceCastles();
         KingCastleConfig kingCastleP1 = board[0].GetKingCastle();
 
+
+
         PrinceCastleConfig princeCastleP2Right = board[1].GetRightPrinceCastles();
+
         PrinceCastleConfig princeCastleP2Left = board[1].GetLeftPrinceCastles();
+
         KingCastleConfig kingCastleP2 = board[1].GetKingCastle();
+
 
         bool useRightLane = transform.localPosition.x > 0;
 
-        
+
         if (teamId == 0)
         {
-            // هدف: قلعه‌های پلیر 2
+            
             PrinceCastleConfig prince = useRightLane ? princeCastleP2Right : princeCastleP2Left;
             Transform kingTarget = kingCastleP2?.transform;
 
             if (prince != null && prince.gameObject.activeInHierarchy) waypoints.Add(prince.transform);
             if (kingTarget != null) waypoints.Add(kingTarget);
         }
-        
+
         else
         {
-            
+
             PrinceCastleConfig prince = useRightLane ? princeCastleP1Right : princeCastleP1Left;
             Transform kingTarget = kingCastleP1?.transform;
 
             if (prince != null && prince.gameObject.activeInHierarchy) waypoints.Add(prince.transform);
             if (kingTarget != null) waypoints.Add(kingTarget);
+
         }
     }
 
@@ -278,7 +286,7 @@ public class Unit : MonoBehaviour
     {
         if (enemies == null) return;
 
-        
+
         if (attackTarget != null)
         {
             if (!attackTarget.gameObject.activeInHierarchy || GetTargetEffectiveHP(attackTarget) <= 0)
@@ -287,7 +295,7 @@ public class Unit : MonoBehaviour
             }
         }
 
-        
+
         if (currentState == UnitState.Attacking && attackTarget != null)
         {
             float dist = GetDistanceToTarget(attackTarget);
@@ -302,7 +310,7 @@ public class Unit : MonoBehaviour
         Transform closestEnemy = null;
         float closestDistance = float.MaxValue;
 
-        
+
         foreach (Transform enemy in enemies)
         {
             if (enemy == null || !enemy.gameObject.activeInHierarchy || GetTargetEffectiveHP(enemy) <= 0) continue;
@@ -318,7 +326,7 @@ public class Unit : MonoBehaviour
         // اگر دشمنی پیدا شد
         if (closestEnemy != null)
         {
-            
+
             if (attackTarget != closestEnemy)
             {
                 attackTarget = closestEnemy;
@@ -342,14 +350,14 @@ public class Unit : MonoBehaviour
                 }
                 else
                 {
-                   
+
                     agent.SetDestination(attackTarget.position);
                 }
             }
         }
         else
         {
-            
+
             attackTarget = null;
             if (currentState != UnitState.Moving)
             {
@@ -363,10 +371,10 @@ public class Unit : MonoBehaviour
         if (attackTarget == null) return;
         agent.isStopped = false;
 
-        
+
         agent.stoppingDistance = 0f;
 
-        
+
         agent.SetDestination(attackTarget.position);
     }
 

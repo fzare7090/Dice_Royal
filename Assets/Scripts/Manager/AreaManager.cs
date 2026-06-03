@@ -12,14 +12,14 @@ public class AreaManager : MonoBehaviour
     private void Start()
     {
         SetAreasByTeam();
-        Debug.Log($"Total Areas registered: {allAreas.Count}");
+      
 
         foreach (var area in allAreas)
         {
             RectTransform rt = area.GetRectTransform();
             if (rt == null)
             {
-                Debug.LogWarning($"AREA {area.name} has no RectTransform!");
+             
                 continue;
             }
 
@@ -45,7 +45,7 @@ public class AreaManager : MonoBehaviour
                 teamAreasMap[teamId] = new List<Area>();
             }
             teamAreasMap[(teamId)].Add(area);
-            Debug.Log($"area of team{teamId} set");
+
 
         }
 
@@ -60,16 +60,16 @@ public class AreaManager : MonoBehaviour
         {
             if (area == null)
             {
-                Debug.LogWarning("Encountered a null Area in allAreas list.");
+       
                 continue;
             }
             if (IsInsideArea(area, spawner))
             {
-                Debug.Log($"Spawner is inside Area: {area.name}");
+             
                 return area;
             }
         }
-        Debug.Log("spawner is not at area ");
+
         return null;
     }
 
@@ -98,7 +98,7 @@ public class AreaManager : MonoBehaviour
 
         bool isInside = spawnerCenter.x >= areaMin.x && spawnerCenter.x <= areaMax.x &&
                         spawnerCenter.y >= areaMin.y && spawnerCenter.y <= areaMax.y;
-        Debug.Log($"the isinside bool is {isInside}");
+
         return isInside;
     }
 
