@@ -4928,8 +4928,18 @@ MonoBehaviour:
   diceTimer: {fileID: 468859924}
   tossDiceNotice: {fileID: 329814968}
   diceButton: {fileID: 849908874}
+  rollDuration: 1
+  rollSpeed: 720
+  rollCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  cooldownDuration: 30
   elexir: {fileID: 1676606892}
-  diceCooldown: 30
+  elexirMultiplier: 10
+  timerText: {fileID: 0}
 --- !u!114 &849908874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6015,8 +6025,18 @@ MonoBehaviour:
   diceTimer: {fileID: 1598571713}
   tossDiceNotice: {fileID: 1506007494}
   diceButton: {fileID: 1134475702}
+  rollDuration: 1
+  rollSpeed: 720
+  rollCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  cooldownDuration: 30
   elexir: {fileID: 1905221523}
-  diceCooldown: 30
+  elexirMultiplier: 10
+  timerText: {fileID: 0}
 --- !u!114 &1134475702
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6531,7 +6551,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.023333333
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 763fee48df234f84db485d63213e2bf7, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 85dd42f31ee6d0242a2794c18bec31ee, type: 2}
   m_BuildHeightMesh: 0
 --- !u!64 &1285031913
 MeshCollider:
