@@ -10564,7 +10564,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 2871.939, y: 18}
+  m_AnchoredPosition: {x: 2880, y: 18}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1890967280
@@ -11727,6 +11727,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scrollRect: {fileID: 2111415102}
   pageCount: 5
+  swipeThreshold: 50
 --- !u!114 &188220698901071742
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13078,7 +13079,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1310234485605102711}
   m_HandleRect: {fileID: 5465009189243733231}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -13502,7 +13503,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38194e8b2cf65f64586a1f9e7a7ffee4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardDataBase: {fileID: 11400000, guid: fe44058daafacfa4b9e4dd29db16c64f, type: 2}
+  cardDataBase: {fileID: 11400000, guid: 97d7f6c67e7119d45aa1b11a5b1b6173, type: 2}
   cardPrefab: {fileID: 2254820047486117027, guid: b4eba570d46521049bbafd09e85df2c4, type: 3}
   content: {fileID: 2317438027013710202}
   slots:

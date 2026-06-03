@@ -10,21 +10,25 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<UnitData> playerDeck = new List<UnitData>();
 
     private bool isGameFinished = false;
-
     private bool isSuddenDeath = false;
     private bool isTieBreaker = false;
 
     private int suddenDeathStartCrowns0 = 0;
     private int suddenDeathStartCrowns1 = 0;
     private float lastInstantWinCheck = 0f;
+    private float matchStartTime; // اضافه شده از کد دوستت برای محاسبه مدت زمان بازی
+
     private readonly Dictionary<int, List<Castle>> teamCastles = new Dictionary<int, List<Castle>>();
 
-
+    void Start()
+    {
+        // آغاز زمان‌سنجی واقعی مسابقه برای بخش دیتا
+        matchStartTime = Time.time;
+    }
 
     private void Update()
     {
         if (isGameFinished) return;
-
 
         if (Time.time - lastInstantWinCheck > 0.1f)
         {
@@ -37,40 +41,32 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         CacheTeamCastles();
-    }
-    private float matchStartTime;
-
-    void Start()
-    {
-        matchStartTime = Time.time;
-
         gameTime.StartTimer();
         StartCoroutine(CheckGameFlow());
     }
 
-
-
-    private void OnGameEnd(
-    int winnerIndex,
-    int player1Towers,
-    int player2Towers)
+    // متد ثبت اطلاعات در دیتابیس (آورده شده از کد دوستت و اصلاح شده)
+    private void OnGameEnd(int winnerIndex, int player1Towers, int player2Towers)
     {
         float matchDuration = Time.time - matchStartTime;
 
-        int playerLevel = players[0].GetLevel();
-        int opponentLevel = players[1].GetLevel();
-
-        if (DataGameManager.Instance != null)
+        if (players.Count >= 2 && players[0] != null && players[1] != null)
         {
-            DataGameManager.Instance.SaveMatchFromGameEnd(
-                winnerIndex: winnerIndex,
-                player1Score: player1Towers,
-                player2Score: player2Towers,
-                duration: matchDuration,
-                playerLevel: playerLevel,
-                opponentLevel: opponentLevel,
-                trophiesChange: winnerIndex == 0 ? 20 : -15
-            );
+            int playerLevel = players[0].GetLevel();
+            int opponentLevel = players[1].GetLevel();
+
+            if (DataGameManager.Instance != null)
+            {
+                DataGameManager.Instance.SaveMatchFromGameEnd(
+                    winnerIndex: winnerIndex,
+                    player1Score: player1Towers,
+                    player2Score: player2Towers,
+                    duration: matchDuration,
+                    playerLevel: playerLevel,
+                    opponentLevel: opponentLevel,
+                    trophiesChange: winnerIndex == 0 ? 20 : -15
+                );
+            }
         }
     }
 
@@ -83,6 +79,7 @@ public class GameManager : MonoBehaviour
             float currentGameTime = gameTime.GetCurrentTime();
             foreach (var player in players)
             {
+                if (player == null) continue;
                 int addingValue = currentGameTime < 60f ?
                     player.GetElexir().GetAddingElexir() :
                     player.GetElexir().GetExtraTimeElexirAdding();
@@ -116,15 +113,12 @@ public class GameManager : MonoBehaviour
                             suddenDeathStartCrowns1 = crowns1;
                             gameTime.StartSuddenDeath(60f);
 
-
-
                             yield return null;
                             continue;
                         }
                     }
                     else if (!isTieBreaker)
                     {
-
                         isTieBreaker = true;
                         StartCoroutine(TieBreakerRoutine());
                         yield break;
@@ -144,7 +138,7 @@ public class GameManager : MonoBehaviour
         int crowns = 0;
         int opponentIndex = playerIndex == 0 ? 1 : 0;
 
-        if (players.Count <= opponentIndex) return 0;
+        if (players.Count <= opponentIndex || players[opponentIndex] == null) return 0;
 
         int opponentTeamId = players[opponentIndex].GetTeamId();
         var opponentCastles = GetTeamCastles(opponentTeamId);
@@ -172,22 +166,7 @@ public class GameManager : MonoBehaviour
             {
                 if (c == null || !c.exist || c.GetHPCastle() <= 0f)
                 {
-
                     crowns++;
-
-                    int winner = (i + 1) % 2; //or players count
-
-                    int p1CastleCount = players[0].GetBoard().GetCastleCount();
-                    int p2CastleCount = players[1].GetBoard().GetCastleCount();
-
-                    OnGameEnd(winner, p1CastleCount, p2CastleCount);
-                    gameOverPanel.SetGameOverText(winner);
-                    gameOverPanel.GivingChest(winner);
-                    gameTime.StopTimer();
-                    someoneLost = true;
-                    isGameFinished = true;
-                    break;
-
                 }
             }
         }
@@ -223,7 +202,6 @@ public class GameManager : MonoBehaviour
     {
         ClearBattlefield();
 
-
         List<Castle> tiebreakerCastles = new List<Castle>();
         foreach (var c in FindObjectsOfType<Castle>())
         {
@@ -232,7 +210,6 @@ public class GameManager : MonoBehaviour
 
         while (!isGameFinished)
         {
-
             if (CheckInstantWinConditions())
             {
                 yield break;
@@ -249,30 +226,15 @@ public class GameManager : MonoBehaviour
                 {
                     c.TakeDamage(damageToDeal);
 
-
-                    // if (!c.exist)
-                    // {
-
-                    // }
-
-
-                    if (princeCastleCount1 != princeCastleCount2)
-
+                    if (!c.exist || c.GetHPCastle() <= 0f)
                     {
                         int loserTeam = c.GetTeamId();
-
 
                         if (players.Count >= 2)
                         {
                             if (loserTeam == players[0].GetTeamId()) team0DiedThisFrame = true;
                             else if (loserTeam == players[1].GetTeamId()) team1DiedThisFrame = true;
                         }
-
-
-                        OnGameEnd(winnerindex, princeCastleCount1, princeCastleCount2);
-
-                        gameOverPanel.GivingChest(winnerindex);
-
 
                         if (c is KingCastleConfig)
                         {
@@ -305,14 +267,11 @@ public class GameManager : MonoBehaviour
 
     private void ClearBattlefield()
     {
-
         Unit[] allUnits = FindObjectsOfType<Unit>();
         foreach (var u in allUnits)
         {
             if (u != null) Destroy(u.gameObject);
         }
-
-
 
         Castle[] allCastles = FindObjectsOfType<Castle>();
         foreach (var c in allCastles)
@@ -323,25 +282,17 @@ public class GameManager : MonoBehaviour
             }
         }
 
-
-        OnGameEnd(winnerIndex, princeCastleCount1, princeCastleCount2);
-
-        gameOverPanel.GivingChest(winnerIndex);
-
-
         Spawner[] spawners = FindObjectsOfType<Spawner>();
         foreach (var s in spawners)
         {
             if (s != null) s.enabled = false;
         }
 
-
         UnitCardDrag[] draggers = FindObjectsOfType<UnitCardDrag>();
         foreach (var d in draggers)
         {
             if (d != null) d.enabled = false;
         }
-
 
         CardButtonUI[] buttons = FindObjectsOfType<CardButtonUI>();
         foreach (var b in buttons)
@@ -354,10 +305,25 @@ public class GameManager : MonoBehaviour
     private void EndMatch(int winnerIndex)
     {
         if (isGameFinished) return;
-        gameOverPanel.SetGameOverText(winnerIndex);
-        gameOverPanel.GivingChest(winnerIndex);
-        gameTime.StopTimer();
+
         isGameFinished = true;
+
+        // محاسبه تعداد تاورهای باقی‌مانده برای فرستادن به دیتابیس دوستت
+        int p1CastleCount = (players.Count > 0 && players[0].GetBoard() != null) ? players[0].GetBoard().GetCastleCount() : 0;
+        int p2CastleCount = (players.Count > 1 && players[1].GetBoard() != null) ? players[1].GetBoard().GetCastleCount() : 0;
+
+        // ذخیره اطلاعات مچ در دیتابیس بازی
+        OnGameEnd(winnerIndex, p1CastleCount, p2CastleCount);
+
+        // اعمال یوآی پایان بازی
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetGameOverText(winnerIndex);
+            gameOverPanel.GivingChest(winnerIndex);
+        }
+
+        if (gameTime != null) gameTime.StopTimer();
+
         CheckForGameOver();
     }
 
@@ -365,10 +331,11 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < players.Count; i++)
         {
+            if (players[i] == null) continue;
+
             var kingCastle = players[i].GetKingCastleConfig();
             if (kingCastle == null || !kingCastle.exist || kingCastle.GetHPCastle() <= 0f)
             {
-
                 var board = players[i].GetBoard();
                 if (board != null)
                 {
@@ -392,7 +359,6 @@ public class GameManager : MonoBehaviour
             int currentCrowns0 = GetCrowns(0);
             int currentCrowns1 = GetCrowns(1);
 
-
             if (currentCrowns0 > suddenDeathStartCrowns0)
             {
                 EndMatch(0);
@@ -408,30 +374,23 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
-    private List<Castle> GetRemainingCastles(Player player)
-    {
-        List<Castle> list = new List<Castle>();
-        var board = player.GetBoard();
-        if (board == null) return list;
-
-        if (board.GetKingCastle() != null && board.GetKingCastle().exist) list.Add(board.GetKingCastle());
-        if (board.GetRightPrinceCastles() != null && board.GetRightPrinceCastles().exist) list.Add(board.GetRightPrinceCastles());
-        if (board.GetLeftPrinceCastles() != null && board.GetLeftPrinceCastles().exist) list.Add(board.GetLeftPrinceCastles());
-
-        return list;
-    }
-
     private void CheckForGameOver()
     {
         Time.timeScale = 0f;
-
-        gameOverPanel.ShowAnimated();
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.gameObject.SetActive(true);
+            gameOverPanel.ShowAnimated();
+        }
     }
 
+    // این متد کدهای تو بود که دوستت حذفش کرده بود و دوباره اضافه‌اش کردم
     public int GetPlayerTowerCount(int playerIndex)
     {
-        return players[playerIndex].GetBoard().GetCastleCount();
+        if (players.Count > playerIndex && players[playerIndex] != null && players[playerIndex].GetBoard() != null)
+        {
+            return players[playerIndex].GetBoard().GetCastleCount();
+        }
+        return 0;
     }
-
-
 }
