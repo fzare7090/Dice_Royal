@@ -42,12 +42,12 @@ public class Spawner : MonoBehaviour
 
     [SerializeField] private AreaManager areaManager;
     [Header("Upgrade Manager")]
-    // [SerializeField] private SceneManagerDataSaver gameSceneManager;
+    
 
 
     private List<UnitData> deck;
 
-    // Card Cycle logic
+    
     private List<UnitData> p1Hand = new List<UnitData>();
     private Queue<UnitData> p1Queue = new Queue<UnitData>();
 
@@ -73,7 +73,7 @@ public class Spawner : MonoBehaviour
         SetPlayerTeamId();
         CreateCardButtons();
 
-        //SetBoardsInfo();
+        
     }
 
     private bool SpawnUnit(UnitData data, int teamId)
@@ -136,7 +136,7 @@ public class Spawner : MonoBehaviour
                 unit.SetEnemies(team1Units);
             }
 
-            // ========== فقط برای اولین یونیت CardUpgrade رو ثبت کن (اختیاری) ==========
+            
             if (cardUpgrade == null)
             {
                 cardUpgrade = spawnedUnit.GetComponent<CardUpgrade>();
@@ -147,11 +147,7 @@ public class Spawner : MonoBehaviour
             }
         }
 
-        // حالا اینجا cardUpgrade تعریف شده و در دسترس هست
-        // if (gameSceneManager != null && cardUpgrade != null)
-        // {
-        //     gameSceneManager.RegisterCard(cardUpgrade);
-        // }
+        
 
         player.GetElexir().UsingElexir(data.elexir);
 
@@ -212,21 +208,21 @@ public class Spawner : MonoBehaviour
 
     private void CreateCardButtons()
     {
-        // Initialize deck logic for Player 1
+        
         for (int i = 0; i < deck.Count; i++)
         {
             if (i < 4) p1Hand.Add(deck[i]);
             else p1Queue.Enqueue(deck[i]);
         }
 
-        // Initialize deck logic for Player 2
+       
         for (int i = 0; i < deck.Count; i++)
         {
             if (i < 4) p2Hand.Add(deck[i]);
             else p2Queue.Enqueue(deck[i]);
         }
 
-        // Create 4 buttons for P1
+        
         for (int i = 0; i < p1Hand.Count; i++)
         {
             CardButtonUI buttonP1 = Instantiate(buttonPrefab, cardButtonParentP1);
@@ -237,7 +233,7 @@ public class Spawner : MonoBehaviour
             buttonP1.OnDragEndEvent += HandleDragEnd;
         }
 
-        // Create 4 buttons for P2
+        
         for (int i = 0; i < p2Hand.Count; i++)
         {
             CardButtonUI buttonP2 = Instantiate(buttonPrefab, cardButtonParentP2);
@@ -248,7 +244,7 @@ public class Spawner : MonoBehaviour
             buttonP2.OnDragEndEvent += HandleDragEnd;
         }
 
-        // Hide the dragger images by default
+        
         drageCardP1.gameObject.SetActive(false);
         drageCardP2.gameObject.SetActive(false);
     }
@@ -259,7 +255,7 @@ public class Spawner : MonoBehaviour
         dragger.gameObject.SetActive(true);
         PositionDragger(dragger, screenPos);
 
-        // Show valid spawn areas for the player
+        
         if (areaManager != null)
         {
             areaManager.ShowValidAreas(teamId, true);
@@ -296,15 +292,15 @@ public class Spawner : MonoBehaviour
     {
         RectTransform dragger = (teamId == 0) ? drageCardP1 : drageCardP2;
 
-        dragger.gameObject.SetActive(false); // Hide indicator
+        dragger.gameObject.SetActive(false); 
 
-        // Hide valid spawn areas
+        
         if (areaManager != null)
         {
             areaManager.ShowValidAreas(teamId, false);
         }
 
-        // Attempt to spawn
+        
         bool spawned = SpawnUnit(data, teamId);
 
         if (spawned)
@@ -317,15 +313,15 @@ public class Spawner : MonoBehaviour
     {
         if (teamId == 0)
         {
-            // Remove played card from hand, enqueue to queue
+            
             p1Hand.Remove(playedData);
             p1Queue.Enqueue(playedData);
 
-            // Dequeue next card, add to hand
+            
             UnitData nextCard = p1Queue.Dequeue();
             p1Hand.Add(nextCard);
 
-            // Update UI element with new card data using DOTween animation
+            
             button.AnimateCardCycle(nextCard);
         }
         else

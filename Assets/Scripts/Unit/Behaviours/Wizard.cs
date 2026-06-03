@@ -71,7 +71,6 @@ public class Wizard : Unit
             img.color = teamId == 1 ? Color.green : Color.red;
         }
 
-        // --- پیش‌بینی برخورد و اعمال دمیج معلق (Pending Damage) به‌صورت منطقه‌ای ---
         Vector3 predictedImpactPos = target.position;
         Collider[] collidersInRange = Physics.OverlapSphere(predictedImpactPos, wizardData.fireRange);
 
@@ -107,7 +106,7 @@ public class Wizard : Unit
 
         Vector3 targetPos = target != null ? target.position : Vector3.zero;
 
-        // حتی اگه تارگت نابود بشه، شلیک باید به آخرین نقطه‌ای که از تارگت می‌دونیم برسه (مثل کلش رویال)
+
         while (projectile != null)
         {
             if (target != null)
@@ -136,7 +135,7 @@ public class Wizard : Unit
             Destroy(projectile);
         }
 
-        // --- قبل از اعمال دمیج واقعی، دمیج‌های معلق رو پس می‌گیریم ---
+
         foreach (Transform t in pendingTargets)
         {
             if (t != null)
@@ -146,7 +145,7 @@ public class Wizard : Unit
             }
         }
 
-        // --- اعمال دمیج واقعی (Actual Damage) روی همه کسانی که در لحظه برخورد، تو اون منطقه هستن ---
+
         Collider[] collidersInRange = Physics.OverlapSphere(impactPos, wizardData.fireRange);
 
         foreach (Collider col in collidersInRange)

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using DG.Tweening; // اضافه کردن فضای نام DOTween
+using DG.Tweening; 
 
 public class BattleManager : MonoBehaviour
 {

@@ -39,7 +39,8 @@ public class AreaManager : MonoBehaviour
         foreach (Area area in allAreas)
         {
             int teamId = area.GetTeamId();
-            if (!teamAreasMap.ContainsKey(teamId)) /// ??
+            if (!teamAreasMap.ContainsKey(teamId))
+
             {
                 teamAreasMap[teamId] = new List<Area>();
             }
@@ -68,7 +69,7 @@ public class AreaManager : MonoBehaviour
                 return area;
             }
         }
-        Debug.Log("spawner is not at area ");///به نظر میرسه مشکل اینجاست 
+        Debug.Log("spawner is not at area ");
         return null;
     }
 
@@ -90,14 +91,14 @@ public class AreaManager : MonoBehaviour
         Vector3[] spawnerCorners = new Vector3[4];
         spawner.GetWorldCorners(spawnerCorners);
 
-        Vector2 areaMin = areaCorners[0]; // Bottom-left
-        Vector2 areaMax = areaCorners[2]; // Top-right
+        Vector2 areaMin = areaCorners[0]; 
+        Vector2 areaMax = areaCorners[2]; 
 
         Vector2 spawnerCenter = spawner.position;
 
         bool isInside = spawnerCenter.x >= areaMin.x && spawnerCenter.x <= areaMax.x &&
                         spawnerCenter.y >= areaMin.y && spawnerCenter.y <= areaMax.y;
-        Debug.Log($"the isinside bool is {isInside}");/// همش فالس میده تو کنسول
+        Debug.Log($"the isinside bool is {isInside}");
         return isInside;
     }
 

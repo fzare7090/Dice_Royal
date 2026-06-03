@@ -105,7 +105,7 @@ public class Unit : MonoBehaviour
             return;
         }
 
-        // گرفتن قلعه‌ها از برد (دقت کنید برد 0 برای پلیر 1 و برد 1 برای پلیر 2 است)
+        
         PrinceCastleConfig princeCastleP1Right = board[0].GetRightPrinceCastles();
         PrinceCastleConfig princeCastleP1Left = board[0].GetLeftPrinceCastles();
         KingCastleConfig kingCastleP1 = board[0].GetKingCastle();
@@ -116,7 +116,7 @@ public class Unit : MonoBehaviour
 
         bool useRightLane = transform.localPosition.x > 0;
 
-        // اگر تیم 1 (پلیر 1) است -> باید به سمت قلعه‌های پلیر 2 برود
+        
         if (teamId == 0)
         {
             // هدف: قلعه‌های پلیر 2
@@ -126,10 +126,10 @@ public class Unit : MonoBehaviour
             if (prince != null && prince.gameObject.activeInHierarchy) waypoints.Add(prince.transform);
             if (kingTarget != null) waypoints.Add(kingTarget);
         }
-        // اگر تیم 2 (پلیر 2) است -> باید به سمت قلعه‌های پلیر 1 برود
+        
         else
         {
-            // هدف: قلعه‌های پلیر 1
+            
             PrinceCastleConfig prince = useRightLane ? princeCastleP1Right : princeCastleP1Left;
             Transform kingTarget = kingCastleP1?.transform;
 
@@ -278,7 +278,7 @@ public class Unit : MonoBehaviour
     {
         if (enemies == null) return;
 
-        // Cleanup dead targets
+        
         if (attackTarget != null)
         {
             if (!attackTarget.gameObject.activeInHierarchy || GetTargetEffectiveHP(attackTarget) <= 0)
@@ -287,8 +287,7 @@ public class Unit : MonoBehaviour
             }
         }
 
-        // اگر در حال اتک دادن باشد، معمولا در کلش رویال تارگت عوض نمی‌شود مگر اینکه بمیرد
-        // (این بخش توسط AttackRoutine هم مدیریت می‌شود، اما اینجا برای اطمینان چک می‌کنیم)
+        
         if (currentState == UnitState.Attacking && attackTarget != null)
         {
             float dist = GetDistanceToTarget(attackTarget);
@@ -303,7 +302,7 @@ public class Unit : MonoBehaviour
         Transform closestEnemy = null;
         float closestDistance = float.MaxValue;
 
-        // همیشه در هر فریم تا زمانی که اتک شروع نشده، به دنبال نزدیک‌ترین دشمن می‌گردیم
+        
         foreach (Transform enemy in enemies)
         {
             if (enemy == null || !enemy.gameObject.activeInHierarchy || GetTargetEffectiveHP(enemy) <= 0) continue;
@@ -319,7 +318,7 @@ public class Unit : MonoBehaviour
         // اگر دشمنی پیدا شد
         if (closestEnemy != null)
         {
-            // اگر دشمنِ پیدا شده، همانی نیست که قبلا تارگت بود، روی این قفل می‌کنیم (تغییر تارگت به دلیل نزدیک‌تر بودن)
+            
             if (attackTarget != closestEnemy)
             {
                 attackTarget = closestEnemy;
@@ -343,14 +342,14 @@ public class Unit : MonoBehaviour
                 }
                 else
                 {
-                    // به‌روزرسانی مداوم مقصد به سمت نزدیک‌ترین دشمنِ جدید
+                   
                     agent.SetDestination(attackTarget.position);
                 }
             }
         }
         else
         {
-            // هیچ دشمنی در رنج پیدا نشد
+            
             attackTarget = null;
             if (currentState != UnitState.Moving)
             {
@@ -364,10 +363,10 @@ public class Unit : MonoBehaviour
         if (attackTarget == null) return;
         agent.isStopped = false;
 
-        // توقف به صورت خودکار توسط متد GetDistanceToTarget مدیریت می‌شود، پس این را صفر می‌کنیم
+        
         agent.stoppingDistance = 0f;
 
-        // تغییر مهم: همیشه به سمت مرکز مختصات دشمن حرکت کن
+        
         agent.SetDestination(attackTarget.position);
     }
 

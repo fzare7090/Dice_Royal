@@ -30,7 +30,7 @@ public class Chest : MonoBehaviour
         return players[playerIndex];
     }
 
-    public void GiveRewards(Player player, MatchResult result, int winnerIndex) // index -1?
+    public void GiveRewards(Player player, MatchResult result, int winnerIndex) 
     {
         if (players == null || players.Count == 0) return;
 

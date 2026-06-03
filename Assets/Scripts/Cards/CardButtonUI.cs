@@ -44,7 +44,7 @@ public class CardButtonUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
         canvas = GetComponentInParent<Canvas>();
 
-        // Initial Appearance Animation
+        
         transform.localScale = Vector3.zero;
         transform.DOScale(Vector3.one, 0.4f).SetEase(Ease.OutBack).SetDelay(transform.GetSiblingIndex() * 0.1f);
     }
@@ -63,7 +63,7 @@ public class CardButtonUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
     public void AnimateCardCycle(UnitData newData)
     {
-        // Cycle Animation: shrinks to 0, updates data, springs back to 1
+        
         transform.DOScale(Vector3.zero, 0.2f).SetEase(Ease.InBack).OnComplete(() =>
         {
             this.currentData = newData;
@@ -79,7 +79,7 @@ public class CardButtonUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        // Visual feedback when grabbed
+        
         transform.DOScale(Vector3.one * 0.9f, 0.15f).SetEase(Ease.OutQuad);
         if (canvasGroup != null) canvasGroup.DOFade(0.6f, 0.15f);
 
@@ -88,18 +88,17 @@ public class CardButtonUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
     public void OnDrag(PointerEventData eventData)
     {
-        // Instead of moving the card itself (which messes with Layout Groups), 
-        // we just move the indicator on the board via the event!
+        
         OnDragEvent?.Invoke(eventData.position);
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        // Visual feedback when released
+        
         transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
         if (canvasGroup != null) canvasGroup.DOFade(1f, 0.2f);
 
-        // Tell spawner to try and spawn the unit at the dragged position
+        
         OnDragEndEvent?.Invoke(this, currentData, teamId);
     }
 }

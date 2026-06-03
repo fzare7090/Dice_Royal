@@ -135,12 +135,10 @@ public class Castle : MonoBehaviour
             int enemyTeamId = (teamId == 0) ? 1 : 0;
             areaManager.ChangeAreaTeam(myArea, enemyTeamId);
 
-            // Detach the Area object so it doesn't get destroyed with the Castle
+            
             if (myArea.gameObject == this.gameObject)
             {
-                // If Area is on the exact same GameObject, we can't just unparent it.
-                // We should disable the castle components instead of destroying the object.
-                // But to be safe, disable visuals.
+                
             }
             else
             {
@@ -152,10 +150,9 @@ public class Castle : MonoBehaviour
 
         if (myArea != null && myArea.gameObject == this.gameObject)
         {
-            // The Area is on this game object, don't destroy it.
-            // Just disable the Castle logic and its visual components if any.
+            
             if (TryGetComponent<Image>(out var img)) img.enabled = false;
-            // hide all children (which might be the visuals)
+            
             foreach (Transform child in transform)
             {
                 child.gameObject.SetActive(false);
@@ -238,7 +235,7 @@ public class Castle : MonoBehaviour
     {
         if (enemies == null || data == null) return;
 
-        // بررسی هدف فعلی
+        
         if (attackTarget != null)
         {
             if (!attackTarget.gameObject.activeInHierarchy ||
@@ -249,7 +246,7 @@ public class Castle : MonoBehaviour
             }
         }
 
-        // اگر هدفی نداریم، جستجو برای یافتن نزدیک‌ترین دشمن در محدوده برد
+        
         if (attackTarget == null)
         {
             Transform closestEnemy = null;
@@ -259,8 +256,7 @@ public class Castle : MonoBehaviour
             {
                 if (enemy == null || !enemy.gameObject.activeInHierarchy || GetTargetEffectiveHP(enemy) <= 0) continue;
 
-                // حتما باید از localPosition استفاده شود چرا که مقیاس‌های (Scale) این بازی در UI محاسبه می‌شوند
-                // و اعداد شعاع حمله (Attack Range) با مقیاس Local تنظیم شده‌اند نه World Position.
+                
                 float distance = Vector3.Distance(transform.localPosition, enemy.localPosition);
 
                 if (distance <= data.attackRange && distance < closestDistance)
@@ -273,7 +269,7 @@ public class Castle : MonoBehaviour
             attackTarget = closestEnemy;
         }
 
-        // شلیک به هدف انتخاب شده
+       
         if (attackTarget != null && attackTimer <= 0f)
         {
             AddTargetPendingDamage(attackTarget, data.attackDamage);
@@ -305,7 +301,7 @@ public class Castle : MonoBehaviour
 
     private IEnumerator MoveProjectile(GameObject projectile, Transform target)
     {
-        // رفرنس اصلی را نگه می‌داریم تا موقع حذف از دیکشنری خطای null نگیریم
+        
         GameObject projRef = projectile;
         activeProjectiles[projRef] = target;
 
@@ -317,10 +313,10 @@ public class Castle : MonoBehaviour
 
         Vector3 targetPosition = target.position;
 
-        // تا زمانی که پرتابه وجود دارد و به موقعیت هدف نرسیده است
+        
         while (projectile != null && Vector3.Distance(projectile.transform.position, targetPosition) > 0.08f)
         {
-            // در صورتی که هدف هنوز نابود نشده، موقعیتش را آپدیت کن
+            
             if (target != null)
             {
                 targetPosition = target.position;

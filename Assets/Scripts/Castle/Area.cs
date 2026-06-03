@@ -13,7 +13,7 @@ public class Area : MonoBehaviour
     {
         rectTransform = GetComponent<RectTransform>();
 
-        // Add visual components for highlight if they don't exist
+        
         img = GetComponent<Image>();
         if (img == null)
         {
@@ -55,17 +55,17 @@ public class Area : MonoBehaviour
         if (show)
         {
             img.enabled = true;
-            img.color = new Color(0f, 0.1f, 0.4f, 0.15f); // Faint navy blue inside
+            img.color = new Color(0f, 0.1f, 0.4f, 0.15f); 
 
             if (outline != null)
             {
                 outline.enabled = true;
-                outline.effectColor = new Color(0.8f, 0f, 0f, 1f); // Solid dark red border
+                outline.effectColor = new Color(0.8f, 0f, 0f, 1f); 
             }
         }
         else
         {
-            img.color = new Color(0, 0, 0, 0); // Hide fill
+            img.color = new Color(0, 0, 0, 0); 
             if (outline != null)
             {
                 outline.enabled = false;

@@ -37,7 +37,7 @@ public class GameTimeManager : MonoBehaviour
 
     public void StartSuddenDeath(float extraTime = 60f)
     {
-        matchDuration += extraTime; // Extend the total match duration
+        matchDuration += extraTime; 
         isGameOver = false;
         isTimerRunning = true;
     }

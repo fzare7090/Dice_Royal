@@ -20,15 +20,15 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // Game flow now starts triggered by StartGameTransition
+        
     }
 
     private void Update()
     {
         if (isGameFinished) return;
 
-        // Check win conditions every frame (not just once per second)
-        if (Time.time - lastInstantWinCheck > 0.1f) // Check every 0.1 seconds to avoid performance issues
+        
+        if (Time.time - lastInstantWinCheck > 0.1f) 
         {
             lastInstantWinCheck = Time.time;
             CheckInstantWinConditions();
@@ -85,18 +85,18 @@ public class GameManager : MonoBehaviour
                             suddenDeathStartCrowns1 = crowns1;
                             gameTime.StartSuddenDeath(60f);
 
-                            // ─── [اصلاح شده - باگ سوم] ───
-                            // یک فریم صبر می‌کنیم تا وضعیت تایمر در GameTimeManager کاملاً بروزرسانی و True شود
+                            
+                            
                             yield return null;
                             continue;
                         }
                     }
                     else if (!isTieBreaker)
                     {
-                        // Sudden death time is over and no one won yet. Start TieBreaker!
+                        
                         isTieBreaker = true;
                         StartCoroutine(TieBreakerRoutine());
-                        yield break; // TieBreakerRoutine will handle the rest
+                        yield break; 
                     }
                 }
                 else
@@ -132,7 +132,7 @@ public class GameManager : MonoBehaviour
 
         if (!kingAlive)
         {
-            return 3; // King is dead = 3 crowns!
+            return 3; 
         }
 
         foreach (var c in opponentCastles)
@@ -177,7 +177,7 @@ public class GameManager : MonoBehaviour
     {
         ClearBattlefield();
 
-        // Safely grab all active Castles in the scene directly
+        
         List<Castle> tiebreakerCastles = new List<Castle>();
         foreach (var c in FindObjectsOfType<Castle>())
         {
@@ -186,13 +186,13 @@ public class GameManager : MonoBehaviour
 
         while (!isGameFinished)
         {
-            // Check instant win conditions first (e.g., King tower dies)
+            
             if (CheckInstantWinConditions())
             {
                 yield break;
             }
 
-            float damageToDeal = 300f * Time.deltaTime; // Increased speed for faster Sudden Death drain
+            float damageToDeal = 300f * Time.deltaTime; 
 
             bool team0DiedThisFrame = false;
             bool team1DiedThisFrame = false;
@@ -203,7 +203,7 @@ public class GameManager : MonoBehaviour
                 {
                     c.TakeDamage(damageToDeal);
 
-                    if (!c.exist) // exist becomes false when HP reaches 0
+                    if (!c.exist) 
                     {
                         int loserTeam = c.GetTeamId();
 
@@ -213,7 +213,7 @@ public class GameManager : MonoBehaviour
                             else if (loserTeam == players[1].GetTeamId()) team1DiedThisFrame = true;
                         }
 
-                        // If King tower dies, ensure Princess towers visually collapse too
+                        
                         if (c is KingCastleConfig)
                         {
                             foreach (var other in tiebreakerCastles)
@@ -245,14 +245,14 @@ public class GameManager : MonoBehaviour
 
     private void ClearBattlefield()
     {
-        // 1. Destroy all active units on the board
+        
         Unit[] allUnits = FindObjectsOfType<Unit>();
         foreach (var u in allUnits)
         {
             if (u != null) Destroy(u.gameObject);
         }
 
-        // 2. Stop castles from attacking and clear their projectiles
+        
         Castle[] allCastles = FindObjectsOfType<Castle>();
         foreach (var c in allCastles)
         {
@@ -262,21 +262,21 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // 3. Disable Spawners to prevent playing new cards
+        
         Spawner[] spawners = FindObjectsOfType<Spawner>();
         foreach (var s in spawners)
         {
             if (s != null) s.enabled = false;
         }
 
-        // 4. Disable Cards drag logic
+        
         UnitCardDrag[] draggers = FindObjectsOfType<UnitCardDrag>();
         foreach (var d in draggers)
         {
             if (d != null) d.enabled = false;
         }
 
-        // 5. Disable Card Buttons interaction
+        
         CardButtonUI[] buttons = FindObjectsOfType<CardButtonUI>();
         foreach (var b in buttons)
         {
@@ -302,7 +302,7 @@ public class GameManager : MonoBehaviour
             var kingCastle = players[i].GetKingCastleConfig();
             if (kingCastle == null || !kingCastle.exist || kingCastle.GetHPCastle() <= 0f)
             {
-                // King tower died -> destroy remaining princess towers for this player
+                
                 var board = players[i].GetBoard();
                 if (board != null)
                 {
@@ -326,7 +326,7 @@ public class GameManager : MonoBehaviour
             int currentCrowns0 = GetCrowns(0);
             int currentCrowns1 = GetCrowns(1);
 
-            // In Sudden death, the first one to get a NEW crown wins!
+            
             if (currentCrowns0 > suddenDeathStartCrowns0)
             {
                 EndMatch(0);
@@ -358,7 +358,7 @@ public class GameManager : MonoBehaviour
     private void CheckForGameOver()
     {
         Time.timeScale = 0f;
-        // به جای اکتیو کردن ساده، متد دو تویین را صدا می‌زنیم
+        
         gameOverPanel.ShowAnimated();
     }
 }
