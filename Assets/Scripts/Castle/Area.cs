@@ -19,8 +19,7 @@ public class Area : MonoBehaviour
     public void SetTeamId(int newTeamId)
     {
         teamId = newTeamId;
-        Debug.Log($"Screen size: {Screen.width} x {Screen.height}");
-        Debug.Log($"Canvas scale factor: {GetComponentInParent<Canvas>().scaleFactor}");
+        
 
     }
 

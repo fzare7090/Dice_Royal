@@ -40,9 +40,9 @@ public class CardUpgrade : MonoBehaviour
         int cost = upgradeData.upgradeCost[currentLevel - 1];
         int neededCards = upgradeData.cardCopiesNeeded[currentLevel - 1];
 
-        // اینجا با سیستم سکه و کارت خودت چک کن
-        bool hasEnoughCoin = true;  // جایگزین کن با Coin.SpendCoin(cost)
-        bool hasEnoughCards = true; // جایگزین کن با کارت‌های جمع‌آوری شده
+        
+        bool hasEnoughCoin = true; 
+        bool hasEnoughCards = true; 
 
         if (!hasEnoughCoin)
         {

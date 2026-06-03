@@ -8,7 +8,9 @@ public class Player : MonoBehaviour
     [SerializeField] private int teamId;
 
 
+
     private Coin coin;
+    private int level;
 
     public Board GetBoard() { return board; }
     public void SetBoard(Board newBoard) { board = newBoard; }
@@ -23,5 +25,12 @@ public class Player : MonoBehaviour
     public KingCastleConfig GetKingCastleConfig()
     {
         return board.GetKingCastle();
+    }
+
+    public int GetLevel(){ return level; }
+
+    public void SetLevel(int NewLevel)
+    {
+        level = NewLevel;
     }
 }

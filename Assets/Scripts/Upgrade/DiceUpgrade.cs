@@ -65,10 +65,7 @@ public class DiceUpgrade : MonoBehaviour
         if (dice == null || upgradeData == null) return;
 
         int newMultiplier = upgradeData.elexirMultiplier[currentLevel - 1];
-
         dice.SetElexirMultiplier(newMultiplier);
-
-  
     }
 
     public int GetCurrentLevel()
