@@ -10,9 +10,7 @@ public class Valkyrie : Unit
 
         agent.isStopped = true;
 
-        while (attackTarget != null &&
-               CanAttackTarget(attackTarget) &&
-               GetDistanceToTarget(attackTarget) <= data.attackRange)
+        while (attackTarget != null && GetDistanceToTarget(attackTarget) <= data.attackRange)
         {
 
             DealAreaDamage(valData);
@@ -56,7 +54,6 @@ public class Valkyrie : Unit
         foreach (Transform enemy in enemies)
         {
             if (enemy == null || !enemy.gameObject.activeInHierarchy) continue;
-            if (!CanAttackTarget(enemy)) continue;
 
 
             float distance = Vector3.Distance(transform.position, enemy.position);
