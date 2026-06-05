@@ -11,7 +11,6 @@ public class Musketeer : Unit
         agent.isStopped = true;
 
         while (attackTarget != null &&
-               CanAttackTarget(attackTarget) &&
                GetDistanceToTarget(attackTarget) <= data.attackRange)
         {
             if (GetTargetEffectiveHP(attackTarget) <= 0)
@@ -63,11 +62,11 @@ public class Musketeer : Unit
     private void FireBullet(MusketeerData muskyData, Transform target)
     {
         GameObject bullet = Instantiate(
-           muskyData.bulletPrefab,
-           transform.position,
-           Quaternion.identity,
-           transform
-       );
+            muskyData.bulletPrefab,
+            transform.position,
+            Quaternion.identity,
+            transform
+        );
         bullet.transform.localScale = new Vector3(0.15f, 0.15f, 0.15f);
 
         Image img = bullet.GetComponent<Image>();
@@ -99,7 +98,7 @@ public class Musketeer : Unit
 
             if (Vector3.Distance(bullet.transform.position, targetPos) < 0.1f)
             {
-                if (CanAttackTarget(target) && GetTargetEffectiveHP(target) > -data.attackDamage) // Check if valid
+                if (GetTargetEffectiveHP(target) > -data.attackDamage) // Check if valid
                 {
                     if (target.TryGetComponent<Unit>(out Unit tUnit))
                         tUnit.TakeDamage(data.attackDamage);
