@@ -42,6 +42,11 @@ public class Unit : MonoBehaviour
         return teamId;
     }
 
+    public virtual UnitData.UnitType GetUnitType()
+    {
+        return data != null ? data.unitType : UnitData.UnitType.Ground;
+    }
+
     public void SetBoard(List<Board> newBoard)
     {
         board = newBoard;
@@ -126,12 +131,12 @@ public class Unit : MonoBehaviour
 
         if (teamId == 0)
         {
-            
+
             PrinceCastleConfig prince = useRightLane ? princeCastleP2Right : princeCastleP2Left;
             Transform kingTarget = kingCastleP2?.transform;
 
-            if (prince != null && prince.gameObject.activeInHierarchy) waypoints.Add(prince.transform);
-            if (kingTarget != null) waypoints.Add(kingTarget);
+            if (prince != null && IsPathTargetValid(prince.transform)) waypoints.Add(prince.transform);
+            if (kingTarget != null && IsPathTargetValid(kingTarget)) waypoints.Add(kingTarget);
         }
 
         else
@@ -140,8 +145,8 @@ public class Unit : MonoBehaviour
             PrinceCastleConfig prince = useRightLane ? princeCastleP1Right : princeCastleP1Left;
             Transform kingTarget = kingCastleP1?.transform;
 
-            if (prince != null && prince.gameObject.activeInHierarchy) waypoints.Add(prince.transform);
-            if (kingTarget != null) waypoints.Add(kingTarget);
+            if (prince != null && IsPathTargetValid(prince.transform)) waypoints.Add(prince.transform);
+            if (kingTarget != null && IsPathTargetValid(kingTarget)) waypoints.Add(kingTarget);
 
         }
     }
@@ -156,7 +161,7 @@ public class Unit : MonoBehaviour
         enemies = newEnemies;
     }
 
-    protected float GetDistanceToTarget(Transform target)
+    protected virtual float GetDistanceToTarget(Transform target)
     {
         if (target == null) return float.MaxValue;
         Collider targetCollider = null;
@@ -231,8 +236,7 @@ public class Unit : MonoBehaviour
         if (waypoints == null || waypoints.Count == 0)
             return;
 
-        while (currentWaypointIndex < waypoints.Count && waypoints[currentWaypointIndex] == null)
-            currentWaypointIndex++;
+        SkipInvalidPathTargets();
         if (currentWaypointIndex >= waypoints.Count)
         {
             Destroy(gameObject);
@@ -252,11 +256,10 @@ public class Unit : MonoBehaviour
         bool physicallyClose = distanceToTarget <= agent.stoppingDistance + 2f;
         bool pathComplete = !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance && agent.pathStatus == NavMeshPathStatus.PathComplete;
 
-        if (physicallyClose || pathComplete)
+        if (!IsCastlePathTarget(waypoints[currentWaypointIndex]) && (physicallyClose || pathComplete))
         {
             currentWaypointIndex++;
-            while (currentWaypointIndex < waypoints.Count && waypoints[currentWaypointIndex] == null)
-                currentWaypointIndex++;
+            SkipInvalidPathTargets();
             if (currentWaypointIndex >= waypoints.Count)
             {
                 Destroy(gameObject);
@@ -266,6 +269,40 @@ public class Unit : MonoBehaviour
         }
     }
 
+    private void SkipInvalidPathTargets()
+    {
+        while (currentWaypointIndex < waypoints.Count && !IsPathTargetValid(waypoints[currentWaypointIndex]))
+            currentWaypointIndex++;
+    }
+
+    private bool IsPathTargetValid(Transform target)
+    {
+        if (target == null || !target.gameObject.activeInHierarchy)
+            return false;
+
+        if (target.TryGetComponent<Castle>(out Castle castle))
+            return castle.exist;
+
+        return true;
+    }
+
+    private bool IsCastlePathTarget(Transform target)
+    {
+        return target != null && target.TryGetComponent<Castle>(out _);
+    }
+
+    private Transform GetCurrentPathTarget()
+    {
+        if (waypoints == null || waypoints.Count == 0)
+            return null;
+
+        SkipInvalidPathTargets();
+        if (currentWaypointIndex >= waypoints.Count)
+            return null;
+
+        return waypoints[currentWaypointIndex];
+    }
+
 
     protected float GetTargetEffectiveHP(Transform target)
     {
@@ -273,6 +310,46 @@ public class Unit : MonoBehaviour
         if (target.TryGetComponent<Unit>(out Unit unit)) return unit.GetEffectiveHP();
         if (target.TryGetComponent<Castle>(out Castle castle)) return castle.GetEffectiveHP();
         return 1;
+    }
+
+    protected virtual bool CanAttackTarget(Transform target)
+    {
+        if (data == null || target == null) return false;
+
+        UnitData.UnitType targetType;
+        if (target.TryGetComponent<Unit>(out Unit targetUnit))
+        {
+            targetType = targetUnit.GetUnitType();
+        }
+        else if (target.TryGetComponent<Castle>(out _))
+        {
+            targetType = UnitData.UnitType.Building;
+        }
+        else
+        {
+            return false;
+        }
+
+        switch (data.targetPreference)
+        {
+            case UnitData.TargetPreference.GroundOnly:
+                return targetType == UnitData.UnitType.Ground ||
+                       targetType == UnitData.UnitType.Building;
+
+            case UnitData.TargetPreference.AirOnly:
+                return targetType == UnitData.UnitType.Air;
+
+            case UnitData.TargetPreference.BuildingsOnly:
+                return targetType == UnitData.UnitType.Building;
+
+            case UnitData.TargetPreference.GroundAndAir:
+                return targetType == UnitData.UnitType.Ground ||
+                       targetType == UnitData.UnitType.Air ||
+                       targetType == UnitData.UnitType.Building;
+
+            default:
+                return false;
+        }
     }
 
     protected void AddTargetPendingDamage(Transform target, float damage)
@@ -289,7 +366,9 @@ public class Unit : MonoBehaviour
 
         if (attackTarget != null)
         {
-            if (!attackTarget.gameObject.activeInHierarchy || GetTargetEffectiveHP(attackTarget) <= 0)
+            if (!attackTarget.gameObject.activeInHierarchy ||
+                GetTargetEffectiveHP(attackTarget) <= 0 ||
+                !CanAttackTarget(attackTarget))
             {
                 attackTarget = null;
             }
@@ -314,6 +393,7 @@ public class Unit : MonoBehaviour
         foreach (Transform enemy in enemies)
         {
             if (enemy == null || !enemy.gameObject.activeInHierarchy || GetTargetEffectiveHP(enemy) <= 0) continue;
+            if (!CanAttackTarget(enemy)) continue;
 
             float distance = GetDistanceToTarget(enemy);
             if (distance <= data.enemyFindingRange && distance < closestDistance)
@@ -324,6 +404,19 @@ public class Unit : MonoBehaviour
         }
 
         // اگر دشمنی پیدا شد
+        Transform pathTarget = GetCurrentPathTarget();
+        if (closestEnemy == null &&
+            pathTarget != null &&
+            CanAttackTarget(pathTarget))
+        {
+            float pathTargetDistance = GetDistanceToTarget(pathTarget);
+            if (pathTargetDistance <= data.enemyFindingRange)
+            {
+                closestDistance = pathTargetDistance;
+                closestEnemy = pathTarget;
+            }
+        }
+
         if (closestEnemy != null)
         {
 
@@ -384,6 +477,7 @@ public class Unit : MonoBehaviour
     {
         agent.isStopped = true;
         while (attackTarget != null &&
+                   CanAttackTarget(attackTarget) &&
                    GetDistanceToTarget(attackTarget) <= data.attackRange)
         {
             DealDamage();
@@ -422,29 +516,13 @@ public class Unit : MonoBehaviour
         agent.isStopped = false;
         agent.stoppingDistance = 0.1f;
 
-        waypoints.RemoveAll(w => w == null);
-        if (waypoints.Count == 0)
+        SkipInvalidPathTargets();
+        if (waypoints.Count == 0 || currentWaypointIndex >= waypoints.Count)
         {
             currentState = UnitState.Moving;
             return;
         }
 
-        if (currentWaypointIndex >= waypoints.Count)
-            currentWaypointIndex = waypoints.Count - 1;
-
-        float minDist = float.MaxValue;
-        int closestIndex = currentWaypointIndex;
-        for (int i = 0; i < waypoints.Count; i++)
-        {
-            if (waypoints[i] == null) continue;
-            float dist = Vector3.Distance(transform.position, waypoints[i].position);
-            if (dist < minDist)
-            {
-                minDist = dist;
-                closestIndex = i;
-            }
-        }
-        currentWaypointIndex = closestIndex;
         agent.SetDestination(waypoints[currentWaypointIndex].position);
         currentState = UnitState.Moving;
     }

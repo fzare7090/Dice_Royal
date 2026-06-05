@@ -1,4 +1,5 @@
 using UnityEngine;
+
 public class UnitData : ScriptableObject
 {
     public new string name;
@@ -11,6 +12,27 @@ public class UnitData : ScriptableObject
     public float attackCooldown;
     public float attackSpeed;
     public int elexir;
-    public GameObject Unitprefab;
 
+
+    public enum UnitType
+    {
+        Ground,
+        Air,
+        Building
+    }
+
+    public enum TargetPreference
+    {
+        GroundOnly,
+        AirOnly,
+        BuildingsOnly,
+        GroundAndAir
+    }
+
+    
+    [Header("Targeting Settings")]
+    public UnitType unitType;
+    public TargetPreference targetPreference;
+
+    public GameObject Unitprefab;
 }

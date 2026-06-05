@@ -13,6 +13,7 @@ public class Wizard : Unit
         agent.isStopped = true;
 
         while (attackTarget != null &&
+               CanAttackTarget(attackTarget) &&
                GetDistanceToTarget(attackTarget) <= data.attackRange)
         {
             if (GetTargetEffectiveHP(attackTarget) <= 0)
@@ -80,7 +81,7 @@ public class Wizard : Unit
         {
             if (col.TryGetComponent<Unit>(out Unit hitUnit) && hitUnit.GetTeamId() != this.teamId)
             {
-                if (hitUnit.GetEffectiveHP() > 0)
+                if (hitUnit.GetEffectiveHP() > 0 && CanAttackTarget(hitUnit.transform))
                 {
                     hitUnit.AddPendingDamage(data.attackDamage);
                     pendingTargets.Add(hitUnit.transform);
@@ -88,7 +89,7 @@ public class Wizard : Unit
             }
             else if (col.TryGetComponent<Castle>(out Castle hitCastle) && hitCastle.GetTeamId() != this.teamId)
             {
-                if (hitCastle.GetEffectiveHP() > 0)
+                if (hitCastle.GetEffectiveHP() > 0 && CanAttackTarget(hitCastle.transform))
                 {
                     hitCastle.AddPendingDamage(data.attackDamage);
                     pendingTargets.Add(hitCastle.transform);
@@ -113,6 +114,7 @@ public class Wizard : Unit
             {
                 targetPos = target.position;
             }
+
 
             if (Vector3.Distance(projectile.transform.position, targetPos) <= 0.08f)
                 break;
@@ -152,14 +154,14 @@ public class Wizard : Unit
         {
             if (col.TryGetComponent<Unit>(out Unit hitUnit))
             {
-                if (hitUnit.GetTeamId() != this.teamId)
+                if (hitUnit.GetTeamId() != this.teamId && CanAttackTarget(hitUnit.transform))
                 {
                     hitUnit.TakeDamage(data.attackDamage);
                 }
             }
             else if (col.TryGetComponent<Castle>(out Castle hitCastle))
             {
-                if (hitCastle.GetTeamId() != this.teamId)
+                if (hitCastle.GetTeamId() != this.teamId && CanAttackTarget(hitCastle.transform))
                 {
                     hitCastle.TakeDamage(data.attackDamage);
                 }

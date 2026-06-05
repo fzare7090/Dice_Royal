@@ -22,4 +22,6 @@ MonoBehaviour:
   attackCooldown: 1.1
   attackSpeed: 50
   elexir: 60
+  unitType: 0
+  targetPreference: 2
   Unitprefab: {fileID: 5184224788010875712, guid: 78442ff07f68b4449892b7030b526a2e, type: 3}

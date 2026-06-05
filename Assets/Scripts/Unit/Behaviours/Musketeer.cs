@@ -11,6 +11,7 @@ public class Musketeer : Unit
         agent.isStopped = true;
 
         while (attackTarget != null &&
+               CanAttackTarget(attackTarget) &&
                GetDistanceToTarget(attackTarget) <= data.attackRange)
         {
             if (GetTargetEffectiveHP(attackTarget) <= 0)
@@ -51,7 +52,7 @@ public class Musketeer : Unit
         if (GetDistanceToTarget(attackTarget) <= data.enemyFindingRange)
         {
             currentState = UnitState.MovingToEnemy;
-            ChaseEnemy(); 
+            ChaseEnemy();
         }
         else
         {
@@ -62,17 +63,17 @@ public class Musketeer : Unit
     private void FireBullet(MusketeerData muskyData, Transform target)
     {
         GameObject bullet = Instantiate(
-            muskyData.bulletPrefab,
-            transform.position,
-            Quaternion.identity,
-            transform
-        );
+           muskyData.bulletPrefab,
+           transform.position,
+           Quaternion.identity,
+           transform
+       );
         bullet.transform.localScale = new Vector3(0.15f, 0.15f, 0.15f);
 
         Image img = bullet.GetComponent<Image>();
         if (img != null)
         {
-            img.color = teamId == 1 ? Color.cyan : Color.magenta; 
+            img.color = teamId == 1 ? Color.cyan : Color.magenta;
         }
 
         // Apply pending damage explicitly
@@ -88,8 +89,8 @@ public class Musketeer : Unit
         while (bullet != null && target != null)
         {
             // حرکت مستقیم به سمت مرکز هدف برای جلوگیری از اصابت به گوشه‌ها
-            Vector3 targetPos = target.position; 
-            
+            Vector3 targetPos = target.position;
+
             bullet.transform.position = Vector3.MoveTowards(
                 bullet.transform.position,
                 targetPos,
@@ -98,7 +99,7 @@ public class Musketeer : Unit
 
             if (Vector3.Distance(bullet.transform.position, targetPos) < 0.1f)
             {
-                if (GetTargetEffectiveHP(target) > -data.attackDamage) // Check if valid
+                if (CanAttackTarget(target) && GetTargetEffectiveHP(target) > -data.attackDamage) // Check if valid
                 {
                     if (target.TryGetComponent<Unit>(out Unit tUnit))
                         tUnit.TakeDamage(data.attackDamage);
