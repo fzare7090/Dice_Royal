@@ -24,8 +24,9 @@ MonoBehaviour:
   elexir: 40
   unitType: 2
   targetPreference: 0
-  Unitprefab: {fileID: 0}
-  bombPrefab: {fileID: 0}
-  explosionRadius: 0
-  deathExplosionRadius: 0
-  deathExplosionDamage: 0
+  Unitprefab: {fileID: 5184224788010875712, guid: 702217b44c1f0aa428b2d1957cdea607, type: 3}
+  bombPrefab: {fileID: 6147683664016234234, guid: c34dc610925768545911f52370d10db2, type: 3}
+  bombScale: 0.2
+  explosionRadius: 0.3
+  deathExplosionRadius: 1
+  deathExplosionDamage: 200
