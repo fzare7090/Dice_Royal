@@ -5,6 +5,8 @@ using TMPro;
 public class UICardUpgradePanel : MonoBehaviour
 {
     [SerializeField] private CardUpgrade targetCardUpgrade;
+
+    [Header("UI")]
     [SerializeField] private TMP_Text levelText;
     [SerializeField] private TMP_Text currentStatsText;
     [SerializeField] private TMP_Text nextStatsText;
@@ -21,7 +23,9 @@ public class UICardUpgradePanel : MonoBehaviour
         }
 
         if (upgradeButton != null)
-            upgradeButton.onClick.AddListener(() => targetCardUpgrade?.TryUpgrade());
+        {
+            upgradeButton.onClick.AddListener(OnUpgradeButtonClick);
+        }
 
         UpdateUI();
     }
@@ -37,21 +41,33 @@ public class UICardUpgradePanel : MonoBehaviour
 
     private void UpdateUI()
     {
-        if (targetCardUpgrade == null) return;
+        if (targetCardUpgrade == null)
+            return;
 
         UpgradeCardInfo info = targetCardUpgrade.GetUpgradeInfo();
 
-        levelText.text = $"Level: {info.currentLevel}/{info.maxLevel}";
-        currentStatsText.text = $"HP: {info.currentHP:F0}\nDamage: {info.currentDamage:F0}\nSpeed: {info.currentAttackSpeed:F2}";
+        levelText.text =
+            $"Level {info.currentLevel}/{info.maxLevel}";
+
+        currentStatsText.text =
+            $"HP: {info.currentHP:F0}\n" +
+            $"Damage: {info.currentDamage:F0}\n" +
+            $"Speed: {info.currentAttackSpeed:F2}";
 
         if (info.canUpgrade)
         {
-            nextStatsText.text = $"Next HP: {info.nextHP:F0}\nNext Damage: {info.nextDamage:F0}\nNext Speed: {info.nextAttackSpeed:F2}";
-            upgradeCostText.text = $"Cost: {info.nextLevelCost}  |  Cards: {info.cardsNeeded}";
+            nextStatsText.text =
+                $"Next HP: {info.nextHP:F0}\n" +
+                $"Next Damage: {info.nextDamage:F0}\n" +
+                $"Next Speed: {info.nextAttackSpeed:F2}";
+
+            upgradeCostText.text =
+                $"Cost: {info.nextLevelCost}\n" +
+                $"Cards Needed: {info.cardsNeeded}";
         }
         else
         {
-            nextStatsText.text = "MAX LEVEL!";
+            nextStatsText.text = "MAX LEVEL";
             upgradeCostText.text = "---";
         }
 
@@ -59,14 +75,18 @@ public class UICardUpgradePanel : MonoBehaviour
         progressSlider.value = targetCardUpgrade.GetUpgradeProgress();
     }
 
-    private void OnUpgradeSuccess(int newLevel)
+    private void OnUpgradeButtonClick()
+    {
+        targetCardUpgrade?.TryUpgrade();
+    }
+
+    private void OnUpgradeSuccess(int level)
     {
         UpdateUI();
-        Debug.Log($"Card upgraded to level {newLevel}!");
     }
 
     private void OnUpgradeFailed(string reason)
     {
-        Debug.LogWarning($"Upgrade failed: {reason}");
+        Debug.LogWarning(reason);
     }
 }

@@ -1,5 +1,6 @@
-using UnityEngine;
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 [CreateAssetMenu(fileName = "CardDataBase", menuName = "Game/CardDataBase")]
 public class CardDataBase : ScriptableObject
 {   

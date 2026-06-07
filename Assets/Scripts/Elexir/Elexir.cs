@@ -7,6 +7,7 @@ public class Elexir : MonoBehaviour
 {
 
     [SerializeField] private TMP_Text elexirText;
+    [SerializeField] private PlayerResourceData playerResource;
 
     private int maxElexir = 100;
     private int currentElexir;
@@ -18,9 +19,11 @@ public class Elexir : MonoBehaviour
         currentElexir = maxElexir;
 
     }
+
+
     void Update()
     {
-        elexirText.text = currentElexir.ToString();
+        elexirText.text = playerResource.elexir.ToString();
     }
 
     public int GetElexir()

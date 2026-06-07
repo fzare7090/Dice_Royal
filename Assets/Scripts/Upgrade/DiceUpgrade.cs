@@ -2,25 +2,18 @@
 
 public class DiceUpgrade : MonoBehaviour
 {
+    [SerializeField] private DiceSaveData saveData;
     [SerializeField] private DiceUpgradeData upgradeData;
-    [SerializeField] private Dice dice;
-    [SerializeField] private Elexir elexir;
-    [SerializeField] private int currentLevel = 1;
+    [SerializeField] private PlayerResourceData playerResource;
 
     public event System.Action<int> OnUpgradeSuccess;
     public event System.Action<string> OnUpgradeFailed;
 
-    private void Start()
-    {
-        if (dice != null && upgradeData != null)
-        {
-            ApplyUpgrade();
-        }
-    }
-
     public bool CanUpgrade()
     {
-        return upgradeData != null && currentLevel < upgradeData.maxLevel;
+        return saveData != null &&
+               upgradeData != null &&
+               saveData.level < upgradeData.maxLevel;
     }
 
     public bool TryUpgrade()
@@ -31,91 +24,63 @@ public class DiceUpgrade : MonoBehaviour
             return false;
         }
 
-        int cost = upgradeData.upgradeCost[currentLevel - 1];
+        int cost = upgradeData.upgradeCost[saveData.level - 1];
 
-        if (elexir == null)
+        
+
+        if (playerResource.elexir < cost)
         {
-            OnUpgradeFailed?.Invoke("Elexir system not found!");
+            OnUpgradeFailed?.Invoke($"Need {cost} elexir!");
             return false;
         }
 
-        if (elexir.GetElexir() < cost)
-        {
-            OnUpgradeFailed?.Invoke($"Not enough elexir! Need {cost}");
-            return false;
-        }
+        playerResource.elexir -= cost;
 
-        elexir.UsingElexir(cost);
-        currentLevel++;
-        ApplyUpgrade();
-        OnUpgradeSuccess?.Invoke(currentLevel);
+        saveData.level++;
+
+        OnUpgradeSuccess?.Invoke(saveData.level);
         return true;
     }
 
     private string GetFailReason()
     {
-        if (upgradeData == null) return "No upgrade data!";
-        if (currentLevel >= upgradeData.maxLevel) return "Maximum level reached!";
-        if (elexir == null) return "Elexir system not found!";
-        return "Unknown reason";
-    }
-
-    private void ApplyUpgrade()
-    {
-        if (dice == null || upgradeData == null) return;
-
-        int newMultiplier = upgradeData.elexirMultiplier[currentLevel - 1];
-        dice.SetElexirMultiplier(newMultiplier);
-    }
-
-    public int GetCurrentLevel()
-    {
-        return currentLevel;
-    }
-
-    public int GetMaxLevel()
-    {
-        return upgradeData != null ? upgradeData.maxLevel : 1;
-    }
-
-    public int GetCurrentMultiplier()
-    {
-        return upgradeData != null ? upgradeData.elexirMultiplier[currentLevel - 1] : 0;
-    }
-
-    public int GetNextMultiplier()
-    {
-        if (!CanUpgrade()) return 0;
-        return upgradeData.elexirMultiplier[currentLevel];
-    }
-
-    public int GetNextUpgradeCost()
-    {
-        if (!CanUpgrade()) return 0;
-        return upgradeData.upgradeCost[currentLevel - 1];
-    }
-
-    public float GetUpgradeProgress()
-    {
-        return upgradeData != null ? (float)currentLevel / upgradeData.maxLevel : 0f;
+        if (saveData == null) return "SaveData missing!";
+        if (upgradeData == null) return "UpgradeData missing!";
+        if (saveData.level >= upgradeData.maxLevel) return "Max level!";
+        return "Unknown";
     }
 
     public DiceUpgradeInfo GetUpgradeInfo()
     {
-        if (upgradeData == null)
+        if (saveData == null || upgradeData == null)
             return new DiceUpgradeInfo();
 
-        bool hasNext = currentLevel < upgradeData.maxLevel;
+        int level = saveData.level;
+        bool hasNext = level < upgradeData.maxLevel;
 
         return new DiceUpgradeInfo
         {
             canUpgrade = hasNext,
-            currentLevel = currentLevel,
+            currentLevel = level,
             maxLevel = upgradeData.maxLevel,
-            currentMultiplier = upgradeData.elexirMultiplier[currentLevel - 1],
-            nextMultiplier = hasNext ? upgradeData.elexirMultiplier[currentLevel] : 0,
-            nextLevelCost = hasNext ? upgradeData.upgradeCost[currentLevel - 1] : 0
+
+            currentMultiplier = upgradeData.elexirMultiplier[level - 1],
+            nextMultiplier = hasNext ? upgradeData.elexirMultiplier[level] : 0,
+
+            nextLevelCost = hasNext ? upgradeData.upgradeCost[level - 1] : 0
         };
+    }
+
+    public float GetUpgradeProgress()
+    {
+        return (saveData == null || upgradeData == null)
+            ? 0f
+            : (float)saveData.level / upgradeData.maxLevel;
+    }
+
+    public int GetCurrentMultiplier()
+    {
+        return upgradeData.elexirMultiplier[saveData.level - 1];
     }
 }
 

@@ -4,7 +4,9 @@ using TMPro;
 
 public class UICastleUpgradePanel : MonoBehaviour
 {
-    [SerializeField] private Castle targetCastle;
+    [SerializeField] private CastleUpgrade castleUpgrade;
+
+    [Header("UI")]
     [SerializeField] private TMP_Text levelText;
     [SerializeField] private TMP_Text currentStatsText;
     [SerializeField] private TMP_Text nextStatsText;
@@ -12,20 +14,14 @@ public class UICastleUpgradePanel : MonoBehaviour
     [SerializeField] private Button upgradeButton;
     [SerializeField] private Slider progressSlider;
 
-    private CastleUpgrade castleUpgrade;
-
     private void Start()
     {
-        if (targetCastle != null)
+        if (castleUpgrade != null)
         {
-            castleUpgrade = targetCastle.GetComponent<CastleUpgrade>();
-
-            if (castleUpgrade != null)
-            {
-                castleUpgrade.OnUpgradeSuccess += OnUpgradeSuccess;
-                castleUpgrade.OnUpgradeFailed += OnUpgradeFailed;
-            }
+            castleUpgrade.OnUpgradeSuccess += OnUpgradeSuccess;
+            castleUpgrade.OnUpgradeFailed += OnUpgradeFailed;
         }
+
         if (upgradeButton != null)
         {
             upgradeButton.onClick.AddListener(OnUpgradeButtonClick);
@@ -45,21 +41,30 @@ public class UICastleUpgradePanel : MonoBehaviour
 
     private void UpdateUI()
     {
-        if (castleUpgrade == null) return;
+        if (castleUpgrade == null)
+            return;
 
         UpgradeInfo info = castleUpgrade.GetUpgradeInfo();
 
-        levelText.text = $"Level: {info.currentLevel}/{info.maxLevel}";
-        currentStatsText.text = $"HP: {info.currentHP:F0}\nDamage: {info.currentDamage:F0}";
+        levelText.text =
+            $"Level {info.currentLevel}/{info.maxLevel}";
+
+        currentStatsText.text =
+            $"HP: {info.currentHP:F0}\n" +
+            $"Damage: {info.currentDamage:F0}";
 
         if (info.canUpgrade)
         {
-            nextStatsText.text = $"Next HP: {info.nextHP:F0}\nNext Damage: {info.nextDamage:F0}";
-            upgradeCostText.text = $"Cost: {info.nextLevelCost}";
+            nextStatsText.text =
+                $"Next HP: {info.nextHP:F0}\n" +
+                $"Next Damage: {info.nextDamage:F0}";
+
+            upgradeCostText.text =
+                $"Cost: {info.nextLevelCost}";
         }
         else
         {
-            nextStatsText.text = "MAX LEVEL!";
+            nextStatsText.text = "MAX LEVEL";
             upgradeCostText.text = "---";
         }
 
@@ -67,23 +72,18 @@ public class UICastleUpgradePanel : MonoBehaviour
         progressSlider.value = castleUpgrade.GetUpgradeProgress();
     }
 
-    private void OnUpgradeSuccess(int newLevel)
+    private void OnUpgradeButtonClick()
+    {
+        castleUpgrade?.TryUpgrade();
+    }
+
+    private void OnUpgradeSuccess(int level)
     {
         UpdateUI();
-        Debug.Log($"Castle upgraded to level {newLevel}!");
     }
 
     private void OnUpgradeFailed(string reason)
     {
-        Debug.LogWarning($"Upgrade failed: {reason}");
-    }
-
-
-    private void OnUpgradeButtonClick()
-    {
-        if (castleUpgrade != null)
-        {
-            castleUpgrade.TryUpgrade();
-        }
+        Debug.LogWarning(reason);
     }
 }

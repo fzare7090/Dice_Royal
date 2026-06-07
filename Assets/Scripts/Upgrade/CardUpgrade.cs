@@ -2,31 +2,20 @@
 
 public class CardUpgrade : MonoBehaviour
 {
+    [SerializeField] private CardSaveData saveData;
     [SerializeField] private CardUpgradeData upgradeData;
     [SerializeField] private UnitData unitData;
-    [SerializeField] private int currentLevel = 1;
-
-    private float originalHP;
-    private float originalDamage;
-    private float originalAttackSpeed;
+    [SerializeField] private PlayerResourceData playerResource;
 
     public event System.Action<int> OnUpgradeSuccess;
     public event System.Action<string> OnUpgradeFailed;
 
-    private void Start()
-    {
-        if (unitData != null)
-        {
-            originalHP = unitData.hp;
-            originalDamage = unitData.attackDamage;
-            originalAttackSpeed = unitData.attackSpeed;
-            ApplyUpgrade();
-        }
-    }
-
     public bool CanUpgrade()
     {
-        return upgradeData != null && currentLevel < upgradeData.maxLevel;
+        return saveData != null &&
+               upgradeData != null &&
+               unitData != null &&
+               saveData.level < upgradeData.maxLevel;
     }
 
     public bool TryUpgrade()
@@ -37,102 +26,70 @@ public class CardUpgrade : MonoBehaviour
             return false;
         }
 
-        int cost = upgradeData.upgradeCost[currentLevel - 1];
-        int neededCards = upgradeData.cardCopiesNeeded[currentLevel - 1];
+        int cost = upgradeData.upgradeCost[saveData.level - 1];
+        int neededCards = upgradeData.cardCopiesNeeded[saveData.level - 1];
 
-        
-        bool hasEnoughCoin = true; 
-        bool hasEnoughCards = true; 
-
-        if (!hasEnoughCoin)
+        if (playerResource.coin < cost)
         {
-            OnUpgradeFailed?.Invoke($"Not enough coins! Need {cost}");
+            OnUpgradeFailed?.Invoke($"Need {cost} coins");
             return false;
         }
 
-        if (!hasEnoughCards)
+        if (saveData.ownedCopies < neededCards)
         {
-            OnUpgradeFailed?.Invoke($"Not enough card copies! Need {neededCards}");
+            OnUpgradeFailed?.Invoke($"Need {neededCards} cards");
             return false;
         }
 
-        currentLevel++;
-        ApplyUpgrade();
-        OnUpgradeSuccess?.Invoke(currentLevel);
+        playerResource.coin -= cost;
+        saveData.ownedCopies -= neededCards;
+        saveData.level++;
+
+        OnUpgradeSuccess?.Invoke(saveData.level);
         return true;
     }
 
     private string GetFailReason()
     {
-        if (upgradeData == null) return "No upgrade data!";
-        if (currentLevel >= upgradeData.maxLevel) return "Maximum level reached!";
-        return "Unknown reason";
-    }
-
-    private void ApplyUpgrade()
-    {
-        if (unitData == null || upgradeData == null) return;
-
-        float newHP = originalHP * upgradeData.hpMultiplier[currentLevel - 1];
-        float newDamage = originalDamage * upgradeData.damageMultiplier[currentLevel - 1];
-        float newAttackSpeed = originalAttackSpeed * upgradeData.attackSpeedMultiplier[currentLevel - 1];
-
-        unitData.hp = newHP;
-        unitData.attackDamage = newDamage;
-        unitData.attackSpeed = newAttackSpeed;
-    }
-
-    public int GetCurrentLevel()
-    {
-        return currentLevel;
-    }
-
-    public int GetMaxLevel()
-    {
-        return upgradeData != null ? upgradeData.maxLevel : 1;
-    }
-
-    public int GetNextUpgradeCost()
-    {
-        if (upgradeData == null || currentLevel >= upgradeData.maxLevel) return 0;
-        return upgradeData.upgradeCost[currentLevel - 1];
-    }
-
-    public int GetCardsNeeded()
-    {
-        if (upgradeData == null || currentLevel >= upgradeData.maxLevel) return 0;
-        return upgradeData.cardCopiesNeeded[currentLevel - 1];
-    }
-
-    public float GetUpgradeProgress()
-    {
-        return upgradeData != null ? (float)currentLevel / upgradeData.maxLevel : 0f;
+        if (saveData == null) return "Save missing";
+        if (upgradeData == null) return "Upgrade missing";
+        if (unitData == null) return "Unit missing";
+        return "Unknown";
     }
 
     public UpgradeCardInfo GetUpgradeInfo()
     {
-        if (upgradeData == null || unitData == null)
+        if (saveData == null || upgradeData == null || unitData == null)
             return new UpgradeCardInfo();
 
-        bool hasNext = currentLevel < upgradeData.maxLevel;
+        int level = saveData.level;
+        bool hasNext = level < upgradeData.maxLevel;
 
         return new UpgradeCardInfo
         {
             canUpgrade = hasNext,
-            currentLevel = currentLevel,
+            currentLevel = level,
             maxLevel = upgradeData.maxLevel,
-            nextLevelCost = hasNext ? upgradeData.upgradeCost[currentLevel - 1] : 0,
-            cardsNeeded = hasNext ? upgradeData.cardCopiesNeeded[currentLevel - 1] : 0,
-            currentHP = originalHP * upgradeData.hpMultiplier[currentLevel - 1],
-            currentDamage = originalDamage * upgradeData.damageMultiplier[currentLevel - 1],
-            currentAttackSpeed = originalAttackSpeed * upgradeData.attackSpeedMultiplier[currentLevel - 1],
-            nextHP = hasNext ? originalHP * upgradeData.hpMultiplier[currentLevel] : 0,
-            nextDamage = hasNext ? originalDamage * upgradeData.damageMultiplier[currentLevel] : 0,
-            nextAttackSpeed = hasNext ? originalAttackSpeed * upgradeData.attackSpeedMultiplier[currentLevel] : 0
+
+            nextLevelCost = hasNext ? upgradeData.upgradeCost[level - 1] : 0,
+            cardsNeeded = hasNext ? upgradeData.cardCopiesNeeded[level - 1] : 0,
+
+            currentHP = unitData.hp * upgradeData.hpMultiplier[level - 1],
+            currentDamage = unitData.attackDamage * upgradeData.damageMultiplier[level - 1],
+            currentAttackSpeed = unitData.attackSpeed * upgradeData.attackSpeedMultiplier[level - 1],
+
+            nextHP = hasNext ? unitData.hp * upgradeData.hpMultiplier[level] : 0,
+            nextDamage = hasNext ? unitData.attackDamage * upgradeData.damageMultiplier[level] : 0,
+            nextAttackSpeed = hasNext ? unitData.attackSpeed * upgradeData.attackSpeedMultiplier[level] : 0
         };
     }
 
-    public UnitData GetUnitData() { return unitData; }
+    public float GetUpgradeProgress()
+    {
+        return (saveData == null || upgradeData == null)
+            ? 0f
+            : (float)saveData.level / upgradeData.maxLevel;
+    }
 }
 
 public struct UpgradeCardInfo
@@ -142,9 +99,11 @@ public struct UpgradeCardInfo
     public int maxLevel;
     public int nextLevelCost;
     public int cardsNeeded;
+
     public float currentHP;
     public float currentDamage;
     public float currentAttackSpeed;
+
     public float nextHP;
     public float nextDamage;
     public float nextAttackSpeed;
