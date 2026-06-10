@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
     public void StartGameLogic()
     {
         Time.timeScale = 1f;
+        matchStartTime = Time.time;
         CacheTeamCastles();
         gameTime.StartTimer();
         StartCoroutine(CheckGameFlow());
@@ -48,7 +49,7 @@ public class GameManager : MonoBehaviour
     // متد ثبت اطلاعات در دیتابیس (آورده شده از کد دوستت و اصلاح شده)
     private void OnGameEnd(int winnerIndex, int player1Towers, int player2Towers)
     {
-        float matchDuration = Time.time - matchStartTime;
+        float matchDuration = gameTime != null ? gameTime.GetCurrentTime() : Time.time - matchStartTime;
 
         if (players.Count >= 2 && players[0] != null && players[1] != null)
         {
@@ -308,12 +309,12 @@ public class GameManager : MonoBehaviour
 
         isGameFinished = true;
 
-        // محاسبه تعداد تاورهای باقی‌مانده برای فرستادن به دیتابیس دوستت
-        int p1CastleCount = (players.Count > 0 && players[0].GetBoard() != null) ? players[0].GetBoard().GetCastleCount() : 0;
-        int p2CastleCount = (players.Count > 1 && players[1].GetBoard() != null) ? players[1].GetBoard().GetCastleCount() : 0;
+        // Crowns are the destroyed opponent castles, not the remaining castles.
+        int p1DestroyedCastles = GetCrowns(0);
+        int p2DestroyedCastles = GetCrowns(1);
 
         // ذخیره اطلاعات مچ در دیتابیس بازی
-        OnGameEnd(winnerIndex, p1CastleCount, p2CastleCount);
+        OnGameEnd(winnerIndex, p1DestroyedCastles, p2DestroyedCastles);
 
         // اعمال یوآی پایان بازی
         if (gameOverPanel != null)

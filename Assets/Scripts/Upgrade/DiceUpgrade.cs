@@ -26,15 +26,19 @@ public class DiceUpgrade : MonoBehaviour
 
         int cost = upgradeData.upgradeCost[saveData.level - 1];
 
-        
-
-        if (playerResource.elexir < cost)
+        if (playerResource == null)
         {
-            OnUpgradeFailed?.Invoke($"Need {cost} elexir!");
+            OnUpgradeFailed?.Invoke("Player resource missing!");
             return false;
         }
 
-        playerResource.elexir -= cost;
+        if (playerResource.coin < cost)
+        {
+            OnUpgradeFailed?.Invoke($"Need {cost} coins!");
+            return false;
+        }
+
+        playerResource.coin -= cost;
 
         saveData.level++;
 

@@ -60,7 +60,7 @@ public class UICastleUpgradePanel : MonoBehaviour
                 $"Next Damage: {info.nextDamage:F0}";
 
             upgradeCostText.text =
-                $"Cost: {info.nextLevelCost}";
+                $"Cost: {info.nextLevelCost} Coins";
         }
         else
         {

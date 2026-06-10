@@ -22,6 +22,7 @@ public class DataGameManager : MonoBehaviour
     private const string MATCH_PREFIX = "Match_";
 
     [SerializeField] private Coin coinManager;
+    [SerializeField] private PlayerResourceData playerResource;
 
     void Awake()
     {
@@ -130,18 +131,15 @@ public class DataGameManager : MonoBehaviour
         {
             match.result = MatchResult.Win;
             match.winnerName = "Player 1";
-
-            match.playerScore = player1Score;
-            match.opponentScore = player2Score;
         }
         else
         {
             match.result = MatchResult.Lose;
             match.winnerName = "Player 2";
-
-            match.playerScore = player2Score;
-            match.opponentScore = player1Score;
         }
+
+        match.playerScore = player1Score;
+        match.opponentScore = player2Score;
 
         match.playerLevel = playerLevel;
         match.opponentLevel = opponentLevel;
@@ -154,11 +152,23 @@ public class DataGameManager : MonoBehaviour
 
         SaveMatch(match);
 
-        if (coinManager != null &&
-            match.result == MatchResult.Win)
+        if (match.result == MatchResult.Win)
         {
             int coinReward = CalculateCoinReward();
-            coinManager.AddCoin(coinReward);
+            if (playerResource != null)
+            {
+                playerResource.coin += coinReward;
+                Debug.Log($"Win coin reward added: +{coinReward}. Total coins: {playerResource.coin}");
+            }
+            else if (coinManager != null)
+            {
+                coinManager.AddCoin(coinReward);
+                Debug.Log($"Win coin reward added through Coin manager: +{coinReward}");
+            }
+            else
+            {
+                Debug.LogWarning("Win coin reward skipped because no player resource or coin manager is assigned.");
+            }
         }
     }
 

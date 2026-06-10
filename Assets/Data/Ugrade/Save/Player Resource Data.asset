@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Player Resource Data
   m_EditorClassIdentifier: 
   elexir: 0
-  coin: 0
+  coin: 1000

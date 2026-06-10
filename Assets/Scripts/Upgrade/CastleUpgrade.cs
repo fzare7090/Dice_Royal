@@ -27,14 +27,19 @@ public class CastleUpgrade : MonoBehaviour
 
         int cost = upgradeData.upgradeCost[saveData.level - 1];
 
+        if (playerResource == null)
+        {
+            OnUpgradeFailed?.Invoke("Player resource missing!");
+            return false;
+        }
 
-        if (playerResource.elexir < cost)
+        if (playerResource.coin < cost)
         {
             OnUpgradeFailed?.Invoke($"Need {cost} coins!");
             return false;
         }
 
-        playerResource.elexir -= cost;
+        playerResource.coin -= cost;
         saveData.level++;
 
         OnUpgradeSuccess?.Invoke(saveData.level);

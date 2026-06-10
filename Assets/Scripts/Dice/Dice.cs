@@ -48,6 +48,7 @@ public class Dice : MonoBehaviour
     private Collider diceCollider;
     private Camera mainCamera;
     private Coroutine activeTimerCoroutine;
+    private Sequence readyNoticeSequence;
 
 
     private void Start()
@@ -80,8 +81,14 @@ public class Dice : MonoBehaviour
         if (rollCurve == null || rollCurve.keys.Length == 0)
             rollCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
-        if (timerText != null)
-            timerText.gameObject.SetActive(false);
+        HideTimer();
+        HideReadyNotice();
+
+        if (diceButton != null)
+        {
+            diceButton.onClick.RemoveListener(ForceRoll);
+            diceButton.onClick.AddListener(ForceRoll);
+        }
 
         Debug.Log("Dice initialized! Ready to roll.");
     }
@@ -118,6 +125,8 @@ public class Dice : MonoBehaviour
         LastResult = bottomNumber;
 
         Debug.Log($"Dice number: {bottomNumber}");
+        if (diceText != null)
+            diceText.text = bottomNumber.ToString();
 
         Quaternion finalRotation = GetRotationForBottomNumber(bottomNumber);
 
@@ -159,6 +168,10 @@ public class Dice : MonoBehaviour
         {
             elexir.GettingElexir(gainedElexir);
         }
+        else
+        {
+            Debug.LogError($"{nameof(Dice)} is missing an Elexir reference.", this);
+        }
 
         OnDiceRolled?.Invoke(LastResult);
 
@@ -173,30 +186,21 @@ public class Dice : MonoBehaviour
     {
         Debug.Log($"Cooldown started: {cooldownDuration} seconds");
 
-        if (timerText != null)
-        {
-            timerText.gameObject.SetActive(true);
-        }
+        ShowTimer();
 
         float remainingTime = cooldownDuration;
 
         while (remainingTime > 0)
         {
-            if (timerText != null)
-            {
-                timerText.text = Mathf.CeilToInt(remainingTime).ToString();
-            }
-            remainingTime -= 1f;
-            yield return new WaitForSeconds(1f);
+            SetTimerTextValue(Mathf.CeilToInt(remainingTime).ToString());
+            remainingTime -= Time.deltaTime;
+            yield return null;
         }
 
-        if (timerText != null)
-        {
-            timerText.gameObject.SetActive(false);
-            timerText.text = "";
-        }
+        HideTimer();
 
         IsLocked = false;
+        ShowReadyNotice();
         Debug.Log("Cooldown finished! Dice is ready to roll again.");
     }
     /*
@@ -245,22 +249,8 @@ public class Dice : MonoBehaviour
 
     public void SetTimerText(TMP_Text newTimerText)
     {
-
-        tossDiceNotice.gameObject.SetActive(true);
-        tossDiceNotice.text = "تاس آماده‌ی پرتاب است!";
-
-        tossDiceNotice.transform.localScale = Vector3.zero;
-
-        Sequence seq = DOTween.Sequence();
-        seq.Append(tossDiceNotice.transform.DOScale(Vector3.one, 0.4f).SetEase(Ease.OutBack));
-        seq.AppendInterval(1.5f);
-        seq.Append(tossDiceNotice.transform.DOScale(Vector3.zero, 0.3f).SetEase(Ease.InBack));
-
-        // yield return new WaitForSeconds(2.2f);
-        tossDiceNotice.gameObject.SetActive(false);
-
         timerText = newTimerText;
-
+        HideTimer();
     }
 
     public void ForceRoll()
@@ -278,11 +268,7 @@ public class Dice : MonoBehaviour
         if (activeTimerCoroutine != null)
             StopCoroutine(activeTimerCoroutine);
 
-        if (timerText != null)
-        {
-            timerText.gameObject.SetActive(false);
-            timerText.text = "";
-        }
+        HideTimer();
     }
 
     public bool IsReady()
@@ -293,5 +279,67 @@ public class Dice : MonoBehaviour
     public int GetLastRolledNumber()
     {
         return LastResult;
+    }
+
+    private TMP_Text GetTimerLabel()
+    {
+        if (timerText != null)
+            return timerText;
+
+        return diceTimer;
+    }
+
+    private void ShowTimer()
+    {
+        TMP_Text timerLabel = GetTimerLabel();
+        if (timerLabel != null)
+            timerLabel.gameObject.SetActive(true);
+    }
+
+    private void HideTimer()
+    {
+        TMP_Text timerLabel = GetTimerLabel();
+        if (timerLabel == null)
+            return;
+
+        timerLabel.text = "";
+        timerLabel.gameObject.SetActive(false);
+    }
+
+    private void SetTimerTextValue(string value)
+    {
+        TMP_Text timerLabel = GetTimerLabel();
+        if (timerLabel != null)
+            timerLabel.text = value;
+    }
+
+    private void ShowReadyNotice()
+    {
+        if (tossDiceNotice == null)
+        {
+            Debug.LogWarning($"{nameof(Dice)} has no ready notice text assigned.", this);
+            return;
+        }
+
+        readyNoticeSequence?.Kill();
+
+        tossDiceNotice.gameObject.SetActive(true);
+        tossDiceNotice.text = "تاس آماده‌ی پرتاب است!";
+        tossDiceNotice.transform.localScale = Vector3.zero;
+
+        readyNoticeSequence = DOTween.Sequence();
+        readyNoticeSequence.Append(tossDiceNotice.transform.DOScale(Vector3.one, 0.4f).SetEase(Ease.OutBack));
+        readyNoticeSequence.AppendInterval(1.5f);
+        readyNoticeSequence.Append(tossDiceNotice.transform.DOScale(Vector3.zero, 0.3f).SetEase(Ease.InBack));
+        readyNoticeSequence.OnComplete(HideReadyNotice);
+    }
+
+    private void HideReadyNotice()
+    {
+        readyNoticeSequence?.Kill();
+        readyNoticeSequence = null;
+
+        if (tossDiceNotice != null)
+            tossDiceNotice.gameObject.SetActive(false);
     }
 }

@@ -24,7 +24,7 @@ public class Player : MonoBehaviour
 
     public KingCastleConfig GetKingCastleConfig()
     {
-        return board.GetKingCastle();
+        return board != null ? board.GetKingCastle() : null;
     }
 
     public int GetLevel(){ return level; }

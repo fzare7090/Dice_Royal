@@ -53,7 +53,7 @@ public class CardDetailsPanel : MonoBehaviour
 
         int level = currentCard.level;
 
-        bool canUpgrade =
+        bool hasNextLevel =
             level < upgradeData.maxLevel;
 
         cardNameText.text = currentUnit.name;
@@ -78,8 +78,11 @@ public class CardDetailsPanel : MonoBehaviour
             $"Damage: {currentDamage:F0}\n" +
             $"Speed: {currentSpeed:F2}";
 
-        if (canUpgrade)
+        if (hasNextLevel)
         {
+            int cost = upgradeData.upgradeCost[level - 1];
+            int requiredCopies = upgradeData.cardCopiesNeeded[level - 1];
+
             float nextHP =
                 currentUnit.hp *
                 upgradeData.hpMultiplier[level];
@@ -98,20 +101,28 @@ public class CardDetailsPanel : MonoBehaviour
                 $"Speed: {nextSpeed:F2}";
 
             costText.text =
-                $"Cost: {upgradeData.upgradeCost[level - 1]}";
+                $"Cost: {cost} Coins";
 
             copiesText.text =
                 $"Cards: {currentCard.ownedCopies}/" +
-                $"{upgradeData.cardCopiesNeeded[level - 1]}";
+                $"{requiredCopies}";
+
+            bool hasEnoughCoins =
+                playerResource != null && playerResource.coin >= cost;
+
+            bool hasEnoughCopies =
+                currentCard.ownedCopies >= requiredCopies;
+
+            upgradeButton.interactable =
+                hasEnoughCoins && hasEnoughCopies;
         }
         else
         {
             nextStatsText.text = "MAX LEVEL";
             costText.text = "---";
             copiesText.text = "---";
+            upgradeButton.interactable = false;
         }
-
-        upgradeButton.interactable = canUpgrade;
     }
 
     private void UpgradeCurrentCard()
@@ -130,12 +141,16 @@ public class CardDetailsPanel : MonoBehaviour
         int requiredCopies =
             upgradeData.cardCopiesNeeded[level - 1];
 
-        if (playerResource.coin<cost)
+        if (playerResource == null)
+            return;
+
+        if (playerResource.coin < cost)
             return;
 
         if (currentCard.ownedCopies < requiredCopies)
             return;
 
+        playerResource.coin -= cost;
         currentCard.ownedCopies -= requiredCopies;
         currentCard.level++;
 

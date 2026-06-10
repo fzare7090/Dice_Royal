@@ -39,11 +39,11 @@ public class Board : MonoBehaviour
     {
         int count = 0;
 
-        if (rightPriceCastle != null && rightPriceCastle.exist)
+        if (rightPriceCastle != null && rightPriceCastle.exist && rightPriceCastle.GetHPCastle() > 0)
         {
             count++;
         }
-        if (leftPriceCastle != null && leftPriceCastle.exist)
+        if (leftPriceCastle != null && leftPriceCastle.exist && leftPriceCastle.GetHPCastle() > 0)
         {
             count++;
         }
@@ -57,9 +57,9 @@ public class Board : MonoBehaviour
     {
         int castleCount = GetPrinceCastleCount();
 
-        if (kingCastle.GetCastleHP().exist)
+        if (kingCastle != null && kingCastle.exist && kingCastle.GetHPCastle() > 0)
         {
-            castleCount = GetPrinceCastleCount() + 1;
+            castleCount++;
         }
 
         return castleCount;

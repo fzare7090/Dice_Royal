@@ -58,7 +58,7 @@ public class UIDiceUpgradePanel : MonoBehaviour
                 $"Next Multiplier: x{info.nextMultiplier}";
 
             upgradeCostText.text =
-                $"Cost: {info.nextLevelCost} Elexir";
+                $"Cost: {info.nextLevelCost} Coins";
         }
         else
         {

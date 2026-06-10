@@ -1,13 +1,10 @@
-using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem.iOS;
 
 public class Elexir : MonoBehaviour
 {
 
     [SerializeField] private TMP_Text elexirText;
-    [SerializeField] private PlayerResourceData playerResource;
 
     private int maxElexir = 100;
     private int currentElexir;
@@ -17,18 +14,23 @@ public class Elexir : MonoBehaviour
     void Start()
     {
         currentElexir = maxElexir;
-
+        RefreshUI();
     }
 
 
     void Update()
     {
-        elexirText.text = playerResource.elexir.ToString();
+        RefreshUI();
     }
 
     public int GetElexir()
     {
         return currentElexir;
+    }
+
+    public int GetMaxElexir()
+    {
+        return maxElexir;
     }
 
     public int GetAddingElexir()
@@ -43,7 +45,10 @@ public class Elexir : MonoBehaviour
     public void UsingElexir(int AmountRequired)
     {
         if (currentElexir - AmountRequired >= 0)
+        {
             currentElexir -= AmountRequired;
+            RefreshUI();
+        }
     }
 
     public void GettingElexir(int addingValue)
@@ -53,6 +58,8 @@ public class Elexir : MonoBehaviour
         {
             currentElexir = maxElexir;
         }
+
+        RefreshUI();
     }
 
     public void RunningOutElexirNotice()
@@ -60,6 +67,12 @@ public class Elexir : MonoBehaviour
 
         
 
+    }
+
+    private void RefreshUI()
+    {
+        if (elexirText != null)
+            elexirText.text = currentElexir.ToString();
     }
 
 

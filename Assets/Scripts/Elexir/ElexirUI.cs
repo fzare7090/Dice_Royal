@@ -16,6 +16,7 @@ public class ElexirUI : MonoBehaviour
     {
         if (elexir != null && elexirSlider != null)
         {
+            elexirSlider.maxValue = elexir.GetMaxElexir();
             elexirSlider.value = elexir.GetElexir();
         }
     }
