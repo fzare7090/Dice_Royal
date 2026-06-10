@@ -1,24 +1,22 @@
-﻿using TMPro;
+﻿using RTLTMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class MatchHistoryItem : MonoBehaviour
 {
     [Header("Texts")]
-    [SerializeField] private TMP_Text resultText;
-    [SerializeField] private TMP_Text scoreText;
-    [SerializeField] private TMP_Text trophyText;
-    [SerializeField] private TMP_Text dateText;
-    [SerializeField] private TMP_Text durationText;
+    [SerializeField] private RTLTextMeshPro resultText;
+    [SerializeField] private RTLTextMeshPro scoreText;
+    [SerializeField] private RTLTextMeshPro trophyText;
+    [SerializeField] private RTLTextMeshPro dateText;
+    [SerializeField] private RTLTextMeshPro durationText;
 
     [Header("Levels")]
-    //[SerializeField] private TMP_Text playerLevelText;
-    [SerializeField] private TMP_Text opponentLevelText;
+    [SerializeField] private RTLTextMeshPro opponentLevelText;
 
     [Header("UI")]
     [SerializeField] private Image backgroundImage;
     [SerializeField] private Button detailsButton;
-
 
     [Header("Colors")]
     [SerializeField] private Color winColor;
@@ -31,33 +29,39 @@ public class MatchHistoryItem : MonoBehaviour
     {
         currentMatch = data;
 
+        // امتیاز
         scoreText.text =
             $"{data.playerScore} - {data.opponentScore}";
 
+        // تاریخ
         dateText.text = data.matchDate;
 
+        // مدت زمان
         durationText.text = FormatDuration(data.matchDuration);
 
+        // تغییر جام
         trophyText.text =
-            $"{data.trophiesChanged:+#;-#;0} 🏆";
+            $"{data.trophiesChanged:+#;-#;0}";
 
+        // سطح حریف
         opponentLevelText.text =
-            $"ENEMY Lv.{data.opponentLevel}";
+            $"سطح حریف: {data.opponentLevel}";
 
+        // نتیجه مسابقه
         switch (data.result)
         {
             case MatchResult.Win:
-                resultText.text = "VICTORY";
+                resultText.text = "پیروزی";
                 backgroundImage.color = winColor;
                 break;
 
             case MatchResult.Lose:
-                resultText.text = "DEFEAT";
+                resultText.text = "شکست";
                 backgroundImage.color = loseColor;
                 break;
 
             case MatchResult.Draw:
-                resultText.text = "DRAW";
+                resultText.text = "مساوی";
                 backgroundImage.color = drawColor;
                 break;
         }

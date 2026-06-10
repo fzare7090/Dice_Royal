@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 public enum MatchResult
 {
@@ -48,7 +49,14 @@ public class DataGameManager : MonoBehaviour
         int matchCount = PlayerPrefs.GetInt(MATCH_COUNT_KEY, 0);
 
         match.matchId = matchCount.ToString();
-        match.matchDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+        PersianCalendar pc = new PersianCalendar();
+        DateTime now = DateTime.Now;
+
+        string shamsiDate =
+            $"{pc.GetYear(now)}/{pc.GetMonth(now):00}/{pc.GetDayOfMonth(now):00} {now:HH:mm:ss}";
+
+        match.matchDate = shamsiDate;
 
         if (match.trophiesChanged == 0)
         {
@@ -57,13 +65,13 @@ public class DataGameManager : MonoBehaviour
 
         string jsonData = JsonUtility.ToJson(match);
         string key = MATCH_PREFIX + matchCount;
+
         PlayerPrefs.SetString(key, jsonData);
         PlayerPrefs.SetInt(MATCH_COUNT_KEY, matchCount + 1);
         PlayerPrefs.Save();
 
         Debug.Log($"Match {matchCount} saved! Winner: {match.winnerName}, Score: {match.playerScore}-{match.opponentScore}");
     }
-
     public MatchData LoadMatch(int matchIndex)
     {
         string key = MATCH_PREFIX + matchIndex;

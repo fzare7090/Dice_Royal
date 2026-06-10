@@ -1,12 +1,12 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
+using RTLTMPro;
 public class CardScrollItemUI : MonoBehaviour
 {
     [Header("UI")]
-    [SerializeField] private TMP_Text cardNameText;
-    [SerializeField] private TMP_Text levelText;
+    [SerializeField] private RTLTextMeshPro cardNameText;
+    [SerializeField] private RTLTextMeshPro levelText;
     [SerializeField] private Image cardIcon;
     [SerializeField] private Button button;
 
@@ -26,11 +26,6 @@ public class CardScrollItemUI : MonoBehaviour
         button.onClick.AddListener(() =>
         {
             Debug.Log("Card Clicked");
-            button.onClick.AddListener(() =>
-            {
-                detailsPanel.gameObject.SetActive(true);
-                detailsPanel.ShowCard(unit, cardData);
-            });
             detailsPanel.ShowCard(unit, cardData);
         });
     }
