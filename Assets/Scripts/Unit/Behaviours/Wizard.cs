@@ -55,32 +55,24 @@ public class Wizard : Unit
 
     private void FireProjectile(WizardData wizardData, Transform target)
     {
-        GameObject fire = Instantiate(
-            wizardData.firePrefab,
-            transform.position,
-            Quaternion.identity,
-            transform
-        );
+        GameObject fire = Instantiate(wizardData.firePrefab, transform.position, Quaternion.identity, transform);
         fire.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
 
         AudioManager.Instance.PlayFireEffect();
 
         Image img = fire.GetComponent<Image>();
-        if (img != null)
-        {
-            img.color = teamId == 1 ? Color.green : Color.red;
-        }
+        if (img != null) img.color = teamId == 1 ? Color.green : Color.red;
 
         Vector3 predictedImpactPos = target.position;
         Collider[] collidersInRange = Physics.OverlapSphere(predictedImpactPos, wizardData.fireRange);
-
         List<Transform> pendingTargets = new List<Transform>();
 
         foreach (Collider col in collidersInRange)
         {
             if (col.TryGetComponent<Unit>(out Unit hitUnit) && hitUnit.GetTeamId() != this.teamId)
             {
-                if (hitUnit.GetEffectiveHP() > 0)
+                // تغییر: اضافه شدن CanAttackTarget برای ویزارد
+                if (hitUnit.GetEffectiveHP() > 0 && CanAttackTarget(hitUnit.transform))
                 {
                     hitUnit.AddPendingDamage(data.attackDamage);
                     pendingTargets.Add(hitUnit.transform);
@@ -88,7 +80,7 @@ public class Wizard : Unit
             }
             else if (col.TryGetComponent<Castle>(out Castle hitCastle) && hitCastle.GetTeamId() != this.teamId)
             {
-                if (hitCastle.GetEffectiveHP() > 0)
+                if (hitCastle.GetEffectiveHP() > 0 && CanAttackTarget(hitCastle.transform))
                 {
                     hitCastle.AddPendingDamage(data.attackDamage);
                     pendingTargets.Add(hitCastle.transform);
@@ -106,35 +98,22 @@ public class Wizard : Unit
 
         Vector3 targetPos = target != null ? target.position : Vector3.zero;
 
-
         while (projectile != null)
         {
-            if (target != null)
-            {
-                targetPos = target.position;
-            }
+            if (target != null) targetPos = target.position;
 
-            if (Vector3.Distance(projectile.transform.position, targetPos) <= 0.08f)
-                break;
+            if (Vector3.Distance(projectile.transform.position, targetPos) <= 0.08f) break;
 
             projectile.transform.position = Vector3.MoveTowards(
-                projectile.transform.position,
-                targetPos,
-                wizardData.attackSpeed * Time.deltaTime
+                projectile.transform.position, targetPos, wizardData.attackSpeed * Time.deltaTime
             );
-
             yield return null;
         }
 
         activeProjectiles.Remove(projRef);
-
         Vector3 impactPos = projectile != null ? projectile.transform.position : targetPos;
 
-        if (projectile != null)
-        {
-            Destroy(projectile);
-        }
-
+        if (projectile != null) Destroy(projectile);
 
         foreach (Transform t in pendingTargets)
         {
@@ -145,28 +124,27 @@ public class Wizard : Unit
             }
         }
 
-
         Collider[] collidersInRange = Physics.OverlapSphere(impactPos, wizardData.fireRange);
 
         foreach (Collider col in collidersInRange)
         {
             if (col.TryGetComponent<Unit>(out Unit hitUnit))
             {
-                if (hitUnit.GetTeamId() != this.teamId)
+                // تغییر: اعمال دمیج فقط روی اهداف مجاز
+                if (hitUnit.GetTeamId() != this.teamId && CanAttackTarget(hitUnit.transform))
                 {
                     hitUnit.TakeDamage(data.attackDamage);
                 }
             }
             else if (col.TryGetComponent<Castle>(out Castle hitCastle))
             {
-                if (hitCastle.GetTeamId() != this.teamId)
+                if (hitCastle.GetTeamId() != this.teamId && CanAttackTarget(hitCastle.transform))
                 {
                     hitCastle.TakeDamage(data.attackDamage);
                 }
             }
         }
     }
-
     private void OnDestroy()
     {
         if (data == null) return;

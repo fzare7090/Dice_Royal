@@ -7,10 +7,11 @@ public class Musketeer : Unit
     protected override IEnumerator AttackRoutine()
     {
         MusketeerData muskyData = data as MusketeerData;
-
         agent.isStopped = true;
 
+        // تغییر: اضافه شدن CanAttackTarget به شرط حلقه
         while (attackTarget != null &&
+               CanAttackTarget(attackTarget) &&
                GetDistanceToTarget(attackTarget) <= data.attackRange)
         {
             if (GetTargetEffectiveHP(attackTarget) <= 0)
@@ -24,7 +25,6 @@ public class Musketeer : Unit
             }
             else
             {
-                // Fallback to instant damage if no bullet prefab
                 DealDamage();
             }
 
@@ -58,7 +58,6 @@ public class Musketeer : Unit
             ReturnToOriginalPath();
         }
     }
-
     private void FireBullet(MusketeerData muskyData, Transform target)
     {
         GameObject bullet = Instantiate(

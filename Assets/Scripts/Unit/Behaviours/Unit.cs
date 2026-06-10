@@ -18,7 +18,6 @@ public class Unit : MonoBehaviour
     protected List<Transform> enemies;
     protected Transform attackTarget;
 
-
     protected List<Transform> waypoints = new List<Transform>();
     protected int currentWaypointIndex = 0;
 
@@ -47,12 +46,56 @@ public class Unit : MonoBehaviour
         board = newBoard;
     }
 
+    public void SetData(UnitData newData)
+    {
+        data = newData;
+    }
+
+    // گرفتن نوع نیرو برای تشخیص توسط سایر نیروها
+    public virtual UnitData.UnitType GetUnitType()
+    {
+        return data != null ? data.unitType : UnitData.UnitType.Ground;
+    }
+
+    // بررسی اینکه آیا این نیرو مجاز به حمله به هدف مشخص شده هست یا خیر
+    public virtual bool CanAttackTarget(Transform target)
+    {
+        UnitData.UnitType targetType;
+
+        // تشخیص نوع هدف
+        if (target.TryGetComponent<Unit>(out Unit targetUnit))
+        {
+            targetType = targetUnit.data.unitType; // یا targetUnit.unitType بستگی به ساختارت دارد
+        }
+        else if (target.TryGetComponent<Castle>(out Castle _))
+        {
+            targetType = UnitData.UnitType.Building;
+        }
+        else
+        {
+            return false;
+        }
+
+        // بررسی اجازه حمله بر اساس اولویت هدفِ این نیرو
+        switch (data.targetPreference)
+        {
+            case UnitData.TargetPreference.GroundOnly:
+                return targetType == UnitData.UnitType.Ground || targetType == UnitData.UnitType.Building; // معمولا نیروهای زمینی‌زن، ساختمان هم می‌زنند
+            case UnitData.TargetPreference.AirOnly:
+                return targetType == UnitData.UnitType.Air;
+            case UnitData.TargetPreference.BuildingsOnly:
+                return targetType == UnitData.UnitType.Building;
+            case UnitData.TargetPreference.GroundAndAir:
+                return true; // به همه چیز می‌تواند حمله کند
+            default:
+                return false;
+        }
+    }
     protected virtual void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         if (agent == null)
             agent = gameObject.AddComponent<NavMeshAgent>();
-
 
         agent.updateRotation = false;
         agent.autoBraking = true;
@@ -67,21 +110,14 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public void SetData(UnitData newData)
-    {
-        data = newData;
-    }
-
     protected virtual void InitializeUnit()
     {
         currentHP = data.hp;
         UpdateHPText();
         agent.speed = data.moveSpeed;
 
-
         if (!agent.isOnNavMesh)
             agent.Warp(transform.position);
-
 
         BuildWaypoints();
 
@@ -94,11 +130,9 @@ public class Unit : MonoBehaviour
         currentState = UnitState.Moving;
     }
 
-
     protected virtual void BuildWaypoints()
     {
         waypoints.Clear();
-
 
         if (predefinedWaypoints != null && predefinedWaypoints.Count > 0)
         {
@@ -106,49 +140,38 @@ public class Unit : MonoBehaviour
             return;
         }
 
-
-
         PrinceCastleConfig princeCastleP1Right = board[0].GetRightPrinceCastles();
         PrinceCastleConfig princeCastleP1Left = board[0].GetLeftPrinceCastles();
         KingCastleConfig kingCastleP1 = board[0].GetKingCastle();
 
-
-
         PrinceCastleConfig princeCastleP2Right = board[1].GetRightPrinceCastles();
-
         PrinceCastleConfig princeCastleP2Left = board[1].GetLeftPrinceCastles();
-
         KingCastleConfig kingCastleP2 = board[1].GetKingCastle();
-
 
         bool useRightLane = transform.localPosition.x > 0;
 
-
         if (teamId == 0)
         {
-            
             PrinceCastleConfig prince = useRightLane ? princeCastleP2Right : princeCastleP2Left;
             Transform kingTarget = kingCastleP2?.transform;
 
             if (prince != null && prince.gameObject.activeInHierarchy) waypoints.Add(prince.transform);
             if (kingTarget != null) waypoints.Add(kingTarget);
         }
-
         else
         {
-
             PrinceCastleConfig prince = useRightLane ? princeCastleP1Right : princeCastleP1Left;
             Transform kingTarget = kingCastleP1?.transform;
 
             if (prince != null && prince.gameObject.activeInHierarchy) waypoints.Add(prince.transform);
             if (kingTarget != null) waypoints.Add(kingTarget);
-
         }
     }
 
     protected void UpdateHPText()
     {
-        hpText.text = currentHP.ToString();
+        if (hpText != null)
+            hpText.text = currentHP.ToString();
     }
 
     public void SetEnemies(List<Transform> newEnemies)
@@ -196,7 +219,6 @@ public class Unit : MonoBehaviour
         }
         return target.position;
     }
-
 
     protected virtual void Update()
     {
@@ -266,7 +288,6 @@ public class Unit : MonoBehaviour
         }
     }
 
-
     protected float GetTargetEffectiveHP(Transform target)
     {
         if (target == null) return 0;
@@ -286,15 +307,14 @@ public class Unit : MonoBehaviour
     {
         if (enemies == null) return;
 
-
+        // بررسی اعتبار هدف فعلی با استفاده از فیلتر جدید CanAttackTarget
         if (attackTarget != null)
         {
-            if (!attackTarget.gameObject.activeInHierarchy || GetTargetEffectiveHP(attackTarget) <= 0)
+            if (!attackTarget.gameObject.activeInHierarchy || GetTargetEffectiveHP(attackTarget) <= 0 || !CanAttackTarget(attackTarget))
             {
                 attackTarget = null;
             }
         }
-
 
         if (currentState == UnitState.Attacking && attackTarget != null)
         {
@@ -310,10 +330,10 @@ public class Unit : MonoBehaviour
         Transform closestEnemy = null;
         float closestDistance = float.MaxValue;
 
-
         foreach (Transform enemy in enemies)
         {
-            if (enemy == null || !enemy.gameObject.activeInHierarchy || GetTargetEffectiveHP(enemy) <= 0) continue;
+            // اضافه شدن شرط CanAttackTarget برای نادیده گرفتن اهداف غیرمرتبط
+            if (enemy == null || !enemy.gameObject.activeInHierarchy || GetTargetEffectiveHP(enemy) <= 0 || !CanAttackTarget(enemy)) continue;
 
             float distance = GetDistanceToTarget(enemy);
             if (distance <= data.enemyFindingRange && distance < closestDistance)
@@ -323,10 +343,8 @@ public class Unit : MonoBehaviour
             }
         }
 
-        // اگر دشمنی پیدا شد
         if (closestEnemy != null)
         {
-
             if (attackTarget != closestEnemy)
             {
                 attackTarget = closestEnemy;
@@ -350,14 +368,12 @@ public class Unit : MonoBehaviour
                 }
                 else
                 {
-
                     agent.SetDestination(attackTarget.position);
                 }
             }
         }
         else
         {
-
             attackTarget = null;
             if (currentState != UnitState.Moving)
             {
@@ -370,29 +386,24 @@ public class Unit : MonoBehaviour
     {
         if (attackTarget == null) return;
         agent.isStopped = false;
-
-
         agent.stoppingDistance = 0f;
-
-
         agent.SetDestination(attackTarget.position);
     }
-
-
 
     protected virtual IEnumerator AttackRoutine()
     {
         agent.isStopped = true;
-        while (attackTarget != null &&
-                   GetDistanceToTarget(attackTarget) <= data.attackRange)
+        // بررسی مداوم فیلتر CanAttackTarget هنگام حمله
+        while (attackTarget != null && CanAttackTarget(attackTarget) && GetDistanceToTarget(attackTarget) <= data.attackRange)
         {
             DealDamage();
 
             if (attackTarget == null)
                 break;
+
             yield return new WaitForSeconds(data.attackCooldown);
-            if (attackTarget == null ||
-                        GetDistanceToTarget(attackTarget) > data.attackRange)
+
+            if (attackTarget == null || !CanAttackTarget(attackTarget) || GetDistanceToTarget(attackTarget) > data.attackRange)
             {
                 break;
             }
@@ -414,7 +425,6 @@ public class Unit : MonoBehaviour
             ReturnToOriginalPath();
         }
     }
-
 
     protected void ReturnToOriginalPath()
     {

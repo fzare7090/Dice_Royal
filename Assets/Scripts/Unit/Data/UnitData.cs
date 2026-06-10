@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "New Unit Data", menuName = "Game/Unit Data")]
 public class UnitData : ScriptableObject
 {
     public new string name;
@@ -12,7 +13,6 @@ public class UnitData : ScriptableObject
     public float attackCooldown;
     public float attackSpeed;
     public int elexir;
-
 
     public enum UnitType
     {
@@ -29,7 +29,6 @@ public class UnitData : ScriptableObject
         GroundAndAir
     }
 
-    
     [Header("Targeting Settings")]
     public UnitType unitType;
     public TargetPreference targetPreference;

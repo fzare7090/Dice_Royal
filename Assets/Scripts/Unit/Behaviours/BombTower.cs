@@ -109,6 +109,7 @@ public class BombTower : Unit
         return closestEnemy;
     }
 
+    // متد اصلاح شده در کلاس BombTower
     private void FireBomb(Transform target)
     {
         BombTowerData bombTowerData = data as BombTowerData;
@@ -129,16 +130,19 @@ public class BombTower : Unit
         if (bombTowerData.bombPrefab == null)
         {
             DealAreaDamage(impactPosition, bombTowerData.explosionRadius, data.attackDamage);
-            RemovePendingDamage(pendingTargets, data.attackDamage);
             return;
         }
 
+        // ساخت پرتابه بمب
         GameObject bomb = Instantiate(
             bombTowerData.bombPrefab,
             transform.position,
             Quaternion.identity,
             transform
         );
+
+        // ********** تغییر اصلی: تنظیم اسکیل پرتابه بمب تا بزرگ نشود **********
+        bomb.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
 
         if (bomb.TryGetComponent<Image>(out Image image))
         {
@@ -147,7 +151,6 @@ public class BombTower : Unit
 
         StartCoroutine(MoveBomb(bomb, target, impactPosition, bombTowerData, pendingTargets));
     }
-
     private IEnumerator MoveBomb(
         GameObject bomb,
         Transform target,
