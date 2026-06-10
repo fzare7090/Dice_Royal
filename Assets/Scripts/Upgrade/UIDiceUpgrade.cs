@@ -5,6 +5,8 @@ using TMPro;
 public class UIDiceUpgradePanel : MonoBehaviour
 {
     [SerializeField] private DiceUpgrade targetDiceUpgrade;
+
+    [Header("UI")]
     [SerializeField] private TMP_Text levelText;
     [SerializeField] private TMP_Text currentStatsText;
     [SerializeField] private TMP_Text nextStatsText;
@@ -21,7 +23,9 @@ public class UIDiceUpgradePanel : MonoBehaviour
         }
 
         if (upgradeButton != null)
-            upgradeButton.onClick.AddListener(() => targetDiceUpgrade?.TryUpgrade());
+        {
+            upgradeButton.onClick.AddListener(OnUpgradeButtonClick);
+        }
 
         UpdateUI();
     }
@@ -37,21 +41,28 @@ public class UIDiceUpgradePanel : MonoBehaviour
 
     private void UpdateUI()
     {
-        if (targetDiceUpgrade == null) return;
+        if (targetDiceUpgrade == null)
+            return;
 
         DiceUpgradeInfo info = targetDiceUpgrade.GetUpgradeInfo();
 
-        levelText.text = $"Dice Level: {info.currentLevel}/{info.maxLevel}";
-        currentStatsText.text = $"Current Multiplier: x{info.currentMultiplier}";
+        levelText.text =
+            $"Level {info.currentLevel}/{info.maxLevel}";
+
+        currentStatsText.text =
+            $"Current Multiplier: x{info.currentMultiplier}";
 
         if (info.canUpgrade)
         {
-            nextStatsText.text = $"Next Multiplier: x{info.nextMultiplier} (+{info.nextMultiplier - info.currentMultiplier})";
-            upgradeCostText.text = $"Cost: {info.nextLevelCost} Elexir";
+            nextStatsText.text =
+                $"Next Multiplier: x{info.nextMultiplier}";
+
+            upgradeCostText.text =
+                $"Cost: {info.nextLevelCost} Elexir";
         }
         else
         {
-            nextStatsText.text = "MAX LEVEL!";
+            nextStatsText.text = "MAX LEVEL";
             upgradeCostText.text = "---";
         }
 
@@ -59,14 +70,18 @@ public class UIDiceUpgradePanel : MonoBehaviour
         progressSlider.value = targetDiceUpgrade.GetUpgradeProgress();
     }
 
-    private void OnUpgradeSuccess(int newLevel)
+    private void OnUpgradeButtonClick()
+    {
+        targetDiceUpgrade?.TryUpgrade();
+    }
+
+    private void OnUpgradeSuccess(int level)
     {
         UpdateUI();
-        Debug.Log($"Dice upgraded to level {newLevel}! Multiplier: {targetDiceUpgrade.GetCurrentMultiplier()}");
     }
 
     private void OnUpgradeFailed(string reason)
     {
-        Debug.LogWarning($"Dice upgrade failed: {reason}");
+        Debug.LogWarning(reason);
     }
 }

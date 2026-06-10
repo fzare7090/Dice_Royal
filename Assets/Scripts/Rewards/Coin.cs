@@ -5,6 +5,7 @@ using UnityEngine;
 public class Coin : MonoBehaviour
 {
     [SerializeField] private TMP_Text coinText;
+    [SerializeField] private PlayerResourceData playerResource;
 
     [SerializeField] private int maxCoin = 999999;
     [SerializeField] private int currentCoin = 0;
@@ -15,6 +16,14 @@ public class Coin : MonoBehaviour
 
     }
 
+
+    private void Update()
+    {
+        if (coinText != null)
+        {
+            coinText.text = playerResource.coin.ToString();
+        }
+    }
     public int GetCoin()
     {
         return currentCoin;
