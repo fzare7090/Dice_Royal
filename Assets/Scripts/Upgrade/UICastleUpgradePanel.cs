@@ -1,16 +1,17 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+using RTLTMPro;
+
 
 public class UICastleUpgradePanel : MonoBehaviour
 {
     [SerializeField] private CastleUpgrade castleUpgrade;
 
     [Header("UI")]
-    [SerializeField] private TMP_Text levelText;
-    [SerializeField] private TMP_Text currentStatsText;
-    [SerializeField] private TMP_Text nextStatsText;
-    [SerializeField] private TMP_Text upgradeCostText;
+    [SerializeField] private RTLTextMeshPro levelText;
+    [SerializeField] private RTLTextMeshPro currentStatsText;
+    [SerializeField] private RTLTextMeshPro nextStatsText;
+    [SerializeField] private RTLTextMeshPro upgradeCostText;
     [SerializeField] private Button upgradeButton;
     [SerializeField] private Slider progressSlider;
 

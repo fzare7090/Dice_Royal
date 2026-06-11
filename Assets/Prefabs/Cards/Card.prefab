@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uFE8D\uFEAD\uFE97\uFED8\uFE8E \uFB90\uFE8E\uFEAD\uFE95 !"
+  m_text: "\uFEE3\uFEB8\uFEA8\uFEBC\uFE8E\uFE95 \uFB90\uFE8E\uFEAD\uFE95"
   m_isRightToLeft: 1
   m_fontAsset: {fileID: 11400000, guid: db1051be756b46e42a357f12ecf995e5, type: 2}
   m_sharedMaterial: {fileID: -4519718366338478185, guid: db1051be756b46e42a357f12ecf995e5, type: 2}
@@ -138,7 +138,7 @@ MonoBehaviour:
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
   preserveNumbers: 0
   farsi: 1
-  originalText: "\u0627\u0631\u062A\u0642\u0627 \u06A9\u0627\u0631\u062A !"
+  originalText: "\u0645\u0634\u062E\u0635\u0627\u062A \u06A9\u0627\u0631\u062A"
   fixTags: 1
   forceFix: 0
 --- !u!1 &1272748962923434492
@@ -1540,7 +1540,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6722776188841758260
 RectTransform:
   m_ObjectHideFlags: 0
