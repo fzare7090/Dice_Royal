@@ -48,23 +48,23 @@ public class ScrollSnap : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
         if (Mathf.Abs(dragDistance) > swipeThreshold)
         {
-            // اگر کاربر اندازه کافی کشیده باشد، یک صفحه کامل تغییر می‌دهد (نه بیشتر!)
+            
             if (dragDistance > 0 && currentPage > 0)
             {
-                GoToPage(currentPage - 1); // کشیدن به راست
+                GoToPage(currentPage - 1); 
             }
             else if (dragDistance < 0 && currentPage < pageCount - 1)
             {
-                GoToPage(currentPage + 1); // کشیدن به چپ
+                GoToPage(currentPage + 1); 
             }
             else
             {
-                GoToPage(currentPage); // اگر به انتها/ابتدا رسیده بود، برگرده سرجاش
+                GoToPage(currentPage);
             }
         }
         else
         {
-            // اگه خیلی کم کشیده بود، میچسبه به همون صفحه نزدیکتر
+            
             SnapToClosestPage();
         }
     }
@@ -90,13 +90,13 @@ public class ScrollSnap : MonoBehaviour, IBeginDragHandler, IEndDragHandler
     public void GoToPage(int index)
     {
         currentPage = index;
-        scrollRect.velocity = Vector2.zero; // توقف اینرسی (Inertia) خود اسکرول که با Tween تداخل می‌کنه
+        scrollRect.velocity = Vector2.zero;
 
         DOTween.To(() => scrollRect.horizontalNormalizedPosition,
                    x => scrollRect.horizontalNormalizedPosition = x,
                    pagePositions[index], 0.3f)
                .SetEase(Ease.OutQuad)
-               .SetUpdate(true) // این دستور باعث می‌شود Tween کاملاً مستقل از Time.timeScale کار کند
-               .SetId(scrollRect); // شناسه میدیم تا بتونیم بعدا کیلش کنیم
+               .SetUpdate(true) 
+               .SetId(scrollRect); 
     }
 }

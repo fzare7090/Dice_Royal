@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using RTLTMPro;
 
@@ -14,9 +14,16 @@ public class UICastleUpgradePanel : MonoBehaviour
     [SerializeField] private RTLTextMeshPro upgradeCostText;
     [SerializeField] private Button upgradeButton;
     [SerializeField] private Slider progressSlider;
+    [SerializeField] private UIPanelAnimator animator;
 
+    private void Awake()
+    {
+        animator = GetComponent<UIPanelAnimator>();
+    }
     private void Start()
     {
+        animator.Hide(); 
+
         if (castleUpgrade != null)
         {
             castleUpgrade.OnUpgradeSuccess += OnUpgradeSuccess;
@@ -48,24 +55,24 @@ public class UICastleUpgradePanel : MonoBehaviour
         UpgradeInfo info = castleUpgrade.GetUpgradeInfo();
 
         levelText.text =
-            $"Level {info.currentLevel}/{info.maxLevel}";
+            $" سطح {info.currentLevel}/{info.maxLevel}\n";
 
         currentStatsText.text =
-            $"HP: {info.currentHP:F0}\n" +
-            $"Damage: {info.currentDamage:F0}";
+            $"سلامتی: {info.currentHP:F0}\n" +
+            $"قدرت حمله: {info.currentDamage:F0}";
 
         if (info.canUpgrade)
         {
             nextStatsText.text =
-                $"Next HP: {info.nextHP:F0}\n" +
-                $"Next Damage: {info.nextDamage:F0}";
+                $"سلامتی : {info.nextHP:F0}\n" +
+                $"قدرت حمله : {info.nextDamage:F0}\n";
 
             upgradeCostText.text =
-                $"Cost: {info.nextLevelCost} Coins";
+                $"هزینه ارتقا: : {info.nextLevelCost} ";
         }
         else
         {
-            nextStatsText.text = "MAX LEVEL";
+            nextStatsText.text = " بالاترین سطح ";
             upgradeCostText.text = "---";
         }
 
@@ -86,5 +93,16 @@ public class UICastleUpgradePanel : MonoBehaviour
     private void OnUpgradeFailed(string reason)
     {
         Debug.LogWarning(reason);
+    }
+
+    public void OpenPanel()
+    {
+        animator.Show();
+        UpdateUI();
+    }
+
+    public void ClosePanel()
+    {
+        animator.Hide();
     }
 }

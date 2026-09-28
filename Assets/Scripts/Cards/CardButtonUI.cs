@@ -8,7 +8,7 @@ using DG.Tweening;
 public class CardButtonUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [Header("UI Elements")]
-    // [SerializeField] private Image cardIcon;        
+    [SerializeField] private Image cardIcon;        
     [SerializeField] private RTLTextMeshPro ElexirText;
     [SerializeField] private RTLTextMeshPro cardName;
     [SerializeField] private Button button;
@@ -29,7 +29,6 @@ public class CardButtonUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
         }
     }
 
-    // Events to communicate with Spawner
     public Action<CardButtonUI, UnitData, int, Vector2> OnDragStartEvent;
     public Action<Vector2> OnDragEvent;
     public Action<CardButtonUI, UnitData, int> OnDragEndEvent;
@@ -51,14 +50,11 @@ public class CardButtonUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
     private void UpdateUI()
     {
-        if (ElexirText != null)
-        {
-            ElexirText.text = currentData.elexir.ToString();
-        }
-        if (cardName != null)
-        {
-            cardName.text = currentData.name;
-        }
+        ElexirText.text = currentData.elexir.ToString();
+        cardName.text = currentData.name;
+
+        if (cardIcon != null)
+            cardIcon.sprite = currentData.cardIcon;
     }
 
     public void AnimateCardCycle(UnitData newData)
@@ -68,7 +64,7 @@ public class CardButtonUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
         {
             this.currentData = newData;
             UpdateUI();
-            transform.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutBack);
+            transform.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutBack); 
         });
     }
 

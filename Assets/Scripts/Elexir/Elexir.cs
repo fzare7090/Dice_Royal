@@ -62,13 +62,6 @@ public class Elexir : MonoBehaviour
         RefreshUI();
     }
 
-    public void RunningOutElexirNotice()
-    {
-
-        
-
-    }
-
     private void RefreshUI()
     {
         if (elexirText != null)

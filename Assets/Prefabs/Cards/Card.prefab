@@ -12,12 +12,12 @@ GameObject:
   - component: {fileID: 8146327305718825017}
   - component: {fileID: 5171614447854465430}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: info Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4875612285685850120
 RectTransform:
   m_ObjectHideFlags: 0
@@ -294,7 +294,7 @@ GameObject:
   - component: {fileID: 4246232599445755651}
   - component: {fileID: 7628892251171586135}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: 'CradNameText '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -312,12 +312,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3407752209986846672}
+  m_Father: {fileID: 1573936242027986980}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 1.1098022, y: -7.3887024}
-  m_SizeDelta: {x: -70.7109, y: -14.7772}
+  m_AnchoredPosition: {x: -0.0001296997, y: -0.00016784668}
+  m_SizeDelta: {x: 0.00033569, y: 0.00026703}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4246232599445755651
 CanvasRenderer:
@@ -815,6 +815,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: {fileID: 7628892251171586135}
   cardButton: {fileID: 6242147460320495805}
+  cardImage: {fileID: 0}
 --- !u!114 &2838527095623911864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1010,12 +1011,13 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4875612285685850120}
+  - {fileID: 4701949122757493285}
   m_Father: {fileID: 5760828515848620409}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -237}
-  m_SizeDelta: {x: 239.8, y: 55.6227}
+  m_AnchoredPosition: {x: -0.000022411, y: -219.67}
+  m_SizeDelta: {x: 226.3049, y: 50.3913}
   m_Pivot: {x: 0.5, y: -0.3573812}
 --- !u!222 &5422151607154550766
 CanvasRenderer:
@@ -1038,15 +1040,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.32306865, g: 0.38241756, b: 0.4566037, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 1101924014, guid: b9b819745a89eb844be50ce8aed090c6, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -1897,8 +1899,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 4701949122757493285}
+  m_Children: []
   m_Father: {fileID: 5760828515848620409}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}

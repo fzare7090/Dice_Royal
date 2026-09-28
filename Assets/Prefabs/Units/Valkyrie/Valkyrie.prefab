@@ -128,7 +128,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teamId: 0
-  data: {fileID: 0}
+  data: {fileID: 11400000, guid: 9a6bd2109ddcc1843b30d110b7c34039, type: 2}
   hpText: {fileID: 738142681411706124}
   board:
   - {fileID: 2994620507348556615, guid: f9903d368912c3c4f96dfb27f4ac5084, type: 3}

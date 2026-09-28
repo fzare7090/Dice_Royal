@@ -4,7 +4,7 @@ public class CardUpgradeScrollView : MonoBehaviour
 {
     [Header("Data")]
     [SerializeField] private CardDataBase cardDatabase;
-    [SerializeField] private CardCollectionData collectionData;
+    [SerializeField] private PlayerResourceData playerResource;
 
     [Header("UI")]
     [SerializeField] private CardDetailsPanel detailsPanel;
@@ -36,12 +36,6 @@ public class CardUpgradeScrollView : MonoBehaviour
             return;
         }
 
-        if (collectionData == null)
-        {
-            Debug.LogError($"{nameof(CardUpgradeScrollView)} is missing a collection data reference.", this);
-            return;
-        }
-
         if (cardItemPrefab == null)
         {
             Debug.LogError($"{nameof(CardUpgradeScrollView)} is missing a card item prefab reference.", this);
@@ -65,7 +59,7 @@ public class CardUpgradeScrollView : MonoBehaviour
                 continue;
 
             CardData cardData =
-                collectionData.GetOrCreateCard(unit.name);
+                playerResource.GetOrCreateCard(unit.name);
 
             CardScrollItemUI item =
                 Instantiate(cardItemPrefab, content);
@@ -74,6 +68,9 @@ public class CardUpgradeScrollView : MonoBehaviour
                 unit,
                 cardData,
                 detailsPanel);
+            item.SetData( unit);
+
+
         }
     }
 }

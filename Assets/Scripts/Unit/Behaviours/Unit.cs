@@ -51,21 +51,21 @@ public class Unit : MonoBehaviour
         data = newData;
     }
 
-    // گرفتن نوع نیرو برای تشخیص توسط سایر نیروها
+    
     public virtual UnitData.UnitType GetUnitType()
     {
         return data != null ? data.unitType : UnitData.UnitType.Ground;
     }
 
-    // بررسی اینکه آیا این نیرو مجاز به حمله به هدف مشخص شده هست یا خیر
+   
     public virtual bool CanAttackTarget(Transform target)
     {
         UnitData.UnitType targetType;
 
-        // تشخیص نوع هدف
+      
         if (target.TryGetComponent<Unit>(out Unit targetUnit))
         {
-            targetType = targetUnit.data.unitType; // یا targetUnit.unitType بستگی به ساختارت دارد
+            targetType = targetUnit.data.unitType; 
         }
         else if (target.TryGetComponent<Castle>(out Castle _))
         {
@@ -76,17 +76,17 @@ public class Unit : MonoBehaviour
             return false;
         }
 
-        // بررسی اجازه حمله بر اساس اولویت هدفِ این نیرو
+      
         switch (data.targetPreference)
         {
             case UnitData.TargetPreference.GroundOnly:
-                return targetType == UnitData.UnitType.Ground || targetType == UnitData.UnitType.Building; // معمولا نیروهای زمینی‌زن، ساختمان هم می‌زنند
+                return targetType == UnitData.UnitType.Ground || targetType == UnitData.UnitType.Building; 
             case UnitData.TargetPreference.AirOnly:
                 return targetType == UnitData.UnitType.Air;
             case UnitData.TargetPreference.BuildingsOnly:
                 return targetType == UnitData.UnitType.Building;
             case UnitData.TargetPreference.GroundAndAir:
-                return true; // به همه چیز می‌تواند حمله کند
+                return true; 
             default:
                 return false;
         }
@@ -307,7 +307,7 @@ public class Unit : MonoBehaviour
     {
         if (enemies == null) return;
 
-        // بررسی اعتبار هدف فعلی با استفاده از فیلتر جدید CanAttackTarget
+  
         if (attackTarget != null)
         {
             if (!attackTarget.gameObject.activeInHierarchy || GetTargetEffectiveHP(attackTarget) <= 0 || !CanAttackTarget(attackTarget))
@@ -332,7 +332,7 @@ public class Unit : MonoBehaviour
 
         foreach (Transform enemy in enemies)
         {
-            // اضافه شدن شرط CanAttackTarget برای نادیده گرفتن اهداف غیرمرتبط
+            
             if (enemy == null || !enemy.gameObject.activeInHierarchy || GetTargetEffectiveHP(enemy) <= 0 || !CanAttackTarget(enemy)) continue;
 
             float distance = GetDistanceToTarget(enemy);
@@ -393,7 +393,7 @@ public class Unit : MonoBehaviour
     protected virtual IEnumerator AttackRoutine()
     {
         agent.isStopped = true;
-        // بررسی مداوم فیلتر CanAttackTarget هنگام حمله
+        
         while (attackTarget != null && CanAttackTarget(attackTarget) && GetDistanceToTarget(attackTarget) <= data.attackRange)
         {
             DealDamage();

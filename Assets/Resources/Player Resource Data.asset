@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330db2c3e2728474a8232cdef0b32193, type: 3}
+  m_Name: Player Resource Data
+  m_EditorClassIdentifier: 
+  coin: 823
+  gem: 872
+  cards:
+  - cardId: "\u063A\u0648\u0644"
+    level: 3
+    ownedCopies: 3
+  - cardId: "\u0634\u0648\u0627\u0644\u06CC\u0647"
+    level: 2
+    ownedCopies: 5
+  - cardId: "\u062A\u0641\u0646\u06AF \u062F\u0627\u0631"
+    level: 1
+    ownedCopies: 0
+  - cardId: "\u0627\u0631\u062A\u0634 \u0627\u0633\u06A9\u0644\u062A \u0647\u0627"
+    level: 1
+    ownedCopies: 0
+  - cardId: "\u062C\u0627\u062F\u0648\u06AF\u0631"
+    level: 1
+    ownedCopies: 0
+  - cardId: "\u0648\u0627\u0644\u06A9\u0631\u06CC"
+    level: 1
+    ownedCopies: 0
+  - cardId: "\u0627\u0698\u062F\u0647\u0627"
+    level: 3
+    ownedCopies: 3
+  - cardId: "\u0633\u0627\u062E\u062A\u0645\u0627\u0646 \u0628\u0645\u0628\u200C\u0627\u0646\u062F\u0627\u0632"
+    level: 2
+    ownedCopies: 7
+  - cardId: "\u0627\u0633\u06A9\u062A"
+    level: 1
+    ownedCopies: 5

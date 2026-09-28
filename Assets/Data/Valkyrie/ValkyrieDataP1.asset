@@ -22,5 +22,8 @@ MonoBehaviour:
   attackCooldown: 1
   attackSpeed: 0.8
   elexir: 20
+  cardIcon: {fileID: 21300000, guid: f3b8559639f925a4688df293ca0722b7, type: 3}
+  unitType: 0
+  targetPreference: 0
   Unitprefab: {fileID: 954074601223665450, guid: c418859bbe8d61c48bfc21fbc0c6f58e, type: 3}
   areaOfEffectRadius: 0.5

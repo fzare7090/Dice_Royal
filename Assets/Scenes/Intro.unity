@@ -440,7 +440,7 @@ MonoBehaviour:
   SFX: {fileID: 525958446}
   introMusic: {fileID: 8300000, guid: 6fad5c58dfe60464982a745c60f9d212, type: 3}
   startBattleMusic: {fileID: 8300000, guid: 2ad0dd9d3d9d8c84ca348d91a7ddc13d, type: 3}
-  bGMusic: {fileID: 8300000, guid: 9872a6df74474f4438cd5b2cda1f30fe, type: 3}
+  bGMusic: {fileID: 8300000, guid: ad3076802527056428b4b03814abe578, type: 3}
   startGameMusic: {fileID: 8300000, guid: 455fe43a18edb094d8cfd7886d30e421, type: 3}
 --- !u!4 &525958449
 Transform:

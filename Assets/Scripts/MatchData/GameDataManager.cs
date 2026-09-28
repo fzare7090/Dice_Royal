@@ -157,8 +157,8 @@ public class DataGameManager : MonoBehaviour
             int coinReward = CalculateCoinReward();
             if (playerResource != null)
             {
-                playerResource.coin += coinReward;
-                Debug.Log($"Win coin reward added: +{coinReward}. Total coins: {playerResource.coin}");
+                playerResource.AddCoin(coinReward);
+                Debug.Log($"Win coin reward added: +{coinReward}. Total coins: {playerResource.GetCoin()}");
             }
             else if (coinManager != null)
             {

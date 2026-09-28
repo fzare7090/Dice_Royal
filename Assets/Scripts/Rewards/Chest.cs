@@ -1,105 +1,64 @@
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using RTLTMPro;
-using static UnityEngine.InputSystem.InputControlScheme;
 
 public class Chest : MonoBehaviour
 {
-    [SerializeField] private List<Player> players = new List<Player>();
+    [Header("References")]
+    [SerializeField] private ChestData chestData;
+    [SerializeField] private ChestRewardGenerator rewardGenerator;
+    [SerializeField] private PlayerResourceData playerResources;
     [SerializeField] private RTLTextMeshPro chestText;
 
-    private int winCoinReward = 50;
-    private int loseCoinReward = 25;
-    private int drawCoinReward = 35;
+    private RewardData currentReward;
 
-    public void SetPlayers(List<Player> newPlayers)
+    public RewardData OpenChest(MatchResult result)
     {
-        if (newPlayers == null)
+        if (rewardGenerator == null)
         {
-            players = new List<Player>();
+            Debug.LogError("ChestRewardGenerator is missing.");
+            return null;
+        }
+
+        if (playerResources == null)
+        {
+            Debug.LogError("PlayerResourceData is missing.");
+            return null;
+        }
+
+   
+        currentReward = rewardGenerator.GenerateReward(chestData, result);
+
+        UpdateRewardText(currentReward);
+
+        return currentReward;
+    }
+
+    private void UpdateRewardText(RewardData reward)
+    {
+        if (reward == null || chestText == null)
             return;
-        }
 
-        players = new List<Player>(newPlayers);
-    }
+        string text =
+            $"پاداش مسابقه\n\n" +
+            $"سکه: {reward.coins}\n" +
+            $"جم: {reward.gems}\n";
 
-
-    public Player GetPlayer(int playerIndex)
-    {
-        return players[playerIndex];
-    }
-
-    public void GiveRewards(Player player, MatchResult result, int winnerIndex) 
-    {
-        if (players == null || players.Count == 0) return;
-
-        for (int i = 0; i < players.Count; i++)
+        if (reward.cards.Count > 0)
         {
-            GiveReward(player, i, result, winnerIndex);
-        }
-    }
+            text += "\nکارت‌ها:\n";
 
-    private void GiveReward(Player player, int playerIndex, MatchResult result, int winnerIndex)
-    {
-        if (player == null) return;
-
-        Coin coin = player.GetCoin();
-        if (coin == null) return;
-
-        int rewardAmount = GetRewardAmount(playerIndex, result, winnerIndex);
-        coin.AddCoin(rewardAmount);
-    }
-
-    private int GetRewardAmount(int playerIndex, MatchResult result, int winnerIndex)
-    {
-        switch (result)
-        {
-            case MatchResult.Win:
-                return playerIndex == winnerIndex ? winCoinReward : loseCoinReward;
-
-            case MatchResult.Draw:
-                return drawCoinReward;
-
-            case MatchResult.Lose:
-            default:
-                return loseCoinReward;
-        }
-    }
-
-    public void GiveMatchRewards(int winnerIndex)
-    {
-        if (players == null || players.Count < 2) return;
-
-        int loserIndex = (winnerIndex + 1) % 2;
-
-        Player winner = players[winnerIndex];
-        Player loser = players[loserIndex];
-
-        if (winner != null && winner.GetCoin() != null)
-        {
-            winner.GetCoin().AddCoin(winCoinReward);
-            Debug.Log($"Player {winnerIndex + 1} won {winCoinReward} coins! Total: {winner.GetCoin().GetCoin()}");
+            foreach (var card in reward.cards)
+            {
+                text += $"{card.cardId} × {card.amount}\n";
+            }
         }
 
-        if (loser != null && loser.GetCoin() != null)
-        {
-            loser.GetCoin().AddCoin(loseCoinReward);
-            Debug.Log($"Player {loserIndex + 1} got {loseCoinReward} coins! Total: {loser.GetCoin().GetCoin()}");
-        }
+        chestText.text = text;
     }
 
-    public void SetRewardsText(int winnerIndex)
+    public RewardData GetCurrentReward()
     {
-        int loserIndex = (winnerIndex + 1) % 2;
-
-
-        chestText.text =
-    $" نتایج مسابقه \n\n" +
-    $" بازیکن {winnerIndex + 1}: {winCoinReward} سکه\n" +
-    $" بازیکن {loserIndex + 1}: {loseCoinReward} سکه";
+        return currentReward;
     }
-
-
 }
-

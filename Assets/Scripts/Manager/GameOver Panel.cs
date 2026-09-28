@@ -1,100 +1,85 @@
 ﻿using TMPro;
 using UnityEngine;
-
 using RTLTMPro;
 using DG.Tweening;
-
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class GameOverPanel : MonoBehaviour
 {
-    [SerializeField] private Chest chest;
-
-    [SerializeField] private RTLTextMeshPro gameOverText;
-
+    [Header("UI")]
+    [SerializeField] private RTLTextMeshPro resultText;
+    [SerializeField] private RTLTextMeshPro subTitleText;
 
     [SerializeField] private RectTransform panelContainer;
     [SerializeField] private CanvasGroup canvasGroup;
 
 
+    [SerializeField] private RewardPanel rewardPanel;
+    [SerializeField] private ChestRewardGenerator rewardGenerator;
+    [SerializeField] private ChestData chestData;
 
 
-    private float matchStartTime;
+    [SerializeField] private Button openRewardPanel;
+    public UIPanelAnimator animator;
+    private RewardData currentReward;
 
-
-    void Start()
+    private void Awake()
     {
-        matchStartTime = Time.time;
+        animator = GetComponent<UIPanelAnimator>();
+        canvasGroup = GetComponent<CanvasGroup>();
+    }
+
+
+    private void Start()
+    {
+        openRewardPanel.onClick.AddListener(OpenRewardPanel);
     }
 
     public void SetGameOverText(int winnerIndex)
     {
+        bool playerWon = winnerIndex == 0;
 
-        if (winnerIndex == -1)
+        if (playerWon)
         {
-            gameOverText.text = " بازی مساوی شد! ";
+            resultText.text = "پیروزی";
+            subTitleText.text = "تبریک! مسابقه را بردی";
         }
         else
         {
-            gameOverText.text = $" برنده بازی\nبازیکن {winnerIndex + 1}";
-        }
-
-    }
-
-    public void GivingChest(int winnerIndex)
-    {
-        if (winnerIndex == -1) return;
-
-        chest.GiveMatchRewards(winnerIndex);
-        chest.SetRewardsText(winnerIndex);
-    }
-
-
-
-    public void ShowAnimated()
-    {
-        gameObject.SetActive(true);
-
-
-        canvasGroup.alpha = 0f;
-        panelContainer.localScale = Vector3.zero;
-        gameOverText.transform.localScale = Vector3.zero;
-
-        if (chest != null)
-            chest.transform.localScale = Vector3.zero;
-
-
-        Sequence seq = DOTween.Sequence();
-
-
-        seq.SetUpdate(true);
-
-
-        seq.Append(canvasGroup.DOFade(1f, 0.3f));
-
-
-        seq.Append(panelContainer.DOScale(Vector3.one, 0.4f).SetEase(Ease.OutBack));
-
-
-        seq.Insert(0.5f, gameOverText.transform.DOScale(Vector3.one, 0.4f).SetEase(Ease.OutBounce));
-
-
-        if (chest != null)
-        {
-            seq.Insert(0.7f, chest.transform.DOScale(Vector3.one, 0.6f).SetEase(Ease.OutElastic));
+            resultText.text = "شکست";
+            subTitleText.text = "متاسفانه مسابقه را باختی";
         }
     }
 
-    private int GetPlayerTowers(int playerIndex)
-    {
-        // پیدا کردن GameManager و گرفتن امتیاز
-        GameManager gm = FindObjectOfType<GameManager>();
-        if (gm != null)
-        {
-            // اینجا باید یه تابع عمومی در GameManager بسازی که امتیاز رو برگردونه
-            return gm.GetPlayerTowerCount(playerIndex);
-        }
-        return 0;
 
+    public void Hide()
+    {
+        animator.Hide();
+        
+    }
+    public void OpenRewardPanel()
+    {
+        animator.Hide();
+        rewardPanel.ShowReward(currentReward);
+    }
+
+    public void SetupReward(bool isWinner)
+    {
+        MatchResult result =
+            isWinner
+            ? MatchResult.Win
+            : MatchResult.Lose;
+
+        currentReward =
+            rewardGenerator.GenerateReward(
+                chestData,
+                result);
+    }
+
+    public void Show()
+    {
+        Debug.Log("GameOverPanel Show");
+        animator.Show();
     }
 }

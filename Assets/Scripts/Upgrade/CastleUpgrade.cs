@@ -14,7 +14,7 @@ public class CastleUpgrade : MonoBehaviour
     {
         return saveData != null &&
                upgradeData != null &&
-               saveData.level < upgradeData.maxLevel;
+               saveData.GetLevel() < upgradeData.maxLevel;
     }
 
     public bool TryUpgrade()
@@ -25,7 +25,7 @@ public class CastleUpgrade : MonoBehaviour
             return false;
         }
 
-        int cost = upgradeData.upgradeCost[saveData.level - 1];
+        int cost = upgradeData.upgradeCost[saveData.GetLevel() - 1];
 
         if (playerResource == null)
         {
@@ -33,16 +33,21 @@ public class CastleUpgrade : MonoBehaviour
             return false;
         }
 
-        if (playerResource.coin < cost)
+        if (playerResource.GetCoin() < cost)
         {
             OnUpgradeFailed?.Invoke($"Need {cost} coins!");
             return false;
         }
 
-        playerResource.coin -= cost;
-        saveData.level++;
+        playerResource.SpendCoin(cost);
+        saveData.LevelUp(upgradeData.maxLevel);
+        saveData.SetLevel(upgradeData.maxLevel);
 
-        OnUpgradeSuccess?.Invoke(saveData.level);
+
+        AutoSaveEvents.CoinChanged();
+        AutoSaveEvents.CastleChanged();
+
+        OnUpgradeSuccess?.Invoke(saveData.GetLevel());
         return true;
     }
 
@@ -50,7 +55,7 @@ public class CastleUpgrade : MonoBehaviour
     {
         if (saveData == null) return "SaveData missing!";
         if (upgradeData == null) return "UpgradeData missing!";
-        if (saveData.level >= upgradeData.maxLevel) return "Max level reached!";
+        if (saveData.GetLevel() >= upgradeData.maxLevel) return "Max level reached!";
         return "Unknown reason";
     }
 
@@ -59,7 +64,7 @@ public class CastleUpgrade : MonoBehaviour
         if (saveData == null || upgradeData == null || castleData == null)
             return new UpgradeInfo();
 
-        int level = saveData.level;
+        int level = saveData.GetLevel();
         bool hasNext = level < upgradeData.maxLevel;
 
         return new UpgradeInfo
@@ -82,10 +87,10 @@ public class CastleUpgrade : MonoBehaviour
     {
         return (saveData == null || upgradeData == null)
             ? 0f
-            : (float)saveData.level / upgradeData.maxLevel;
+            : (float)saveData.GetLevel() / upgradeData.maxLevel;
     }
 
-    public int GetCurrentLevel() => saveData.level;
+    public int GetCurrentLevel() => saveData.GetLevel();
 }
 
 public struct UpgradeInfo

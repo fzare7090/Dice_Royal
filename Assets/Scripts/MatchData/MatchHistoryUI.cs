@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -98,10 +98,10 @@ public class MatchHistoryUI : MonoBehaviour
     {
         Debug.Log("DataManager = " + DataGameManager.Instance);
 
-        Debug.Log("totalMatchesText = " + totalMatchesText);
-        Debug.Log("winsText = " + winsText);
-        Debug.Log("lossesText = " + lossesText);
-        Debug.Log("winRateText = " + winRateText);
+        //Debug.Log("totalMatchesText = " + totalMatchesText);
+        //Debug.Log("winsText = " + winsText);
+        //Debug.Log("lossesText = " + lossesText);
+        //Debug.Log("winRateText = " + winRateText);
 
         if (DataGameManager.Instance == null)
         {

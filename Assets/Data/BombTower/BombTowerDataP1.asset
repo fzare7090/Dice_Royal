@@ -22,11 +22,11 @@ MonoBehaviour:
   attackCooldown: 1
   attackSpeed: 0.8
   elexir: 40
+  cardIcon: {fileID: 21300000, guid: 89a784be15930154f8bfbcddfe5bd832, type: 3}
   unitType: 2
   targetPreference: 0
   Unitprefab: {fileID: 5184224788010875712, guid: 702217b44c1f0aa428b2d1957cdea607, type: 3}
   bombPrefab: {fileID: 6147683664016234234, guid: c34dc610925768545911f52370d10db2, type: 3}
-  bombScale: 0.2
   explosionRadius: 0.3
   deathExplosionRadius: 1
   deathExplosionDamage: 200

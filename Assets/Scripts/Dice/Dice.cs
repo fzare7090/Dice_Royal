@@ -13,10 +13,6 @@ public class Dice : MonoBehaviour
     [SerializeField] private RTLTextMeshPro tossDiceNotice;
     [SerializeField] private Button diceButton;
 
-
-
-
-
     [Header("Animation Settings")]
     [SerializeField] private float rollDuration = 1f;
     [SerializeField] private float rollSpeed = 720f;
@@ -34,7 +30,7 @@ public class Dice : MonoBehaviour
     [SerializeField] private TMP_Text timerText;
 
 
-    // private int diceNumber;
+
     private bool isDiceLocked = false;
 
     public System.Action<int> OnDiceRolled;
@@ -70,13 +66,6 @@ public class Dice : MonoBehaviour
         if (navAgent != null)
             navAgent.enabled = false;
 
-        /*Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.isKinematic = true;
-            rb.useGravity = false;
-        }
-        */
 
         if (rollCurve == null || rollCurve.keys.Length == 0)
             rollCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
@@ -203,13 +192,7 @@ public class Dice : MonoBehaviour
         ShowReadyNotice();
         Debug.Log("Cooldown finished! Dice is ready to roll again.");
     }
-    /*
-    private int GetBottomNumberFromTop(int botton)
-    {
-        int top = 7 - botton;
-        return top;
-    }
-    */
+ 
 
     private Quaternion GetRotationForBottomNumber(int bottomNumber)
     {

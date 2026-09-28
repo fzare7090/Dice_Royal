@@ -18,9 +18,11 @@ public class MatchDetailsPanel : MonoBehaviour
     [SerializeField] private TMP_Text playerLevelText;
     [SerializeField] private TMP_Text opponentLevelText;
 
+    //[SerializeField] private UIPanelAnimator animator;
+
     public void Show(MatchData match)
     {
-        gameObject.SetActive(true);
+        //animator.Show();
 
         resultText.text =
             match.result.ToString();
@@ -50,10 +52,7 @@ public class MatchDetailsPanel : MonoBehaviour
             $"Lv.{match.opponentLevel}";
     }
 
-    public void Close()
-    {
-        gameObject.SetActive(false);
-    }
+  
 
     private string FormatDuration(float seconds)
     {

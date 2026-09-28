@@ -13,7 +13,7 @@ public class DiceUpgrade : MonoBehaviour
     {
         return saveData != null &&
                upgradeData != null &&
-               saveData.level < upgradeData.maxLevel;
+               saveData.GetLevel() < upgradeData.maxLevel;
     }
 
     public bool TryUpgrade()
@@ -24,7 +24,7 @@ public class DiceUpgrade : MonoBehaviour
             return false;
         }
 
-        int cost = upgradeData.upgradeCost[saveData.level - 1];
+        int cost = upgradeData.upgradeCost[saveData.GetLevel() - 1];
 
         if (playerResource == null)
         {
@@ -32,17 +32,20 @@ public class DiceUpgrade : MonoBehaviour
             return false;
         }
 
-        if (playerResource.coin < cost)
+        if (playerResource.GetCoin() < cost)
         {
             OnUpgradeFailed?.Invoke($"Need {cost} coins!");
             return false;
         }
 
-        playerResource.coin -= cost;
+        playerResource.SpendCoin(cost);
+        saveData.LevelUp(upgradeData.maxLevel);
+        saveData.SetLevel(upgradeData.maxLevel);
 
-        saveData.level++;
+        AutoSaveEvents.CoinChanged();
+        AutoSaveEvents.DiceChanged();
 
-        OnUpgradeSuccess?.Invoke(saveData.level);
+        OnUpgradeSuccess?.Invoke(saveData.GetLevel());
         return true;
     }
 
@@ -50,7 +53,7 @@ public class DiceUpgrade : MonoBehaviour
     {
         if (saveData == null) return "SaveData missing!";
         if (upgradeData == null) return "UpgradeData missing!";
-        if (saveData.level >= upgradeData.maxLevel) return "Max level!";
+        if (saveData.GetLevel() >= upgradeData.maxLevel) return "Max level!";
         return "Unknown";
     }
 
@@ -59,7 +62,7 @@ public class DiceUpgrade : MonoBehaviour
         if (saveData == null || upgradeData == null)
             return new DiceUpgradeInfo();
 
-        int level = saveData.level;
+        int level = saveData.GetLevel();
         bool hasNext = level < upgradeData.maxLevel;
 
         return new DiceUpgradeInfo
@@ -79,13 +82,14 @@ public class DiceUpgrade : MonoBehaviour
     {
         return (saveData == null || upgradeData == null)
             ? 0f
-            : (float)saveData.level / upgradeData.maxLevel;
+            : (float)saveData.GetLevel() / upgradeData.maxLevel;
     }
 
     public int GetCurrentMultiplier()
     {
-        return upgradeData.elexirMultiplier[saveData.level - 1];
+        return upgradeData.elexirMultiplier[saveData.GetLevel() - 1];
     }
+
 }
 
 public struct DiceUpgradeInfo

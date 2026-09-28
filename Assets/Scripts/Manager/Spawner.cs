@@ -374,4 +374,34 @@ public class Spawner : MonoBehaviour
             players[i].SetTeamId(i);
         }
     }
+
+    public bool PlayCard(UnitData card, int teamId, Vector3 spawnPosition)
+    {
+        if (teamId != 1)
+            return false;
+
+        drageCardP2.position = spawnPosition;
+
+        bool spawned = SpawnUnit(card, teamId);
+
+        if (!spawned)
+            return false;
+
+        p2Hand.Remove(card);
+
+        p2Queue.Enqueue(card);
+
+        UnitData nextCard = p2Queue.Dequeue();
+
+        p2Hand.Add(nextCard);
+
+        return true;
+    }
+
+    public IReadOnlyList<UnitData> GetHand(int teamId)
+    {
+        return teamId == 0 ? p1Hand : p2Hand;
+    }
+
+
 }

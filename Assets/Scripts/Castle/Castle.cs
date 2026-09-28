@@ -13,6 +13,8 @@ public class Castle : MonoBehaviour
     [SerializeField] private Collider castleCollider;
     [SerializeField] private AreaManager areaManager;
     [SerializeField] private Area myArea;
+    [SerializeField] private GameObject visualRoot;
+
 
     private List<Transform> enemies;
     private Transform attackTarget;
@@ -80,13 +82,14 @@ public class Castle : MonoBehaviour
     {
         while (true)
         {
+            if (!exist)
+                yield break;
 
             if (attackTimer > 0)
-            {
                 attackTimer -= Time.deltaTime;
-            }
 
             CheckForEnemyInRange();
+
             yield return null;
         }
     }
@@ -107,6 +110,7 @@ public class Castle : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
+        if (!exist) return;
         currentHP -= damage;
         pendingDamage -= damage;
         if (pendingDamage < 0) pendingDamage = 0;
@@ -125,53 +129,48 @@ public class Castle : MonoBehaviour
 
     public float GetEffectiveHP()
     {
+        if (!exist)
+            return 0;
+
         return currentHP - pendingDamage;
     }
 
     void Collapse()
     {
+        if (!exist)
+            return;
+
+        exist = false;
+        currentHP = 0;
+
+        StopAllCoroutines();
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayDistroyCastleEffect();
+
+
+        if (CastleDestroyUI.Instance != null)
+        {
+            CastleDestroyUI.Instance.ShowCastleDestroyed();
+        }
+
+
         if (myArea != null && areaManager != null)
         {
             int enemyTeamId = (teamId == 0) ? 1 : 0;
             areaManager.ChangeAreaTeam(myArea, enemyTeamId);
-
-            
-            if (myArea.gameObject == this.gameObject)
-            {
-                
-            }
-            else
-            {
-                myArea.transform.SetParent(transform.parent, true);
-            }
         }
 
-        AudioManager.Instance.PlayDistroyCastleEffect();
+        if (castleCollider != null)
+            castleCollider.enabled = false;
 
-        if (myArea != null && myArea.gameObject == this.gameObject)
-        {
-            
-            if (TryGetComponent<Image>(out var img)) img.enabled = false;
-            
-            foreach (Transform child in transform)
-            {
-                child.gameObject.SetActive(false);
-            }
-            this.enabled = false;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-        exist = false;
+        if (visualRoot != null)
+            visualRoot.SetActive(false);
     }
+
 
     public Castle GetCastleHP()
     {
-        if (!exist)
-        {
-            return null;
-        }
         return this;
     }
 
@@ -235,7 +234,7 @@ public class Castle : MonoBehaviour
     {
         if (enemies == null || data == null) return;
 
-        
+
         if (attackTarget != null)
         {
             if (!attackTarget.gameObject.activeInHierarchy ||
@@ -246,7 +245,7 @@ public class Castle : MonoBehaviour
             }
         }
 
-        
+
         if (attackTarget == null)
         {
             Transform closestEnemy = null;
@@ -256,7 +255,7 @@ public class Castle : MonoBehaviour
             {
                 if (enemy == null || !enemy.gameObject.activeInHierarchy || GetTargetEffectiveHP(enemy) <= 0) continue;
 
-                
+
                 float distance = Vector3.Distance(transform.localPosition, enemy.localPosition);
 
                 if (distance <= data.attackRange && distance < closestDistance)
@@ -269,7 +268,7 @@ public class Castle : MonoBehaviour
             attackTarget = closestEnemy;
         }
 
-       
+
         if (attackTarget != null && attackTimer <= 0f)
         {
             AddTargetPendingDamage(attackTarget, data.attackDamage);
@@ -301,7 +300,7 @@ public class Castle : MonoBehaviour
 
     private IEnumerator MoveProjectile(GameObject projectile, Transform target)
     {
-        
+
         GameObject projRef = projectile;
         activeProjectiles[projRef] = target;
 
@@ -313,10 +312,10 @@ public class Castle : MonoBehaviour
 
         Vector3 targetPosition = target.position;
 
-        
+
         while (projectile != null && Vector3.Distance(projectile.transform.position, targetPosition) > 0.08f)
         {
-            
+
             if (target != null)
             {
                 targetPosition = target.position;
@@ -331,7 +330,6 @@ public class Castle : MonoBehaviour
         }
 
         activeProjectiles.Remove(projRef);
-
         if (projectile != null)
         {
             Destroy(projectile);
@@ -344,7 +342,10 @@ public class Castle : MonoBehaviour
                 }
                 else if (target.TryGetComponent<Castle>(out Castle targetCastle))
                 {
-                    targetCastle.TakeDamage(data.attackDamage);
+                    if (targetCastle.exist)
+                    {
+                        targetCastle.TakeDamage(data.attackDamage);
+                    }
                 }
             }
         }

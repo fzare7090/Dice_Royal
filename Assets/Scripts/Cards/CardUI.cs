@@ -7,6 +7,7 @@ public class CardUI : MonoBehaviour
 {
     [SerializeField] private RTLTextMeshPro cardName;
     [SerializeField] private Button cardButton;
+    [SerializeField] private Image cardImage;
 
     private UnitData unitData;
 
@@ -15,9 +16,18 @@ public class CardUI : MonoBehaviour
     void Start()
     {
         cardButton.onClick.AddListener(Click);
-        Initialize();
     }
 
+    private void Awake()
+    {
+       // Debug.Log("CardUI Object = " + gameObject.name);
+
+        //Debug.Log("cardName = " + cardName);
+
+        //Debug.Log("cardImage = " + cardImage);
+
+        //Debug.Log("All Images Count = " + GetComponentsInChildren<Image>(true).Length);
+    }
     void Click()
     {
         if (OnCardClicked != null)
@@ -29,11 +39,27 @@ public class CardUI : MonoBehaviour
     public void SetData(UnitData data)
     {
         unitData = data;
-    }
 
-    private void Initialize()
-    {
+        //Debug.Log("unitData = " + unitData);
+
+        if (cardName == null)
+            Debug.LogError("cardName NULL");
+
+        if (cardImage == null)
+            //Debug.LogError("cardImage NULL");
+
+        if (unitData == null)
+            Debug.LogError("unitData NULL");
+
         cardName.text = unitData.name;
+        if (cardImage == null)
+        {
+            cardImage = GetComponentInChildren<Image>(true);
+        }
+
+        Debug.Log("Found Image = " + cardImage);
+
+        cardImage.sprite = unitData.cardIcon;
     }
 
     public UnitData GetData()

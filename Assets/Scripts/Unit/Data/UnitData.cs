@@ -13,6 +13,7 @@ public class UnitData : ScriptableObject
     public float attackCooldown;
     public float attackSpeed;
     public int elexir;
+    public Sprite cardIcon;
 
     public enum UnitType
     {

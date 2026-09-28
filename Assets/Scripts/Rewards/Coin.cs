@@ -13,7 +13,7 @@ public class Coin : MonoBehaviour
     private void Start()
     {
         if (playerResource != null)
-            currentCoin = playerResource.coin;
+            currentCoin = playerResource.GetCoin();
 
         UpdateCoinUI();
 
@@ -26,14 +26,14 @@ public class Coin : MonoBehaviour
     }
     public int GetCoin()
     {
-        return playerResource != null ? playerResource.coin : currentCoin;
+        return playerResource != null ? playerResource.GetCoin() : currentCoin;
     }
 
     public void SetCoin(int newValue)
     {
         currentCoin = Mathf.Clamp(newValue, 0, maxCoin);
         if (playerResource != null)
-            playerResource.coin = currentCoin;
+            playerResource.SetCoin(currentCoin);
 
         UpdateCoinUI();
     }
@@ -45,7 +45,7 @@ public class Coin : MonoBehaviour
         int currentValue = GetCoin();
         currentCoin = Mathf.Min(currentValue + amount, maxCoin);
         if (playerResource != null)
-            playerResource.coin = currentCoin;
+            playerResource.SetCoin(currentCoin);
 
         UpdateCoinUI();
     }
@@ -59,7 +59,7 @@ public class Coin : MonoBehaviour
 
         currentCoin = currentValue - amount;
         if (playerResource != null)
-            playerResource.coin = currentCoin;
+            playerResource.SetCoin(currentCoin);
 
         UpdateCoinUI();
         return true;

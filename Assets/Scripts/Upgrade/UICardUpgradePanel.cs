@@ -4,7 +4,11 @@ using TMPro;
 
 public class UICardUpgradePanel : MonoBehaviour
 {
-    [SerializeField] private CardUpgrade targetCardUpgrade;
+    [SerializeField] private CardUpgrade cardUpgrade;
+
+    [Header("Current Card")]
+    private CardData currentCard;
+    private UnitData currentUnit;
 
     [Header("UI")]
     [SerializeField] private TMP_Text levelText;
@@ -14,79 +18,99 @@ public class UICardUpgradePanel : MonoBehaviour
     [SerializeField] private Button upgradeButton;
     [SerializeField] private Slider progressSlider;
 
+
     private void Start()
     {
-        if (targetCardUpgrade != null)
-        {
-            targetCardUpgrade.OnUpgradeSuccess += OnUpgradeSuccess;
-            targetCardUpgrade.OnUpgradeFailed += OnUpgradeFailed;
-        }
-
         if (upgradeButton != null)
         {
             upgradeButton.onClick.AddListener(OnUpgradeButtonClick);
         }
+    }
+
+
+    private void OnDestroy()
+    {
+        if (upgradeButton != null)
+        {
+            upgradeButton.onClick.RemoveListener(OnUpgradeButtonClick);
+        }
+    }
+
+
+    // این متد را زمانی صدا بزن که کارت انتخاب می‌شود
+    public void SetCard(CardData card, UnitData unit)
+    {
+        currentCard = card;
+        currentUnit = unit;
 
         UpdateUI();
     }
 
-    private void OnDestroy()
-    {
-        if (targetCardUpgrade != null)
-        {
-            targetCardUpgrade.OnUpgradeSuccess -= OnUpgradeSuccess;
-            targetCardUpgrade.OnUpgradeFailed -= OnUpgradeFailed;
-        }
-    }
 
     private void UpdateUI()
     {
-        if (targetCardUpgrade == null)
+        if (cardUpgrade == null ||
+            currentCard == null ||
+            currentUnit == null)
             return;
 
-        UpgradeCardInfo info = targetCardUpgrade.GetUpgradeInfo();
+
+        UpgradeCardInfo info =
+            cardUpgrade.GetUpgradeInfo(currentCard, currentUnit);
+
 
         levelText.text =
-            $"Level {info.currentLevel}/{info.maxLevel}";
+            $"سطح {info.currentLevel}/{info.maxLevel}";
+
 
         currentStatsText.text =
-            $"HP: {info.currentHP:F0}\n" +
-            $"Damage: {info.currentDamage:F0}\n" +
-            $"Speed: {info.currentAttackSpeed:F2}";
+            $"سلامتی: {info.currentHP:F0}\n" +
+            $"قدرت حمله: {info.currentDamage:F0}\n" +
+            $"سرعت: {info.currentAttackSpeed:F2}";
+
 
         if (info.canUpgrade)
         {
             nextStatsText.text =
-                $"Next HP: {info.nextHP:F0}\n" +
-                $"Next Damage: {info.nextDamage:F0}\n" +
-                $"Next Speed: {info.nextAttackSpeed:F2}";
+                $"سلامتی: {info.nextHP:F0}\n" +
+                $"قدرت حمله: {info.nextDamage:F0}\n" +
+                $"سرعت: {info.nextAttackSpeed:F2}";
+
 
             upgradeCostText.text =
-                $"Cost: {info.nextLevelCost}\n" +
-                $"Cards Needed: {info.cardsNeeded}";
+                $"هزینه ارتقا: {info.nextLevelCost}\n" +
+                $"کارت لازم: {info.cardsNeeded}";
         }
         else
         {
-            nextStatsText.text = "MAX LEVEL";
+            nextStatsText.text = "بالاترین سطح";
             upgradeCostText.text = "---";
         }
 
+
         upgradeButton.interactable = info.canUpgrade;
-        progressSlider.value = targetCardUpgrade.GetUpgradeProgress();
+
+
+        progressSlider.value =
+            cardUpgrade.GetUpgradeProgress(currentCard);
     }
+
+
 
     private void OnUpgradeButtonClick()
     {
-        targetCardUpgrade?.TryUpgrade();
-    }
+        if (cardUpgrade == null ||
+            currentCard == null)
+            return;
 
-    private void OnUpgradeSuccess(int level)
-    {
-        UpdateUI();
-    }
 
-    private void OnUpgradeFailed(string reason)
-    {
-        Debug.LogWarning(reason);
+        bool success =
+            cardUpgrade.TryUpgrade(currentCard);
+
+
+        if (success)
+        {
+            UpdateUI();
+        }
     }
 }

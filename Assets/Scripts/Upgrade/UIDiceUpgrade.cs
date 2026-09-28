@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using RTLTMPro;
 
@@ -13,9 +13,16 @@ public class UIDiceUpgradePanel : MonoBehaviour
     [SerializeField] private RTLTextMeshPro upgradeCostText;
     [SerializeField] private Button upgradeButton;
     [SerializeField] private Slider progressSlider;
+    [SerializeField] private UIPanelAnimator animator;
 
+    private void Awake()
+    {
+        animator = GetComponent<UIPanelAnimator>();
+    }
     private void Start()
     {
+        animator.Hide();
+
         if (targetDiceUpgrade != null)
         {
             targetDiceUpgrade.OnUpgradeSuccess += OnUpgradeSuccess;
@@ -47,22 +54,22 @@ public class UIDiceUpgradePanel : MonoBehaviour
         DiceUpgradeInfo info = targetDiceUpgrade.GetUpgradeInfo();
 
         levelText.text =
-            $"Level {info.currentLevel}/{info.maxLevel}";
+            $"ضریب بعدی : {info.currentLevel}/{info.maxLevel}";
 
         currentStatsText.text =
-            $"Current Multiplier: x{info.currentMultiplier}";
+            $"ضریب فعلی : x{info.currentMultiplier}";
 
         if (info.canUpgrade)
         {
             nextStatsText.text =
-                $"Next Multiplier: x{info.nextMultiplier}";
+                $"ضریب بعدی: x{info.nextMultiplier}";
 
             upgradeCostText.text =
-                $"Cost: {info.nextLevelCost} Coins";
+                $"هزینه ارتقا: {info.nextLevelCost} سکه";
         }
         else
         {
-            nextStatsText.text = "MAX LEVEL";
+            nextStatsText.text = "بالاترین سطح";
             upgradeCostText.text = "---";
         }
 
@@ -83,5 +90,15 @@ public class UIDiceUpgradePanel : MonoBehaviour
     private void OnUpgradeFailed(string reason)
     {
         Debug.LogWarning(reason);
+    }
+    public void OpenPanel()
+    {
+        animator.Show();
+        UpdateUI();
+    }
+
+    public void ClosePanel()
+    {
+        animator.Hide();
     }
 }

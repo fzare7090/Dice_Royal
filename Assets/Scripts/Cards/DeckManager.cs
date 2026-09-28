@@ -45,6 +45,8 @@ public class DeckManager : MonoBehaviour
 
             cardUIs.Add(cardUI);
         }
+        Debug.Log("Cards Count = " + allCards.Count);
+        Debug.Log("Instance ID = " + GetInstanceID());
     }
 
     void OnCardClicked(CardUI card)
@@ -70,5 +72,12 @@ public class DeckManager : MonoBehaviour
             card.transform.SetParent(content , false);
             finalDeck.Remove(card.GetData());
         }
+    }
+
+    public int GetFinalDeck()
+    {
+        int listCount = finalDeck.Count;
+
+        return listCount;
     }
 }

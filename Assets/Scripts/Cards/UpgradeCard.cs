@@ -22,20 +22,24 @@ public class UpgradeCard : MonoBehaviour
 
     void Start()
     {
-        Inisialize();
         upgradeOpener.onClick.AddListener(OpenUpgrade);
         upgradeCloser.onClick.AddListener(CloseUpgrade);
         upgradeUnit.onClick.AddListener(UpgradeUnit);
     }
     private void Inisialize()
     {
+        if (cardData == null)
+        {
+            Debug.LogError("CardData is NULL");
+            return;
+        }
 
         cardName.text = cardData.name;
-        cardHp.text = "HP : " + cardData.hp.ToString();
-        cardMoveSpeed.text = "Move Speed : " + cardData.moveSpeed.ToString();
-        cardAttackDamage.text = "Attack Damage : " + cardData.attackDamage.ToString();
-        cardAttackRange.text = "Attack Range : " + cardData.attackRange.ToString();
-        cardAttackSpeed.text = "Attack Speed : " + cardData.attackSpeed.ToString();
+        cardHp.text = "HP : " + cardData.hp;
+        cardMoveSpeed.text = "Move Speed : " + cardData.moveSpeed;
+        cardAttackDamage.text = "Attack Damage : " + cardData.attackDamage;
+        cardAttackRange.text = "Attack Range : " + cardData.attackRange;
+        cardAttackSpeed.text = "Attack Speed : " + cardData.attackSpeed;
     }
     private void OpenUpgrade()
     {
@@ -105,5 +109,6 @@ public class UpgradeCard : MonoBehaviour
     public void SetData(UnitData data)
     {
         cardData = data;
+        Inisialize();
     }
 }

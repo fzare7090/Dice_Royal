@@ -1,3 +1,4 @@
+﻿using RTLTMPro;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,29 +10,35 @@ public class CardDetailsPanel : MonoBehaviour
     [SerializeField] private CardCollectionData collectionData;
     [SerializeField] private PlayerResourceData playerResource;
 
-    [Header("UI")]
-    [SerializeField] private TMP_Text cardNameText;
-    [SerializeField] private TMP_Text levelText;
-    [SerializeField] private TMP_Text currentStatsText;
-    [SerializeField] private TMP_Text nextStatsText;
-    [SerializeField] private TMP_Text costText;
-    [SerializeField] private TMP_Text copiesText;
+    //[SerializeField] private CardUpgrade cardUpgrade;
 
+    [Header("UI")]
+    [SerializeField] private RTLTextMeshPro cardNameText;
+    [SerializeField] private RTLTextMeshPro levelText;
+    [SerializeField] private RTLTextMeshPro currentStatsText;
+    [SerializeField] private RTLTextMeshPro nextStatsText;
+    [SerializeField] private RTLTextMeshPro costText;
+    [SerializeField] private TMP_Text copiesText;
     [SerializeField] private Button upgradeButton;
+    [SerializeField] private UIPanelAnimator animator;
+    [SerializeField] private Image cardImage;
 
     private UnitData currentUnit;
     private CardData currentCard;
-
+    private void Awake()
+    {
+        animator = GetComponent<UIPanelAnimator>();
+    }
     private void Start()
     {
-        gameObject.SetActive(false);
+        animator.Hide();
 
         upgradeButton.onClick.AddListener(UpgradeCurrentCard);
     }
 
     public void ShowCard(UnitData unit, CardData cardData)
     {
-        gameObject.SetActive(true);
+        animator.Show();
 
         RectTransform rect =
        GetComponent<RectTransform>();
@@ -56,10 +63,16 @@ public class CardDetailsPanel : MonoBehaviour
         bool hasNextLevel =
             level < upgradeData.maxLevel;
 
+
         cardNameText.text = currentUnit.name;
+        if (cardImage != null)
+        {
+            cardImage.sprite = currentUnit.cardIcon;
+            cardImage.enabled = currentUnit.cardIcon != null;
+        }
 
         levelText.text =
-            $"Level {level}/{upgradeData.maxLevel}";
+            $" سطح  {level}/{upgradeData.maxLevel}";
 
         float currentHP =
             currentUnit.hp *
@@ -74,9 +87,9 @@ public class CardDetailsPanel : MonoBehaviour
             upgradeData.attackSpeedMultiplier[level - 1];
 
         currentStatsText.text =
-            $"HP: {currentHP:F0}\n" +
-            $"Damage: {currentDamage:F0}\n" +
-            $"Speed: {currentSpeed:F2}";
+            $"سلامتی: {currentHP:F0} \n" +
+            $"قدرت حمله: {currentDamage:F0} \n " +
+            $"سرعت: {currentSpeed:F2}";
 
         if (hasNextLevel)
         {
@@ -96,19 +109,19 @@ public class CardDetailsPanel : MonoBehaviour
                 upgradeData.attackSpeedMultiplier[level];
 
             nextStatsText.text =
-                $"HP: {nextHP:F0}\n" +
-                $"Damage: {nextDamage:F0}\n" +
-                $"Speed: {nextSpeed:F2}";
+                $"سلامتی: {currentHP:F0} \n" +
+                $"قدرت حمله: {currentDamage:F0} \n" +
+                $"سرعت: {nextSpeed:F2}";
 
             costText.text =
-                $"Cost: {cost} Coins";
+                $"هزینه ارتقا: {cost} سکه";
 
             copiesText.text =
-                $"Cards: {currentCard.ownedCopies}/" +
+                $"کارت‌های لازم: {currentCard.ownedCopies}/" +
                 $"{requiredCopies}";
 
             bool hasEnoughCoins =
-                playerResource != null && playerResource.coin >= cost;
+                playerResource != null && playerResource.GetCoin() >= cost;
 
             bool hasEnoughCopies =
                 currentCard.ownedCopies >= requiredCopies;
@@ -118,7 +131,7 @@ public class CardDetailsPanel : MonoBehaviour
         }
         else
         {
-            nextStatsText.text = "MAX LEVEL";
+            nextStatsText.text = " بالاترین سطح ";
             costText.text = "---";
             copiesText.text = "---";
             upgradeButton.interactable = false;
@@ -130,29 +143,27 @@ public class CardDetailsPanel : MonoBehaviour
         if (currentCard == null)
             return;
 
-        int level = currentCard.level;
-
-        if (level >= upgradeData.maxLevel)
+        if (currentCard.level >= upgradeData.maxLevel)
             return;
 
-        int cost =
-            upgradeData.upgradeCost[level - 1];
+        int cost = upgradeData.upgradeCost[currentCard.level - 1];
+        int requiredCopies = upgradeData.cardCopiesNeeded[currentCard.level - 1];
 
-        int requiredCopies =
-            upgradeData.cardCopiesNeeded[level - 1];
-
-        if (playerResource == null)
-            return;
-
-        if (playerResource.coin < cost)
+        if (playerResource.GetCoin() < cost)
             return;
 
         if (currentCard.ownedCopies < requiredCopies)
             return;
 
-        playerResource.coin -= cost;
+        playerResource.SpendCoin(cost);
+
         currentCard.ownedCopies -= requiredCopies;
         currentCard.level++;
+
+        SaveManager.Instance.SaveGame();
+
+        AutoSaveEvents.CardChanged();
+        AutoSaveEvents.CoinChanged();
 
         Refresh();
     }

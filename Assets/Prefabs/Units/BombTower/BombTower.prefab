@@ -282,7 +282,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teamId: 0
-  data: {fileID: 0}
+  data: {fileID: 11400000, guid: 4c7ddac90ad8c564f91f7c206b42d21f, type: 2}
   hpText: {fileID: 5672800137324053765}
   board:
   - {fileID: 2994620507348556615, guid: f9903d368912c3c4f96dfb27f4ac5084, type: 3}
